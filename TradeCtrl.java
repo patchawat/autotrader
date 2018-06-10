@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -19,6 +24,63 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class TradeCtrl  
 {
 
+	private String getUsername()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String username = config.getString("username");
+		    return username;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
+	private String getPassword()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String password = config.getString("password");
+		    return password;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
+	private String getSerie()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String serie = config.getString("serie");
+		    return serie;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
 	
 	private WebDriver driver;
 	
@@ -38,15 +100,17 @@ public class TradeCtrl
 		
 		System.setProperty("webdriver.chrome.driver", new File(".").getCanonicalPath().concat("\\chromedriver.exe"));
 		
-		
+		String username = getUsername();
+		String password = getPassword();
+		String serie = getSerie();
 		
 		driver.navigate().to("http://www.maybank-ke.co.th/");
 
 		driver.findElement(By.xpath("//*[@id=\"user\"]")).clear();
-		driver.findElement(By.xpath("//*[@id=\"user\"]")).sendKeys("11773895");
+		driver.findElement(By.xpath("//*[@id=\"user\"]")).sendKeys(username);
 
 		driver.findElement(By.xpath("//*[@id=\"txtPassword\"]")).clear();
-		driver.findElement(By.xpath("//*[@id=\"txtPassword\"]")).sendKeys("He11_Maste");
+		driver.findElement(By.xpath("//*[@id=\"txtPassword\"]")).sendKeys(password);
 
 		driver.findElement(By.xpath("//*[@id=\"11650\"]/form/input[4]")).click();
 		
@@ -91,7 +155,7 @@ public class TradeCtrl
 		wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")));
 		
 		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).clear();
-		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).sendKeys("S50H18");
+		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).sendKeys(serie);
 		
 		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).sendKeys(Keys.RETURN);
 		
@@ -178,9 +242,9 @@ public class TradeCtrl
 		System.setProperty("webdriver.chrome.driver", new File(".").getCanonicalPath().concat("\\chromedriver.exe"));
 		driver.switchTo().window("CDwindow-(A4CCF040C6704C469CAC7780A3261196)");
 		
-		
+		String serie = getSerie();
 		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).clear();
-		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).sendKeys("S50H18");
+		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).sendKeys(serie);
 		
 		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).sendKeys(Keys.RETURN);
 		

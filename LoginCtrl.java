@@ -3,6 +3,11 @@ package autotrader;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.sikuli.script.Key;
 import org.sikuli.script.Pattern;
 import org.sikuli.script.Screen;
@@ -15,7 +20,44 @@ public class LoginCtrl
 	{
 		
 	}
-	
+	private String getUsername()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String username = config.getString("username");
+		    return username;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
+	private String getPassword()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String password = config.getString("password");
+		    return password;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
 	public Boolean login() throws IOException
 	{
 		Runtime.getRuntime().exec("taskkill /F /IM efinTradePlus.exe");
@@ -42,9 +84,10 @@ public class LoginCtrl
 				s.type("11773895");
 				
 			}*/
+			String password = getPassword();
 			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\password.jpg"));
 			s.click(p);
-			s.type("He11_Maste");
+			s.type(password);
 			
 			
 			/*p.setFilename(new File(".").getCanonicalPath().concat("\\img\\sup_tfex.jpg"));
