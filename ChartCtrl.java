@@ -1049,7 +1049,7 @@ public class ChartCtrl
 				prices[prices.length-1] = c_high_price_3min;
 				updatePriceList(prices);
 			}
-			else
+			else if(prices[prices.length-1] < 0)
 			{
 				List<Double> tmp= Arrays.asList(prices);
 				Collections.rotate(tmp,-1);
@@ -1066,7 +1066,7 @@ public class ChartCtrl
 				prices[prices.length-1] = -c_low_price_3min;
 				updatePriceList(prices);
 			}
-			else
+			else if(prices[prices.length-1] > 0)
 			{
 				List<Double> tmp= Arrays.asList(prices);
 				Collections.rotate(tmp,-1);
