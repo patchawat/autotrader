@@ -68,8 +68,63 @@ public class ChartCtrl
 	{
 		
 	}
-	
-
+	private String getEmail()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String email = config.getString("email");
+		    return email;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
+	private String getEmailPassword()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String email_password = config.getString("email_password");
+		    return email_password;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
+	private String getEmailReceiver()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String email_receiver = config.getString("email_receiver");
+		    return email_receiver;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
 	
 	private String ReadProperty(String filename,String property)
 	{
@@ -721,15 +776,16 @@ public class ChartCtrl
 	
 	
 	
-	public static void sendMail(String subj, String msg)
+	public void sendMail(String subj, String msg)
 	{
-		String[] To = {"teexaou@gmail.com"};
-		sendFromGMail("patchawat.trader@gmail.com","He11_Master",To,subj,msg);
+		
+		String[] To = {getEmailReceiver()};
+		sendFromGMail(getEmail(),getEmailPassword(),To,subj,msg);
 	}
-	public static void sendMailwithAttachment(String subj, String msg, String filename)
+	public void sendMailwithAttachment(String subj, String msg, String filename)
 	{
-		String[] To = {"teexaou@gmail.com"};
-		sendFromGMailwithAttachment("patchawat.trader@gmail.com","He11_Master",To,subj,msg,filename);
+		String[] To = {getEmailReceiver()};
+		sendFromGMailwithAttachment(getEmail(),getEmailPassword(),To,subj,msg,filename);
 	}
 	public static void sendFromGMail(String from, String pass, String[] to, String subject, String body) 
     {
