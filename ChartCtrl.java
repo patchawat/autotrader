@@ -965,12 +965,12 @@ public class ChartCtrl
 		}
 		else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI && oversell_peaks.length > 1 )
 		{
-			if(oversell_peaks[oversell_peaks.length-1]>oversell_peaks[oversell_peaks.length-2])
+			if(oversell_peaks[oversell_peaks.length-1]<oversell_peaks[oversell_peaks.length-2])
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 					res= "L";
 			}
-			else if(oversell_peaks[oversell_peaks.length-1]<oversell_peaks[oversell_peaks.length-2])
+			else if(oversell_peaks[oversell_peaks.length-1]>oversell_peaks[oversell_peaks.length-2])
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
