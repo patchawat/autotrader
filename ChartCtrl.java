@@ -558,6 +558,8 @@ public class ChartCtrl
 				sendMail("Minute collector period fail", "Shutting down");
 				Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
 			}
+			Runtime.getRuntime().exec("taskkill /F /IM efinTradePlus.exe");
+			Runtime.getRuntime().exec(new File(".").getCanonicalPath().concat("\\login.bat"));
 			return;
 			
 		}
@@ -638,6 +640,8 @@ public class ChartCtrl
 					sendMail("Minute collector HTML fail", "Shutting down");
 					Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
 				}
+				Runtime.getRuntime().exec("taskkill /F /IM efinTradePlus.exe");
+				Runtime.getRuntime().exec(new File(".").getCanonicalPath().concat("\\login.bat"));
 			}
 			
 			//240min
