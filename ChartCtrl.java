@@ -56,6 +56,7 @@ public class ChartCtrl
 	private final int WAITNUM = 10;
 	private final float SIMILARITY_SCORE = (float) 0.9;
 	private final int Y = 20;
+	private final int X = 20;
 	
 	private double MINOR_MAX_RSI = 70;
 	private double MINOR_MIN_RSI = 100-MINOR_MAX_RSI;
@@ -125,7 +126,25 @@ public class ChartCtrl
 		    return (String) null;
 		} 
 	}
-	
+	private String getSerie()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("basic.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    String serie = config.getString("serie");
+		    return serie;		
+		}
+		catch(Exception cex)
+		{
+		    return (String) null;
+		} 
+	}
 	private String ReadProperty(String filename,String property)
 	{
 		String res;
@@ -608,7 +627,23 @@ public class ChartCtrl
 				Thread.sleep(200);
 				String str = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
 				
-				
+				String serie = getSerie();
+				String match = Regex(str," id=\"huSymbol\" class=\"huField hu_symbol\">"+serie);
+				if(match == null)
+				{
+					p.setFilename(new File(".").getCanonicalPath().concat("\\img\\serie.jpg"));
+					Location serie_location = new Location(s.find(p).getBottomRight().x + X,s.find(p).getBottomRight().y);
+					s.click(serie_location);
+					s.type(serie);
+					Thread.sleep(200);
+					s.keyDown(Key.ENTER);
+					s.keyUp(Key.ENTER);
+					Thread.sleep(200);
+					p.setFilename(new File(".").getCanonicalPath().concat("\\img\\efin.jpg"));
+					
+					s.click(p);
+					AnalyseMinuteData();
+				}
 				
 				//data.reset();
 				
@@ -768,14 +803,25 @@ public class ChartCtrl
 	    Matcher matcher = pattern.matcher(str);
 	    if(!matcher.find())
 	    {
-	    	return "N";
+	    	return null;
 	    }
 	    String res = str.substring(matcher.start(),matcher.end());
 	    patternStr = patternStr.replace("[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*","");
 	    res = res.replaceAll(patternStr, "");
-	    return res.trim().equalsIgnoreCase("")?"N":res.replace(",", "");
+	    return res.trim().equalsIgnoreCase("")?null:res.replace(",", "");
 	}
 
+	private String Regex(String str,String patternStr)
+	{
+	    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(patternStr);
+	    Matcher matcher = pattern.matcher(str);
+	    if(!matcher.find())
+	    {
+	    	return null;
+	    }
+	    String res = str.substring(matcher.start(),matcher.end());
+	    return res.trim().equalsIgnoreCase("")?null:res.replace(",", "");
+	}
 	
 	
 	
