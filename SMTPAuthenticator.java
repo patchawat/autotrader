@@ -1,5 +1,7 @@
 package autotrader;
 
+import java.io.File;
+
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 
@@ -17,14 +19,13 @@ public class SMTPAuthenticator extends Authenticator
 	
 	private String getEmail()
 	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("basic.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\basic.properties")));
+		
 		    Configuration config = builder.getConfiguration();
 		    String email = config.getString("email");
 		    return email;		
@@ -36,14 +37,13 @@ public class SMTPAuthenticator extends Authenticator
 	}
 	private String getEmailPassword()
 	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("basic.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\basic.properties")));
+		
 		    Configuration config = builder.getConfiguration();
 		    String email_password = config.getString("email_password");
 		    return email_password;		

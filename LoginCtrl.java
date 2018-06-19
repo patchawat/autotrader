@@ -8,7 +8,6 @@ import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.sikuli.script.Key;
 import org.sikuli.script.Pattern;
 import org.sikuli.script.Screen;
 
@@ -20,35 +19,15 @@ public class LoginCtrl
 	{
 		
 	}
-	private String getUsername()
-	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("basic.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    String username = config.getString("username");
-		    return username;		
-		}
-		catch(Exception cex)
-		{
-		    return (String) null;
-		} 
-	}
 	private String getPassword()
 	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("basic.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\basic.properties")));
+		
 		    Configuration config = builder.getConfiguration();
 		    String password = config.getString("password");
 		    return password;		

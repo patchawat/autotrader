@@ -72,13 +72,13 @@ public class ChartCtrl
 	private String getEmail()
 	{
 		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("basic.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\basic.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    String email = config.getString("email");
 		    return email;		
@@ -91,13 +91,13 @@ public class ChartCtrl
 	private String getEmailPassword()
 	{
 		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("basic.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\basic.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    String email_password = config.getString("email_password");
 		    return email_password;		
@@ -110,13 +110,13 @@ public class ChartCtrl
 	private String getEmailReceiver()
 	{
 		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("basic.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\basic.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    String email_receiver = config.getString("email_receiver");
 		    return email_receiver;		
@@ -129,13 +129,13 @@ public class ChartCtrl
 	private String getSerie()
 	{
 		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("basic.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\basic.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    String serie = config.getString("serie");
 		    return serie;		
@@ -148,14 +148,13 @@ public class ChartCtrl
 	private String ReadProperty(String filename,String property)
 	{
 		String res;
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName(filename));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\"+filename)));
+		
 		    Configuration config = builder.getConfiguration();
 		    res= config.getString(property);
 		}
@@ -168,14 +167,13 @@ public class ChartCtrl
 	}
 	private Boolean WriteProperty(String filename,String property,String value)
 	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName(filename));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\"+filename)));
+		
 		    Configuration config = builder.getConfiguration();
 		    if(!config.containsKey(property))
 		    	config.addProperty(property, value);
@@ -188,18 +186,22 @@ public class ChartCtrl
 		    System.out.println(cex.getMessage());
 		    return false;
 		} 
+		catch(Exception cex)
+		{
+		    return null;
+		} 
 		return true;
 		
 	}
 	private void resetConf(String filename)
 	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName(filename));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\"+filename)));
+			
 		    Configuration config = builder.getConfiguration();
 		    config.clear();
 		    
@@ -213,13 +215,14 @@ public class ChartCtrl
 	
 	private void updatePriceList(Double[] price)
 	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
 		    Configuration config = builder.getConfiguration();
 		    if(!config.containsKey("pricelist"))
 		    	config.addProperty("pricelist", price);
@@ -231,17 +234,21 @@ public class ChartCtrl
 		{
 		    
 		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
 	}
 	private Double[] getPriceList()
 	{
 		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    //String[] prices = config.getStringArray("pricelist");
 		    List<Object> list= config.getList("pricelist").stream().map(w-> Double.valueOf((String) w)).collect(Collectors.toList());
@@ -255,13 +262,13 @@ public class ChartCtrl
 	}
 	private void updateRSI(String rsi)
 	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    if(!config.containsKey("rsi"))
 		    	config.addProperty("rsi", rsi);
@@ -273,18 +280,22 @@ public class ChartCtrl
 		{
 		    
 		} 
+		catch(Exception cex)
+		{
+		    
+		} 
 	}
 	
 	private Double getRSI()
 	{
 		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    Double rsi = config.getDouble("rsi");
 		    return rsi;		
@@ -297,13 +308,13 @@ public class ChartCtrl
 	
 	private Double[] getFilterPosPrices()
 	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    List<Object> list = config.getList("pricelist").stream().map(w-> Double.valueOf((String)w)).filter(w -> w > 0).collect(Collectors.toList());
 		    Double[] prices = list.toArray(new Double[list.size()]);
@@ -317,13 +328,13 @@ public class ChartCtrl
 	}
 	private Double[] getFilterNegPrices()
 	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
 		try
 		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
 		    Configuration config = builder.getConfiguration();
 		    List<Object> list = config.getList("pricelist").stream().map(w-> Double.valueOf((String)w) ).filter(w -> w < 0).collect(Collectors.toList());
 		    Double[] prices = list.toArray(new Double[list.size()]);
