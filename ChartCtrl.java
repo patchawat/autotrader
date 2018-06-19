@@ -1024,6 +1024,14 @@ public class ChartCtrl
 			}
 			
 		}
+		else if(c_rsi_3min > MINOR_MAX_RSI && overbuy_peaks.length > 1)
+		{
+			if(overbuy_peaks[overbuy_peaks.length-1]>overbuy_peaks[overbuy_peaks.length-2])
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					res= "L";
+			}
+		}
 		else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI && oversell_peaks.length > 1 )
 		{
 			if(oversell_peaks[oversell_peaks.length-1]<oversell_peaks[oversell_peaks.length-2])
@@ -1032,6 +1040,14 @@ public class ChartCtrl
 					res= "L";
 			}
 			else if(oversell_peaks[oversell_peaks.length-1]>oversell_peaks[oversell_peaks.length-2])
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+					res= "S";
+			}
+		}
+		else if(c_rsi_3min < MINOR_MIN_RSI && oversell_peaks.length > 1 )
+		{
+			if(oversell_peaks[oversell_peaks.length-1]>oversell_peaks[oversell_peaks.length-2])
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
