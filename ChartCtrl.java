@@ -972,8 +972,7 @@ public class ChartCtrl
 		else if(stat.equalsIgnoreCase("CS"))
 			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice")),data_3min.close_price);
 		
-		//if(!validate())
-			//sendMail("price list invalid",data.DateTime);
+		
 	}
 	private String updateStatus(Data data_3min/*,Data data_240min*/)
 	{
@@ -996,120 +995,93 @@ public class ChartCtrl
 		 
 		
 		//new open status
-		/*if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI 
-		&& Math.abs(prices[prices.length-1]) > Math.abs(prices[prices.length-3]))
-		{
-			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-				res= "L";
-		}
-		else if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI 
-		&& Math.abs(prices[prices.length-1]) < Math.abs(prices[prices.length-3]))
-		{
-			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-				res= "S";
-		}*/
+		
+		
 		Double[] overbuy_peaks = getFilterPosPrices();
 		Double[] oversell_peaks = getFilterNegPrices();
-		if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI && overbuy_peaks.length > 1)
+		
+		//OB
+		if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI && overbuy_peaks.length ==2)
 		{
-			if(overbuy_peaks[overbuy_peaks.length-1]>overbuy_peaks[overbuy_peaks.length-2])
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-			else if(overbuy_peaks[overbuy_peaks.length-1]<overbuy_peaks[overbuy_peaks.length-2])
+			
+			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] < Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
+					|| overbuy_peaks[overbuy_peaks.length-1] < overbuy_peaks[overbuy_peaks.length-2])
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
 			}
 			
 		}
-		else if(c_rsi_3min > MINOR_MAX_RSI && overbuy_peaks.length > 1)
+		else if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI && overbuy_peaks.length ==3)
 		{
-			if(overbuy_peaks[overbuy_peaks.length-1]>overbuy_peaks[overbuy_peaks.length-2])
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-		}
-		else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI && oversell_peaks.length > 1 )
-		{
-			if(oversell_peaks[oversell_peaks.length-1]<oversell_peaks[oversell_peaks.length-2])
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-			else if(oversell_peaks[oversell_peaks.length-1]>oversell_peaks[oversell_peaks.length-2])
+			
+			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] < overbuy_peaks[overbuy_peaks.length-2] - overbuy_peaks[overbuy_peaks.length-3])
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
 			}
+			
 		}
-		else if(c_rsi_3min < MINOR_MIN_RSI && oversell_peaks.length > 1 )
+		else if(c_rsi_3min > MINOR_MAX_RSI && overbuy_peaks.length == 2)
 		{
-			if(oversell_peaks[oversell_peaks.length-1]>oversell_peaks[oversell_peaks.length-2])
+			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] > Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
+					&& overbuy_peaks[overbuy_peaks.length-1] > overbuy_peaks[overbuy_peaks.length-2])
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					res= "L";
+			}
+			
+		}
+		else if(c_rsi_3min > MINOR_MAX_RSI && overbuy_peaks.length == 3)
+		{
+			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] > overbuy_peaks[overbuy_peaks.length-2] - overbuy_peaks[overbuy_peaks.length-3])
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					res= "L";
+			}
+			
+		}
+		//OS
+		else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI && oversell_peaks.length == 2 )
+		{
+			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] > Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
+					|| oversell_peaks[oversell_peaks.length-1] < oversell_peaks[oversell_peaks.length-2])
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					res= "L";
+			}
+			
+		}
+		else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI && oversell_peaks.length == 3 )
+		{
+			if(oversell_peaks[oversell_peaks.length-1] - oversell_peaks[oversell_peaks.length-2] < oversell_peaks[oversell_peaks.length-2] - oversell_peaks[oversell_peaks.length-3])
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					res= "L";
+			}
+			
+		}
+		else if(c_rsi_3min < MINOR_MIN_RSI && oversell_peaks.length == 2)
+		{
+			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] < Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
+					&& oversell_peaks[oversell_peaks.length-1] > oversell_peaks[oversell_peaks.length-2])
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
 			}
+			
+		}
+		else if(c_rsi_3min < MINOR_MIN_RSI && oversell_peaks.length == 3)
+		{
+			if(oversell_peaks[oversell_peaks.length-1] - oversell_peaks[oversell_peaks.length-2] > oversell_peaks[oversell_peaks.length-2] - oversell_peaks[oversell_peaks.length-3])
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+					res= "S";
+			}
+			
 		}
 		
-		/*
-		if(c_rsi_240min >= MAJOR_MAX_RSI || c_rsi_240min <= MAJOR_MIN_RSI)//OB or OS
-		{
-			
-			if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI 
-			&& Math.abs(prices[prices.length-1]) > Math.abs(prices[prices.length-3]) && Math.abs(prices[prices.length-2]) > Math.abs(prices[0]))
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-			else if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI 
-			&& Math.abs(prices[prices.length-1]) < Math.abs(prices[prices.length-3]) && Math.abs(prices[prices.length-2]) < Math.abs(prices[0]))
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
-			}
-			else if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI)
-			{
-				if(c_trade != null && c_trade.equalsIgnoreCase("L"))
-					res= "CL";
-			}
-			else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI)
-			{
-				if(c_trade != null && c_trade.equalsIgnoreCase("S"))
-					res= "CS";
-			}
-			
-		}
-		else
-		{
-			
-			if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI && Math.abs(prices[prices.length-1]) < Math.abs(prices[prices.length-3])) 
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-			else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI && Math.abs(prices[prices.length-1]) > Math.abs(prices[prices.length-3]))
-			{	
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
-			}
-			else if((Math.abs(prices[prices.length-1]) > Math.abs(prices[prices.length-3]))
-			||(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI)) 
-			{
-				if(c_trade != null && c_trade.equalsIgnoreCase("S") )
-					res= "CS";
-			}
-			
-			else if( (Math.abs(prices[prices.length-1]) < Math.abs(prices[prices.length-3]))
-			||(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI))
-			{	
-				if(c_trade != null && c_trade.equalsIgnoreCase("L") )
-					res= "CL";
-			}
-		}
-		*/
+		
 		
 			return res;
 		
