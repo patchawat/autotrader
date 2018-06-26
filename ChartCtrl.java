@@ -964,9 +964,9 @@ public class ChartCtrl
 	{
 		String stat = updateStatus(data_3min/*,data_240min*/);
 		if(stat.equalsIgnoreCase("L"))
-			OpenL("Open L " + data_3min.DateTime,String.format("current price: %s", data_3min.close_price),data_3min.close_price);
+			OpenL("Open L " + data_3min.DateTime,String.format("current price: %s with trend_status %s", data_3min.close_price,Arrays.toString(getPriceList())),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("S"))
-			OpenS("Open S " + data_3min.DateTime,String.format("current price: %s", data_3min.close_price),data_3min.close_price);
+			OpenS("Open S " + data_3min.DateTime,String.format("current price: %s with trend_status %s", data_3min.close_price,Arrays.toString(getPriceList())),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("CL"))
 			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice")),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("CS"))
