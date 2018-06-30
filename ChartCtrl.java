@@ -968,9 +968,9 @@ public class ChartCtrl
 		else if(stat.equalsIgnoreCase("S"))
 			OpenS("Open S " + data_3min.DateTime,String.format("current price: %s with trend_status %s", data_3min.close_price,Arrays.toString(getPriceList())),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("CL"))
-			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice")),data_3min.close_price);
+			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s with trend_status %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice"),Arrays.toString(getPriceList())),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("CS"))
-			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice")),data_3min.close_price);
+			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s with trend_status %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice"),Arrays.toString(getPriceList())),data_3min.close_price);
 		
 		
 	}
@@ -1027,8 +1027,8 @@ public class ChartCtrl
 			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] > Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
 					&& overbuy_peaks[overbuy_peaks.length-1] > overbuy_peaks[overbuy_peaks.length-2])
 			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
+				if(c_trade != null && c_trade.equalsIgnoreCase("S") )
+					res= "CS";
 			}
 			
 		}
@@ -1036,8 +1036,8 @@ public class ChartCtrl
 		{
 			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] > overbuy_peaks[overbuy_peaks.length-2] - overbuy_peaks[overbuy_peaks.length-3])
 			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
+				if(c_trade != null && c_trade.equalsIgnoreCase("S") )
+					res= "CS";
 			}
 			
 		}
@@ -1066,8 +1066,8 @@ public class ChartCtrl
 			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] < Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
 					&& oversell_peaks[oversell_peaks.length-1] > oversell_peaks[oversell_peaks.length-2])
 			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
+				if(c_trade != null && c_trade.equalsIgnoreCase("L") )
+					res= "CL";
 			}
 			
 		}
@@ -1075,8 +1075,8 @@ public class ChartCtrl
 		{
 			if(oversell_peaks[oversell_peaks.length-1] - oversell_peaks[oversell_peaks.length-2] > oversell_peaks[oversell_peaks.length-2] - oversell_peaks[oversell_peaks.length-3])
 			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
+				if(c_trade != null && c_trade.equalsIgnoreCase("L") )
+					res= "CL";
 			}
 			
 		}
@@ -1207,9 +1207,30 @@ public class ChartCtrl
 			
 			double dif = c_price -  traded_price - 1;
 			if(dif > 0)
-				sendMail("Profit L "+title, String.format("trade:%s current:%s profit:%f", c_trade,price,dif));
+			{
+				try 
+				{
+					takeSS();
+					sendMailwithAttachment("Profit L "+title, String.format("trade:%s current:%s profit:%f with trend %s", c_trade,price,dif,Arrays.toString(getPriceList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+				} 
+				catch (IOException e) 
+				{
+					e.printStackTrace();
+				}
+			}
+				
 			else if(dif < 0)
-				sendMail("Cut L "+title, String.format("trade:%s current:%s loss:%f", c_trade,price,dif));
+			{
+				try 
+				{
+					takeSS();
+					sendMailwithAttachment("Cut L "+title, String.format("trade:%s current:%s loss:%f with trend %s", c_trade,price,dif,Arrays.toString(getPriceList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+				} 
+				catch (IOException e) 
+				{
+					e.printStackTrace();
+				}
+			}
 			resetConf("trade_status.properties");
 			WriteProperty("trade_status.properties","traded","CL");
 		}
@@ -1218,9 +1239,30 @@ public class ChartCtrl
 			double traded_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
 			double dif = traded_price - c_price - 1;
 			if(dif > 0)
-				sendMail("Profit S "+title, String.format("trade:%s current:%s profit:%f", c_trade,price,dif));
+			{
+				try 
+				{
+					takeSS();
+					sendMailwithAttachment("Profit S "+title, String.format("trade:%s current:%s profit:%f with trend %s", c_trade,price,dif,Arrays.toString(getPriceList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+				} 
+				catch (IOException e) 
+				{
+					e.printStackTrace();
+				}
+			}
+				
 			else if(dif < 0)
-				sendMail("Cut S "+title, String.format("trade:%s current:%s loss:%f", c_trade,price,dif));
+			{
+				try 
+				{
+					takeSS();
+					sendMailwithAttachment("Cut S "+title, String.format("trade:%s current:%s loss:%f with trend %s", c_trade,price,dif,Arrays.toString(getPriceList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+				} 
+				catch (IOException e) 
+				{
+					e.printStackTrace();
+				}
+			}
 			resetConf("trade_status.properties");
 			WriteProperty("trade_status.properties","traded","CS");
 		}
