@@ -346,6 +346,98 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
+	private void updateBarList(Integer[] bars)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("barlist"))
+		    	config.addProperty("barlist", bars);
+		    else
+		    	config.setProperty("barlist", bars);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Integer[] getBarList()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    //String[] prices = config.getStringArray("pricelist");
+		    List<Object> list= config.getList("barlist").stream().map(w-> Integer.valueOf((String) w)).collect(Collectors.toList());
+		    Integer[] bars = list.toArray(new Integer[list.size()]);
+		    return bars;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private void updateBar(Integer bar)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("bar"))
+		    	config.addProperty("bar", bar);
+		    else
+		    	config.setProperty("bar", bar);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Integer getBar()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Integer bars= config.getInt("bar");
+		    return bars;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
 	/*
 	private void updateTrendTop(Double top)
 	{
@@ -984,16 +1076,16 @@ public class ChartCtrl
 		double c_rsi_3min = new BigDecimal(data_3min.rsi).setScale(4).doubleValue();
 		//double c_rsi_240min = new BigDecimal(data_240min.rsi).setScale(4).doubleValue();
 		//String trend = getTrend();
-		Double[] prices = getPriceList();
+		
 		double c_high_price_3min = new BigDecimal(data_3min.high_price).setScale(2).doubleValue();
 		double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
 		
 		String res = "";
 		
 		
-		prices = update3minPrice( c_rsi_3min, c_high_price_3min, c_low_price_3min,prices);
+		update3minPrice( c_rsi_3min, c_high_price_3min, c_low_price_3min);
 		 
-		
+		//Double[] prices = getPriceList();
 		//new open status
 		
 		
@@ -1088,8 +1180,15 @@ public class ChartCtrl
 		
 		
 	}
-	private Double[] update3minPrice(Double c_rsi_3min,Double c_high_price_3min,Double c_low_price_3min,Double[] prices)
+	private void update3minPrice(Double c_rsi_3min,Double c_high_price_3min,Double c_low_price_3min)
 	{
+		Double[] prices = getPriceList();
+		
+		Integer bar = getBar();
+		bar++;
+		
+		Integer[] bars = getBarList();
+		
 		if(c_rsi_3min > MINOR_MAX_RSI)
 		{
 			if((prices[prices.length-1] > 0  && c_high_price_3min > Math.abs(prices[prices.length-1]))
@@ -1097,6 +1196,10 @@ public class ChartCtrl
 			{
 				prices[prices.length-1] = c_high_price_3min;
 				updatePriceList(prices);
+				
+				bars[bars.length-1] = bar;
+				updateBar(bar);
+				updateBarList(bars);
 			}
 			else if(prices[prices.length-1] < 0)
 			{
@@ -1105,6 +1208,18 @@ public class ChartCtrl
 				prices = tmp.toArray(new Double[tmp.size()]);
 				prices[prices.length-1] = c_high_price_3min;
 				updatePriceList(prices);
+				
+				List<Integer> tmp2 = Arrays.asList(bars);
+				Collections.rotate(tmp2,-1);
+				bars = tmp2.toArray(new Integer[tmp2.size()]);
+				bars[bars.length-1] = bar;
+				for(int i=0;i<bars.length;++i)
+				{
+					bars[i]= bars[i] >0 ?  bars[i] - Math.abs(bars[0]):-Math.abs(bars[i])-Math.abs(bars[0]);
+				}
+				bar -= Math.abs(bars[0]);
+				updateBar(bar);
+				updateBarList(bars);
 			}
 		}
 		else if(c_rsi_3min < MINOR_MIN_RSI)
@@ -1114,6 +1229,10 @@ public class ChartCtrl
 			{
 				prices[prices.length-1] = -c_low_price_3min;
 				updatePriceList(prices);
+				
+				bars[bars.length-1] = -bar;
+				updateBar(bar);
+				updateBarList(bars);
 			}
 			else if(prices[prices.length-1] > 0)
 			{
@@ -1122,6 +1241,18 @@ public class ChartCtrl
 				prices = tmp.toArray(new Double[tmp.size()]);
 				prices[prices.length-1] = -c_low_price_3min;
 				updatePriceList(prices);
+				
+				List<Integer> tmp2 = Arrays.asList(bars);
+				Collections.rotate(tmp2,-1);
+				bars = tmp2.toArray(new Integer[tmp2.size()]);
+				bars[bars.length-1] = -bar;
+				for(int i=0;i<bars.length;++i)
+				{
+					bars[i]= bars[i] >0 ?  bars[i] - Math.abs(bars[0]):-Math.abs(bars[i])-Math.abs(bars[0]);
+				}
+				bar -= Math.abs(bars[0]);
+				updateBar(bar);
+				updateBarList(bars);
 			}
 		}
 		else if((prices[prices.length-1] > 0 && c_rsi_3min <= MAJOR_MAX_RSI)
@@ -1132,8 +1263,19 @@ public class ChartCtrl
 			prices = tmp.toArray(new Double[tmp.size()]);
 			prices[prices.length-1] = 0.0;
 			updatePriceList(prices);
+			
+			List<Integer> tmp2 = Arrays.asList(bars);
+			Collections.rotate(tmp2,-1);
+			bars = tmp2.toArray(new Integer[tmp2.size()]);
+			bars[bars.length-1] = 0;
+			for(int i=0;i<bars.length-1;++i)
+			{
+				bars[i]= bars[i] >0 ?  bars[i] - Math.abs(bars[0]):-Math.abs(bars[i])-Math.abs(bars[0]);
+			}
+			bar -= Math.abs(bars[0]);
+			updateBar(bar);
+			updateBarList(bars);
 		}
-		return prices;
 	}
 	private void OpenS(String title,String content,String price)
 	{
