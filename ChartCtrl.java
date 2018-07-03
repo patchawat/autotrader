@@ -1056,9 +1056,9 @@ public class ChartCtrl
 	{
 		String stat = updateStatus(data_3min/*,data_240min*/);
 		if(stat.equalsIgnoreCase("L"))
-			OpenL("Open L " + data_3min.DateTime,String.format("current price: %s with trend_status %s", data_3min.close_price,Arrays.toString(getPriceList())),data_3min.close_price);
+			OpenL("Open L " + data_3min.DateTime,String.format("current price: %s with trend_status %s and barlist %s", data_3min.close_price,Arrays.toString(getPriceList()),Arrays.toString(getBarList())),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("S"))
-			OpenS("Open S " + data_3min.DateTime,String.format("current price: %s with trend_status %s", data_3min.close_price,Arrays.toString(getPriceList())),data_3min.close_price);
+			OpenS("Open S " + data_3min.DateTime,String.format("current price: %s with trend_status %s and barlist %s", data_3min.close_price,Arrays.toString(getPriceList()),Arrays.toString(getBarList())),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("CL"))
 			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s with trend_status %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice"),Arrays.toString(getPriceList())),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("CS"))
@@ -1353,7 +1353,7 @@ public class ChartCtrl
 				try 
 				{
 					takeSS();
-					sendMailwithAttachment("Profit L "+title, String.format("trade:%s current:%s profit:%f with trend %s", c_trade,price,dif,Arrays.toString(getPriceList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+					sendMailwithAttachment("Profit L "+title, String.format("trade:%s current:%s profit:%f with trend %s and barlist %s", c_trade,price,dif,Arrays.toString(getPriceList()),Arrays.toString(getBarList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
 				} 
 				catch (IOException e) 
 				{
@@ -1366,7 +1366,7 @@ public class ChartCtrl
 				try 
 				{
 					takeSS();
-					sendMailwithAttachment("Cut L "+title, String.format("trade:%s current:%s loss:%f with trend %s", c_trade,price,dif,Arrays.toString(getPriceList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+					sendMailwithAttachment("Cut L "+title, String.format("trade:%s current:%s loss:%f with trend %s and barlist %s", c_trade,price,dif,Arrays.toString(getPriceList()),Arrays.toString(getBarList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
 				} 
 				catch (IOException e) 
 				{
@@ -1385,7 +1385,7 @@ public class ChartCtrl
 				try 
 				{
 					takeSS();
-					sendMailwithAttachment("Profit S "+title, String.format("trade:%s current:%s profit:%f with trend %s", c_trade,price,dif,Arrays.toString(getPriceList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+					sendMailwithAttachment("Profit S "+title, String.format("trade:%s current:%s profit:%f with trend %s and barlist %s", c_trade,price,dif,Arrays.toString(getPriceList()),Arrays.toString(getBarList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
 				} 
 				catch (IOException e) 
 				{
@@ -1398,7 +1398,7 @@ public class ChartCtrl
 				try 
 				{
 					takeSS();
-					sendMailwithAttachment("Cut S "+title, String.format("trade:%s current:%s loss:%f with trend %s", c_trade,price,dif,Arrays.toString(getPriceList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+					sendMailwithAttachment("Cut S "+title, String.format("trade:%s current:%s loss:%f with trend %s and barlist %s", c_trade,price,dif,Arrays.toString(getPriceList()),Arrays.toString(getBarList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
 				} 
 				catch (IOException e) 
 				{
