@@ -1,7 +1,9 @@
 package autotrader;
 
 
-
+//git checkout -b bar
+//git branch
+//git push origin bar
 
 import java.awt.AWTException;
 import java.awt.Rectangle;
