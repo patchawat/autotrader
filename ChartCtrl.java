@@ -438,6 +438,46 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
+	private Integer[] getFilterPosBars()
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    List<Object> list = config.getList("barlist").stream().map(w-> Integer.valueOf((String)w)).filter(w -> w > 0).collect(Collectors.toList());
+		    Integer[] barlist = list.toArray(new Integer[list.size()]);
+		    
+		    return barlist;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private Integer[] getFilterNegBars()
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    List<Object> list = config.getList("barlist").stream().map(w-> Integer.valueOf((String)w) ).filter(w -> w < 0).collect(Collectors.toList());
+		    Integer[] barlist = list.toArray(new Integer[list.size()]);
+		    
+		    return barlist;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
 	/*
 	private void updateTrendTop(Double top)
 	{
@@ -1091,6 +1131,8 @@ public class ChartCtrl
 		
 		Double[] overbuy_peaks = getFilterPosPrices();
 		Double[] oversell_peaks = getFilterNegPrices();
+		Integer[] overbuy_bar_peaks = getFilterPosBars();
+		Integer[] oversell_bar_peaks = getFilterNegBars();
 		
 		//OB
 		if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI && overbuy_peaks.length ==2)
@@ -1186,6 +1228,7 @@ public class ChartCtrl
 		
 		Integer bar = getBar();
 		bar++;
+		updateBar(bar);
 		
 		Integer[] bars = getBarList();
 		
@@ -1213,11 +1256,12 @@ public class ChartCtrl
 				Collections.rotate(tmp2,-1);
 				bars = tmp2.toArray(new Integer[tmp2.size()]);
 				bars[bars.length-1] = bar;
+				Integer first_bar = Math.abs(bars[0]);
 				for(int i=0;i<bars.length;++i)
 				{
-					bars[i]= bars[i] >0 ?  bars[i] - Math.abs(bars[0]):-Math.abs(bars[i])-Math.abs(bars[0]);
+					bars[i]= bars[i] >0 ?  bars[i] - first_bar:-(Math.abs(bars[i])-first_bar);
 				}
-				bar -= Math.abs(bars[0]);
+				bar -= first_bar;
 				updateBar(bar);
 				updateBarList(bars);
 			}
@@ -1246,11 +1290,12 @@ public class ChartCtrl
 				Collections.rotate(tmp2,-1);
 				bars = tmp2.toArray(new Integer[tmp2.size()]);
 				bars[bars.length-1] = -bar;
+				Integer first_bar = Math.abs(bars[0]);
 				for(int i=0;i<bars.length;++i)
 				{
-					bars[i]= bars[i] >0 ?  bars[i] - Math.abs(bars[0]):-Math.abs(bars[i])-Math.abs(bars[0]);
+					bars[i]= bars[i] >0 ?  bars[i] - first_bar:-(Math.abs(bars[i])-first_bar);
 				}
-				bar -= Math.abs(bars[0]);
+				bar -= first_bar;
 				updateBar(bar);
 				updateBarList(bars);
 			}
@@ -1268,11 +1313,12 @@ public class ChartCtrl
 			Collections.rotate(tmp2,-1);
 			bars = tmp2.toArray(new Integer[tmp2.size()]);
 			bars[bars.length-1] = 0;
+			Integer first_bar = Math.abs(bars[0]);
 			for(int i=0;i<bars.length-1;++i)
 			{
-				bars[i]= bars[i] >0 ?  bars[i] - Math.abs(bars[0]):-Math.abs(bars[i])-Math.abs(bars[0]);
+				bars[i]= bars[i] >0 ?  bars[i] - first_bar:-(Math.abs(bars[i])-first_bar);
 			}
-			bar -= Math.abs(bars[0]);
+			bar -= first_bar;
 			updateBar(bar);
 			updateBarList(bars);
 		}
