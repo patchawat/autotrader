@@ -483,188 +483,7 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
-	/*
-	private void updateTrendTop(Double top)
-	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trade_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("top"))
-		    	config.addProperty("top", top);
-		    else
-		    	config.setProperty("top", top);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-	}
-	private Double getTrendTop()
-	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trade_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    Double top = config.getDouble("top");
-		    return top;		
-		}
-		catch(Exception cex)
-		{
-		    return (Double) null;
-		} 
-	}
-	private void updateTrendBottom(Double bottom)
-	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trade_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("bottom"))
-		    	config.addProperty("bottom", bottom);
-		    else
-		    	config.setProperty("bottom", bottom);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-	}
-	private Double getTrendBottom()
-	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trade_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    Double bottom = config.getDouble("bottom");
-		    return bottom;		
-		}
-		catch(Exception cex)
-		{
-		    return (Double) null;
-		} 
-	}
-	private void removeTrend()
-	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trade_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    config.clearProperty("top");
-		    config.clearProperty("bottom");
-		    
-		    builder.save();
-		}
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getTop()
-	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    Double price= config.getList("pricelist").stream().map(w-> Math.abs(Double.valueOf((String) w))).max(Double::compare).get();
-		    
-		    return price;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private Double getBottom()
-	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    Double price= config.getList("pricelist").stream().map(w-> Math.abs(Double.valueOf((String) w))).min(Double::compare).get();
-		    
-		    return price;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
 	
-	private void updateTrend(String trend_status)
-	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("trend_status"))
-		    	config.addProperty("trend_status", trend_status);
-		    else
-		    	config.setProperty("trend_status", trend_status);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-	}
-	private String getTrend()
-	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
-		try
-		{
-		    Configuration config = builder.getConfiguration();
-		    String trend_status = config.getString("trend_status");
-		    return trend_status;		
-		}
-		catch(Exception cex)
-		{
-		    return (String) null;
-		} 
-	}*/
 	public void AnalyseMinuteData()throws IOException
 	{
 		Calendar now = new GregorianCalendar(GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.YEAR),GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.MONTH),
@@ -827,119 +646,7 @@ public class ChartCtrl
 				Runtime.getRuntime().exec(new File(".").getCanonicalPath().concat("\\login.bat"));
 			}
 			
-			//240min
-			/*
-			try
-			{
-				
-				
-				p.setFilename(new File(".").getCanonicalPath().concat("\\img\\period.jpg"));
-				m1 = s.find(p);
-				s.click();
-				
-				p.setFilename(new File(".").getCanonicalPath().concat("\\img\\240min.jpg"));
-				s.wait(p,WAITNUM);
-				s.click();
-				
-			}
-			catch(Exception e)
-			{
-				//sendMail("Minute collector fail", "Cannot find period and 240 minute data");
-				takeSS();
-				sendMailwithAttachment("240min img detect fail", "Here is SS",new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
-				String fail = ReadProperty("trade_status.properties","fail");
-				if(fail == null)
-					WriteProperty("trade_status.properties","fail","1");
-				int fail_t = Integer.valueOf(fail) + 1;
-				WriteProperty("trade_status.properties","fail",String.valueOf(fail_t));
-				//Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
-				if(fail_t > 5)
-				{
-					sendMail("Minute collector period fail", "Shutting down");
-					Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
-				}
-				return;
-				
-			}
-			
-			
-				try
-				{
-					
-					s.rightClick(c_loc.x,c_loc.y);
-					p.setFilename(new File(".").getCanonicalPath().concat("\\img\\viewsource.jpg"));
-					s.click(p);
-					
-					p.setFilename(new File(".").getCanonicalPath().concat("\\img\\notepad.jpg"));
-					s.mouseMove(p);
-					s.mouseMove(0, Y);
-					
-					Thread.sleep(200);
-					
-					s.keyDown(Key.CTRL);
-					Thread.sleep(200);
-					s.keyDown(KeyEvent.VK_A);
-					Thread.sleep(200);
-					s.keyUp(KeyEvent.VK_A);
-					
-					Thread.sleep(200);
-					
-					s.keyDown(KeyEvent.VK_C);
-					Thread.sleep(200);
-					s.keyUp(KeyEvent.VK_C);
-					Thread.sleep(200);
-					s.keyUp(Key.CTRL);
-					
-					Thread.sleep(200);
-					
-					s.keyDown(Key.ALT);
-					Thread.sleep(200);
-					s.keyDown(Key.F4);
-					
-					Thread.sleep(200);
-					
-					s.keyUp(Key.ALT);
-					Thread.sleep(200);
-					s.keyUp(Key.F4);
-					
-					Thread.sleep(200);
-					String str = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-					
-					
-					
-					//data.reset();
-					
-					data2.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-					data2.close_price = RegexNumeric(str," id=\"huClose\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-					data2.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-					data2.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-					data2.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-					
-					data2.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-					
-					data2.DateTime = t_str;
-					
-					
-				}
-				catch(Exception e)
-				{
-					//sendMail("Minute collector fail", "Cannot find HTML attributes");
-					//Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
-					takeSS();
-					sendMailwithAttachment("240min HTML fail", "Here is SS",new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
-					String fail = ReadProperty("trade_status.properties","fail");
-					if(fail == null)
-						WriteProperty("trade_status.properties","fail","1");
-					int fail_t = Integer.valueOf(fail) + 1;
-					WriteProperty("trade_status.properties","fail",String.valueOf(fail_t));
-					if(fail_t > 5)
-					{
-						sendMail("Minute collector HTML fail", "Shutting down");
-						Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
-					}
-				}
-				*/
-			analyse(data/*,data2*/);
+			analyse(data);
 		
 		
 	}
@@ -1097,9 +804,9 @@ public class ChartCtrl
                 e.printStackTrace();
         }
     }
-	void analyse(Data data_3min/*,Data data_240min*/)
+	void analyse(Data data_3min)
 	{
-		String stat = updateStatus(data_3min/*,data_240min*/);
+		String stat = updateStatus(data_3min);
 		if(stat.equalsIgnoreCase("L"))
 			OpenL("Open L " + data_3min.DateTime,String.format("current price: %s with trend_status %s and barlist %s", data_3min.close_price,Arrays.toString(getPriceList()),Arrays.toString(getBarList())),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("S"))
@@ -1111,7 +818,7 @@ public class ChartCtrl
 		
 		
 	}
-	private String updateStatus(Data data_3min/*,Data data_240min*/)
+	private String updateStatus(Data data_3min)
 	{
 		String c_trade = ReadProperty("trade_status.properties","traded");
 		
@@ -1119,8 +826,7 @@ public class ChartCtrl
 		updateRSI(data_3min.rsi);
 		
 		double c_rsi_3min = new BigDecimal(data_3min.rsi).setScale(4).doubleValue();
-		//double c_rsi_240min = new BigDecimal(data_240min.rsi).setScale(4).doubleValue();
-		//String trend = getTrend();
+		
 		
 		double c_high_price_3min = new BigDecimal(data_3min.high_price).setScale(2).doubleValue();
 		double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
@@ -1130,10 +836,8 @@ public class ChartCtrl
 		
 		update3minPrice( c_rsi_3min, c_high_price_3min, c_low_price_3min);
 		 
-		//Double[] prices = getPriceList();
+		
 		//new open status
-		
-		
 		Double[] overbuy_peaks = getFilterPosPrices();
 		Double[] oversell_peaks = getFilterNegPrices();
 		Integer[] overbuy_bar_peaks = getFilterPosBars();
