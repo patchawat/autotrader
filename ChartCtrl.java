@@ -935,6 +935,11 @@ public class ChartCtrl
 	{
 		Double[] prices = getPriceList();
 		
+		Double[] overbuy_peaks = getFilterPosPrices();
+		Double[] oversell_peaks = getFilterNegPrices();
+		Integer[] overbuy_bar_peaks = getFilterPosBars();
+		Integer[] oversell_bar_peaks = getFilterNegBars();
+		
 		Integer bar = getBar();
 		bar++;
 		updateBar(bar);
