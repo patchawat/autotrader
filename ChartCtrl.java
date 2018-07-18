@@ -1,12 +1,12 @@
 package autotrader;
 
 
-//git checkout -b bar
-//git branch
+//git checkout -b vol
+//git branch 
 //git add *.java
-//git commit -m "something here"
-//git push origin bar
-//git pull origin bar
+//git commit -m "something here"(not 1st time)
+//git push origin vol
+//git pull origin vol
 
 import java.awt.AWTException;
 import java.awt.Rectangle;
