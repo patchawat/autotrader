@@ -63,10 +63,6 @@ public class ChartCtrl
 	private final int Y = 20;
 	private final int X = 20;
 	
-	private double MINOR_MAX_RSI = 70;
-	private double MINOR_MIN_RSI = 100-MINOR_MAX_RSI;
-	private double MAJOR_MAX_RSI = 60;
-	private double MAJOR_MIN_RSI = 100-MAJOR_MAX_RSI;
 	
 	
 	
@@ -218,7 +214,7 @@ public class ChartCtrl
 		} 
 	}
 	
-	private void updatePriceList(Double[] price)
+	private void updatevol1(Integer vol1)
 	{
 		try
 		{
@@ -229,10 +225,10 @@ public class ChartCtrl
 		       
 		
 		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("pricelist"))
-		    	config.addProperty("pricelist", price);
+		    if(!config.containsKey("vol1"))
+		    	config.addProperty("vol1", vol1);
 		    else
-		    	config.setProperty("pricelist", price);
+		    	config.setProperty("vol1", vol1);
 		    builder.save();
 		}
 		catch(ConfigurationException cex)
@@ -244,7 +240,7 @@ public class ChartCtrl
 			System.out.println(cex.getMessage() );
 		} 
 	}
-	private Double[] getPriceList()
+	private Integer getVol1()
 	{
 		
 		try
@@ -255,103 +251,15 @@ public class ChartCtrl
 		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
 			
 		    Configuration config = builder.getConfiguration();
-		    //String[] prices = config.getStringArray("pricelist");
-		    List<Object> list= config.getList("pricelist").stream().map(w-> Double.valueOf((String) w)).collect(Collectors.toList());
-		    Double[] prices = list.toArray(new Double[list.size()]);
-		    return prices;		
+		    Integer vol1 = config.getInt("vol1");
+		    return vol1;		
 		}
 		catch(Exception cex)
 		{
 		    return null;
 		} 
 	}
-	private void updateRSI(String rsi)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("rsi"))
-		    	config.addProperty("rsi", rsi);
-		    else
-		    	config.setProperty("rsi", rsi);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-		    
-		} 
-	}
-	
-	private Double getRSI()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double rsi = config.getDouble("rsi");
-		    return rsi;		
-		}
-		catch(Exception cex)
-		{
-		    return (Double) null;
-		} 
-	}
-	
-	private Double[] getFilterPosPrices()
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    List<Object> list = config.getList("pricelist").stream().map(w-> Double.valueOf((String)w)).filter(w -> w > 0).collect(Collectors.toList());
-		    Double[] prices = list.toArray(new Double[list.size()]);
-		    
-		    return prices;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private Double[] getFilterNegPrices()
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    List<Object> list = config.getList("pricelist").stream().map(w-> Double.valueOf((String)w) ).filter(w -> w < 0).collect(Collectors.toList());
-		    Double[] prices = list.toArray(new Double[list.size()]);
-		    
-		    return prices;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateBarList(Integer[] bars)
+	private void updatevol2(Integer vol2)
 	{
 		try
 		{
@@ -362,10 +270,10 @@ public class ChartCtrl
 		       
 		
 		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("barlist"))
-		    	config.addProperty("barlist", bars);
+		    if(!config.containsKey("vol2"))
+		    	config.addProperty("vol2", vol2);
 		    else
-		    	config.setProperty("barlist", bars);
+		    	config.setProperty("vol2", vol2);
 		    builder.save();
 		}
 		catch(ConfigurationException cex)
@@ -377,7 +285,7 @@ public class ChartCtrl
 			System.out.println(cex.getMessage() );
 		} 
 	}
-	private Integer[] getBarList()
+	private Integer getVol2()
 	{
 		
 		try
@@ -388,17 +296,15 @@ public class ChartCtrl
 		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
 			
 		    Configuration config = builder.getConfiguration();
-		    //String[] prices = config.getStringArray("pricelist");
-		    List<Object> list= config.getList("barlist").stream().map(w-> Integer.valueOf((String) w)).collect(Collectors.toList());
-		    Integer[] bars = list.toArray(new Integer[list.size()]);
-		    return bars;		
+		    Integer vol2 = config.getInt("vol2");
+		    return vol2;		
 		}
 		catch(Exception cex)
 		{
 		    return null;
 		} 
 	}
-	private void updateBar(Integer bar)
+	private void updateHigh(Double high)
 	{
 		try
 		{
@@ -409,10 +315,10 @@ public class ChartCtrl
 		       
 		
 		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("bar"))
-		    	config.addProperty("bar", bar);
+		    if(!config.containsKey("high"))
+		    	config.addProperty("high", high);
 		    else
-		    	config.setProperty("bar", bar);
+		    	config.setProperty("high", high);
 		    builder.save();
 		}
 		catch(ConfigurationException cex)
@@ -424,7 +330,7 @@ public class ChartCtrl
 			System.out.println(cex.getMessage() );
 		} 
 	}
-	private Integer getBar()
+	private Double getHigh()
 	{
 		
 		try
@@ -435,16 +341,43 @@ public class ChartCtrl
 		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
 			
 		    Configuration config = builder.getConfiguration();
-		    Integer bars= config.getInt("bar");
-		    return bars;		
+		    Double high = config.getDouble("high");
+		    return high;		
 		}
 		catch(Exception cex)
 		{
 		    return null;
 		} 
 	}
-	private Integer[] getFilterPosBars()
+	private void updateLow(Double low)
 	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("low"))
+		    	config.addProperty("low", low);
+		    else
+		    	config.setProperty("low", low);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Double getLow()
+	{
+		
 		try
 		{
 			Parameters params = new Parameters();
@@ -453,37 +386,14 @@ public class ChartCtrl
 		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
 			
 		    Configuration config = builder.getConfiguration();
-		    List<Object> list = config.getList("barlist").stream().map(w-> Integer.valueOf((String)w)).filter(w -> w > 0).collect(Collectors.toList());
-		    Integer[] barlist = list.toArray(new Integer[list.size()]);
-		    
-		    return barlist;		
+		    Double low = config.getDouble("low");
+		    return low;		
 		}
 		catch(Exception cex)
 		{
 		    return null;
 		} 
 	}
-	private Integer[] getFilterNegBars()
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    List<Object> list = config.getList("barlist").stream().map(w-> Integer.valueOf((String)w) ).filter(w -> w < 0).collect(Collectors.toList());
-		    Integer[] barlist = list.toArray(new Integer[list.size()]);
-		    
-		    return barlist;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	
 	public void AnalyseMinuteData()throws IOException
 	{
 		Calendar now = new GregorianCalendar(GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.YEAR),GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.MONTH),
@@ -523,7 +433,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\3min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\120min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -621,7 +531,7 @@ public class ChartCtrl
 				data.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				
 				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				
+				//<li><span id="huPeriod" class="huField">20/07/2018 15:00:00</span></li>
 				data.DateTime = t_str;
 				
 				
@@ -808,13 +718,13 @@ public class ChartCtrl
 	{
 		String stat = updateStatus(data_3min);
 		if(stat.equalsIgnoreCase("L"))
-			OpenL("Open L " + data_3min.DateTime,String.format("current price: %s with trend_status %s and barlist %s", data_3min.close_price,Arrays.toString(getPriceList()),Arrays.toString(getBarList())),data_3min.close_price);
+			OpenL("Open L " + data_3min.DateTime,String.format("current price: %s", data_3min.close_price),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("S"))
-			OpenS("Open S " + data_3min.DateTime,String.format("current price: %s with trend_status %s and barlist %s", data_3min.close_price,Arrays.toString(getPriceList()),Arrays.toString(getBarList())),data_3min.close_price);
+			OpenS("Open S " + data_3min.DateTime,String.format("current price: %s", data_3min.close_price),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("CL"))
-			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s with trend_status %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice"),Arrays.toString(getPriceList())),data_3min.close_price);
+			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice")),data_3min.close_price);
 		else if(stat.equalsIgnoreCase("CS"))
-			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s with trend_status %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice"),Arrays.toString(getPriceList())),data_3min.close_price);
+			CloseAll(data_3min.DateTime,String.format("current price: %s trade price: %s", data_3min.close_price,ReadProperty("trade_status.properties","tradedprice")),data_3min.close_price);
 		
 		
 	}
@@ -822,220 +732,50 @@ public class ChartCtrl
 	{
 		String c_trade = ReadProperty("trade_status.properties","traded");
 		
-		Double p_rsi_3min = getRSI();
-		updateRSI(data_3min.rsi);
-		
-		double c_rsi_3min = new BigDecimal(data_3min.rsi).setScale(4).doubleValue();
 		
 		
-		double c_high_price_3min = new BigDecimal(data_3min.high_price).setScale(2).doubleValue();
-		double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
+		double c_close_price_3min = new BigDecimal(data_3min.close_price).setScale(2).doubleValue();
+		Double c_high_price_3min = new BigDecimal(data_3min.high_price).setScale(2).doubleValue();
+		Double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
+		
+		Integer c_vol_3min =   new BigDecimal(data_3min.vol).intValue();
+		Integer p_vol1_3min = getVol1();
+		Integer p_vol2_3min = getVol2();
+		
+		if(c_vol_3min < p_vol2_3min)
+		{
+			updateHigh(c_high_price_3min);
+			updateLow(c_low_price_3min);
+			updatevol1(p_vol2_3min);
+			updatevol2(c_vol_3min);
+			return "";
+		}
+		else if(c_vol_3min < p_vol1_3min)
+		{
+			updatevol2(c_vol_3min);
+			return "";
+		}
+				
+		Double p_high_price_3min = getHigh();
+		Double p_low_price_3min = getLow();
 		
 		String res = "";
 		
-		
-		update3minPrice( c_rsi_3min, c_high_price_3min, c_low_price_3min);
-		 
-		
-		//new open status
-		Double[] overbuy_peaks = getFilterPosPrices();
-		Double[] oversell_peaks = getFilterNegPrices();
-		Integer[] overbuy_bar_peaks = getFilterPosBars();
-		Integer[] oversell_bar_peaks = getFilterNegBars();
-		
-		//OB
-		if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI && overbuy_peaks.length ==2)
+		if(c_close_price_3min > p_high_price_3min)
 		{
-			
-			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] < Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
-					|| overbuy_peaks[overbuy_peaks.length-1] < overbuy_peaks[overbuy_peaks.length-2])
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
-			}
-			
+			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+				res= "L";
 		}
-		else if(c_rsi_3min < MINOR_MAX_RSI && p_rsi_3min >= MINOR_MAX_RSI && overbuy_peaks.length ==3)
+		else if(c_close_price_3min < p_low_price_3min)
 		{
-			
-			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] < overbuy_peaks[overbuy_peaks.length-2] - overbuy_peaks[overbuy_peaks.length-3])
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
-			}
-			
+			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+				res= "S";
 		}
-		else if(c_rsi_3min > MINOR_MAX_RSI && overbuy_peaks.length == 2)
-		{
-			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] > Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
-					&& overbuy_peaks[overbuy_peaks.length-1] > overbuy_peaks[overbuy_peaks.length-2])
-			{
-				if(c_trade != null && c_trade.equalsIgnoreCase("S") )
-					res= "CS";
-			}
-			
-		}
-		else if(c_rsi_3min > MINOR_MAX_RSI && overbuy_peaks.length == 3)
-		{
-			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] > overbuy_peaks[overbuy_peaks.length-2] - overbuy_peaks[overbuy_peaks.length-3])
-			{
-				if(c_trade != null && c_trade.equalsIgnoreCase("S") )
-					res= "CS";
-			}
-			
-		}
-		//OS
-		else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI && oversell_peaks.length == 2 )
-		{
-			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] > Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
-					|| oversell_peaks[oversell_peaks.length-1] < oversell_peaks[oversell_peaks.length-2])
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-			
-		}
-		else if(c_rsi_3min > MINOR_MIN_RSI && p_rsi_3min <= MINOR_MIN_RSI && oversell_peaks.length == 3 )
-		{
-			if(oversell_peaks[oversell_peaks.length-1] - oversell_peaks[oversell_peaks.length-2] < oversell_peaks[oversell_peaks.length-2] - oversell_peaks[oversell_peaks.length-3])
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-			
-		}
-		else if(c_rsi_3min < MINOR_MIN_RSI && oversell_peaks.length == 2)
-		{
-			if(overbuy_peaks[overbuy_peaks.length-1] - overbuy_peaks[overbuy_peaks.length-2] < Math.abs(oversell_peaks[oversell_peaks.length-1]-oversell_peaks[oversell_peaks.length-2])
-					&& oversell_peaks[oversell_peaks.length-1] > oversell_peaks[oversell_peaks.length-2])
-			{
-				if(c_trade != null && c_trade.equalsIgnoreCase("L") )
-					res= "CL";
-			}
-			
-		}
-		else if(c_rsi_3min < MINOR_MIN_RSI && oversell_peaks.length == 3)
-		{
-			if(oversell_peaks[oversell_peaks.length-1] - oversell_peaks[oversell_peaks.length-2] > oversell_peaks[oversell_peaks.length-2] - oversell_peaks[oversell_peaks.length-3])
-			{
-				if(c_trade != null && c_trade.equalsIgnoreCase("L") )
-					res= "CL";
-			}
-			
-		}
-		
-		
 		
 			return res;
 		
 		
 		
-	}
-	private void update3minPrice(Double c_rsi_3min,Double c_high_price_3min,Double c_low_price_3min)
-	{
-		Double[] prices = getPriceList();
-		
-		Double[] overbuy_peaks = getFilterPosPrices();
-		Double[] oversell_peaks = getFilterNegPrices();
-		Integer[] overbuy_bar_peaks = getFilterPosBars();
-		Integer[] oversell_bar_peaks = getFilterNegBars();
-		
-		Integer bar = getBar();
-		bar++;
-		updateBar(bar);
-		
-		Integer[] bars = getBarList();
-		
-		if(c_rsi_3min > MINOR_MAX_RSI)
-		{
-			if((prices[prices.length-1] > 0  && c_high_price_3min > Math.abs(prices[prices.length-1]))
-			|| (prices[prices.length-1] == 0.0))
-			{
-				prices[prices.length-1] = c_high_price_3min;
-				updatePriceList(prices);
-				
-				bars[bars.length-1] = bar;
-				updateBar(bar);
-				updateBarList(bars);
-			}
-			else if(prices[prices.length-1] < 0)
-			{
-				List<Double> tmp= Arrays.asList(prices);
-				Collections.rotate(tmp,-1);
-				prices = tmp.toArray(new Double[tmp.size()]);
-				prices[prices.length-1] = c_high_price_3min;
-				updatePriceList(prices);
-				
-				List<Integer> tmp2 = Arrays.asList(bars);
-				Collections.rotate(tmp2,-1);
-				bars = tmp2.toArray(new Integer[tmp2.size()]);
-				bars[bars.length-1] = bar;
-				Integer first_bar = Math.abs(bars[0]);
-				for(int i=0;i<bars.length;++i)
-				{
-					bars[i]= bars[i] >0 ?  bars[i] - first_bar:-(Math.abs(bars[i])-first_bar);
-				}
-				bar -= first_bar;
-				updateBar(bar);
-				updateBarList(bars);
-			}
-		}
-		else if(c_rsi_3min < MINOR_MIN_RSI)
-		{
-			if((prices[prices.length-1] < 0  && c_low_price_3min < Math.abs(prices[prices.length-1]))
-			||(prices[prices.length-1] == 0.0))
-			{
-				prices[prices.length-1] = -c_low_price_3min;
-				updatePriceList(prices);
-				
-				bars[bars.length-1] = -bar;
-				updateBar(bar);
-				updateBarList(bars);
-			}
-			else if(prices[prices.length-1] > 0)
-			{
-				List<Double> tmp= Arrays.asList(prices);
-				Collections.rotate(tmp,-1);
-				prices = tmp.toArray(new Double[tmp.size()]);
-				prices[prices.length-1] = -c_low_price_3min;
-				updatePriceList(prices);
-				
-				List<Integer> tmp2 = Arrays.asList(bars);
-				Collections.rotate(tmp2,-1);
-				bars = tmp2.toArray(new Integer[tmp2.size()]);
-				bars[bars.length-1] = -bar;
-				Integer first_bar = Math.abs(bars[0]);
-				for(int i=0;i<bars.length;++i)
-				{
-					bars[i]= bars[i] >0 ?  bars[i] - first_bar:-(Math.abs(bars[i])-first_bar);
-				}
-				bar -= first_bar;
-				updateBar(bar);
-				updateBarList(bars);
-			}
-		}
-		else if((prices[prices.length-1] > 0 && c_rsi_3min <= MAJOR_MAX_RSI)
-		||(prices[prices.length-1] < 0 && c_rsi_3min >= MAJOR_MIN_RSI))
-		{
-			List<Double> tmp= Arrays.asList(prices);
-			Collections.rotate(tmp,-1);
-			prices = tmp.toArray(new Double[tmp.size()]);
-			prices[prices.length-1] = 0.0;
-			updatePriceList(prices);
-			
-			List<Integer> tmp2 = Arrays.asList(bars);
-			Collections.rotate(tmp2,-1);
-			bars = tmp2.toArray(new Integer[tmp2.size()]);
-			bars[bars.length-1] = 0;
-			Integer first_bar = Math.abs(bars[0]);
-			for(int i=0;i<bars.length-1;++i)
-			{
-				bars[i]= bars[i] >0 ?  bars[i] - first_bar:-(Math.abs(bars[i])-first_bar);
-			}
-			bar -= first_bar;
-			updateBar(bar);
-			updateBarList(bars);
-		}
 	}
 	private void OpenS(String title,String content,String price)
 	{
@@ -1113,7 +853,7 @@ public class ChartCtrl
 				try 
 				{
 					takeSS();
-					sendMailwithAttachment("Profit L "+title, String.format("trade:%s current:%s profit:%f with trend %s and barlist %s", c_trade,price,dif,Arrays.toString(getPriceList()),Arrays.toString(getBarList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+					sendMailwithAttachment("Profit L "+title, String.format("trade:%s current:%s profit:%f", c_trade,price,dif), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
 				} 
 				catch (IOException e) 
 				{
@@ -1126,7 +866,7 @@ public class ChartCtrl
 				try 
 				{
 					takeSS();
-					sendMailwithAttachment("Cut L "+title, String.format("trade:%s current:%s loss:%f with trend %s and barlist %s", c_trade,price,dif,Arrays.toString(getPriceList()),Arrays.toString(getBarList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+					sendMailwithAttachment("Cut L "+title, String.format("trade:%s current:%s loss:%f", c_trade,price,dif), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
 				} 
 				catch (IOException e) 
 				{
@@ -1145,7 +885,7 @@ public class ChartCtrl
 				try 
 				{
 					takeSS();
-					sendMailwithAttachment("Profit S "+title, String.format("trade:%s current:%s profit:%f with trend %s and barlist %s", c_trade,price,dif,Arrays.toString(getPriceList()),Arrays.toString(getBarList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+					sendMailwithAttachment("Profit S "+title, String.format("trade:%s current:%s profit:%f", c_trade,price,dif), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
 				} 
 				catch (IOException e) 
 				{
@@ -1158,7 +898,7 @@ public class ChartCtrl
 				try 
 				{
 					takeSS();
-					sendMailwithAttachment("Cut S "+title, String.format("trade:%s current:%s loss:%f with trend %s and barlist %s", c_trade,price,dif,Arrays.toString(getPriceList()),Arrays.toString(getBarList())), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
+					sendMailwithAttachment("Cut S "+title, String.format("trade:%s current:%s loss:%f", c_trade,price,dif), new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
 				} 
 				catch (IOException e) 
 				{
