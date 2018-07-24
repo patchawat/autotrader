@@ -304,7 +304,7 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
-	private void updateHigh(Double high)
+	private void updateHigh1(Double high1)
 	{
 		try
 		{
@@ -315,10 +315,10 @@ public class ChartCtrl
 		       
 		
 		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("high"))
-		    	config.addProperty("high", high);
+		    if(!config.containsKey("high1"))
+		    	config.addProperty("high1", high1);
 		    else
-		    	config.setProperty("high", high);
+		    	config.setProperty("high1", high1);
 		    builder.save();
 		}
 		catch(ConfigurationException cex)
@@ -330,7 +330,7 @@ public class ChartCtrl
 			System.out.println(cex.getMessage() );
 		} 
 	}
-	private Double getHigh()
+	private Double getHigh1()
 	{
 		
 		try
@@ -341,7 +341,7 @@ public class ChartCtrl
 		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
 			
 		    Configuration config = builder.getConfiguration();
-		    Double high = config.getDouble("high");
+		    Double high = config.getDouble("high1");
 		    return high;		
 		}
 		catch(Exception cex)
@@ -349,7 +349,7 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
-	private void updateLow(Double low)
+	private void updateLow1(Double low1)
 	{
 		try
 		{
@@ -360,10 +360,10 @@ public class ChartCtrl
 		       
 		
 		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("low"))
-		    	config.addProperty("low", low);
+		    if(!config.containsKey("low1"))
+		    	config.addProperty("low1", low1);
 		    else
-		    	config.setProperty("low", low);
+		    	config.setProperty("low1", low1);
 		    builder.save();
 		}
 		catch(ConfigurationException cex)
@@ -375,7 +375,7 @@ public class ChartCtrl
 			System.out.println(cex.getMessage() );
 		} 
 	}
-	private Double getLow()
+	private Double getLow1()
 	{
 		
 		try
@@ -386,7 +386,97 @@ public class ChartCtrl
 		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
 			
 		    Configuration config = builder.getConfiguration();
-		    Double low = config.getDouble("low");
+		    Double low = config.getDouble("low1");
+		    return low;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private void updateHigh2(Double high2)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("high2"))
+		    	config.addProperty("high2", high2);
+		    else
+		    	config.setProperty("high2", high2);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Double getHigh2()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Double high = config.getDouble("high2");
+		    return high;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private void updateLow2(Double low2)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("low2"))
+		    	config.addProperty("low2", low2);
+		    else
+		    	config.setProperty("low2", low2);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Double getLow2()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Double low = config.getDouble("low2");
 		    return low;		
 		}
 		catch(Exception cex)
@@ -742,34 +832,55 @@ public class ChartCtrl
 		Integer p_vol1_3min = getVol1();
 		Integer p_vol2_3min = getVol2();
 		
+		Double p_high1_price_3min = getHigh1();
+		Double p_low1_price_3min = getLow1();
+		
+		Double p_high2_price_3min = getHigh2();
+		Double p_low2_price_3min = getLow2();
+		
 		if(c_vol_3min < p_vol2_3min)
 		{
-			updateHigh(c_high_price_3min);
-			updateLow(c_low_price_3min);
+			updateHigh1(p_high2_price_3min);
+			updateLow1(p_low2_price_3min);
+			
+			updateHigh2(c_high_price_3min);
+			updateLow2(c_low_price_3min);
+			
 			updatevol1(p_vol2_3min);
 			updatevol2(c_vol_3min);
 			return "";
 		}
-		else
-		{
-			updatevol2(c_vol_3min);
-			
-		}
-				
-		if(c_vol_3min < p_vol1_3min)
-			return "";
+
+		updateHigh2(c_high_price_3min);
+		updateLow2(c_low_price_3min);
 		
-		Double p_high_price_3min = getHigh();
-		Double p_low_price_3min = getLow();
+		updatevol2(c_vol_3min);
+			
+
+				
+		//if(c_vol_3min < p_vol1_3min)
+			//return "";
+		
+		
 		
 		String res = "";
 		
-		if(c_close_price_3min > p_high_price_3min)
+		if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min  )
+		{
+			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+				res= "S";
+		}
+		else if(c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min )
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 				res= "L";
 		}
-		else if(c_close_price_3min < p_low_price_3min)
+		else if(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min)
+		{
+			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+				res= "L";
+		}
+		else if(c_close_price_3min < p_low1_price_3min && c_vol_3min >= p_vol1_3min)
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 				res= "S";
