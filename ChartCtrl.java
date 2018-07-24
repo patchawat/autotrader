@@ -750,12 +750,15 @@ public class ChartCtrl
 			updatevol2(c_vol_3min);
 			return "";
 		}
-		else if(c_vol_3min < p_vol1_3min)
+		else
 		{
 			updatevol2(c_vol_3min);
-			return "";
+			
 		}
 				
+		if(c_vol_3min < p_vol1_3min)
+			return "";
+		
 		Double p_high_price_3min = getHigh();
 		Double p_low_price_3min = getLow();
 		

@@ -101,31 +101,32 @@ public class TradeCtrl
 		String password = getPassword();
 		String serie = getSerie();
 		
-		driver.navigate().to("http://www.maybank-ke.co.th/");
+		driver.navigate().to("https://streaming.settrade.com/realtime/streaming-login/login.jsp?noPopUp=true");
 
-		driver.findElement(By.xpath("//*[@id=\"user\"]")).clear();
-		driver.findElement(By.xpath("//*[@id=\"user\"]")).sendKeys(username);
-
+		
+		driver.findElement(By.xpath("//*[@id=\"txtLoginBrokerId\"]/ng-select/div/div/div[2]/input")).clear();
+		driver.findElement(By.xpath("//*[@id=\"txtLoginBrokerId\"]/ng-select/div/div/div[2]/input")).sendKeys("MAYBANK KIMENG");
+		driver.findElement(By.xpath("//*[@id=\"txtLoginBrokerId\"]/ng-select/div/div/div[2]/input")).sendKeys(Keys.RETURN);
+		
+		
+		driver.findElement(By.xpath("//*[@id=\"txtLogin\"]")).clear();
+		driver.findElement(By.xpath("//*[@id=\"txtLogin\"]")).sendKeys(username);
+		
 		driver.findElement(By.xpath("//*[@id=\"txtPassword\"]")).clear();
 		driver.findElement(By.xpath("//*[@id=\"txtPassword\"]")).sendKeys(password);
-
-		driver.findElement(By.xpath("//*[@id=\"11650\"]/form/input[4]")).click();
 		
 		
+		driver.findElement(By.xpath("//*[@id=\"submitBtn\"]")).click();
 		
-		driver.findElement(By.xpath("//*[@id=\"Table_01\"]/tbody/tr[2]/td[2]/table/tbody/tr[2]/td[3]/table/tbody/tr[2]/td[2]/form/table/tbody/tr/td/p[5]/font/input")).click();
-		driver.findElement(By.xpath("//*[@id=\"Table_01\"]/tbody/tr[2]/td[2]/table/tbody/tr[2]/td[3]/table/tbody/tr[2]/td[2]/form/table/tbody/tr/td/p[6]/font/input[2]")).clear();
-		driver.findElement(By.xpath("//*[@id=\"Table_01\"]/tbody/tr[2]/td[2]/table/tbody/tr[2]/td[3]/table/tbody/tr[2]/td[2]/form/table/tbody/tr/td/p[7]/input")).click();
-		
+		/*---------------------------------------*/
 		
 		WebDriverWait wait = new WebDriverWait(driver,10);
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"open-streaming-btn\"]")));
 		
-		//pre streaming1
-		driver.switchTo().frame(1);
+		driver.findElement(By.xpath("//*[@id=\"open-streaming-btn\"]")).click();
 		
-		wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"cell_Settrade\"]")));
-		 
-		driver.findElement(By.xpath("//*[@id=\"cell_Settrade\"]")).click();
+		
+		/*-------------------------------------*/
 		
 		for(String i :driver.getWindowHandles())
 		{
@@ -134,18 +135,6 @@ public class TradeCtrl
 		}
 		
 		
-		//pre streaming2
-		
-		wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/table[3]/tbody/tr/td[1]/table[2]/tbody/tr[3]/td[2]/a/img")));
-		
-		driver.findElement(By.xpath("/html/body/table[3]/tbody/tr/td[1]/table[2]/tbody/tr[3]/td[2]/a/img")).click();
-		
-		for(String i :driver.getWindowHandles())
-		{
-			driver.switchTo().window(i);
-			//System.out.println(i);
-			
-		}
 		
 		
 		//login to streaming
@@ -153,48 +142,8 @@ public class TradeCtrl
 		
 		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).clear();
 		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).sendKeys(serie);
-		
 		driver.findElement(By.xpath("//*[@id=\"place-order-symbol\"]/auto-complete/div/input[2]")).sendKeys(Keys.RETURN);
 		
-		//dropdown click
-		driver.findElement(By.xpath("//*[@id=\"dLabel\"]/span\"]")).click();
-		driver.findElement(By.xpath("//*[@id=\"account-dropdown-2\"]/a/span")).click();
-		
-		
-		
-		//radio button click
-		//*[@id="buy-btn"]
-		//*[@id="sell-btn"]
-		
-		//dropdown click
-		//*[@id="order-position-dropdown-0"]
-		//*[@id="order-position-dropdown-1"]
-		
-		//fillbox
-		//*[@id="place-order-volume"]/div/volume-input/input
-		
-		//fillbox
-		//*[@id="place-order-pin"]/div/input
-		
-		//button click
-		//*[@id="place-order-price"]/div/a/div/i[1]
-		//*[@id="place-order-price"]/div/a/div/i[2]
-		
-		//button click
-		//*[@id="place-order-price"]/div/div/div[2]
-		
-		//button click
-		//*[@id="place-order-submit"]
-		
-		/*button click
-		/html/body/modal-layer/div/div/div/form/div[2]/div[1]/button
-		*/
-		
-		//order status text value 
-		/*
-		/html/body/app-controller/div/ul/li[3]/order/div[2]/order-status/div/div/div/ul/normal-derivatives-order-status-row[2]/ul/li[15]
-		/html/body/app-controller/div/ul/li[3]/order/div[2]/order-status/div/div/div/ul/normal-derivatives-order-status-row[3]/ul/li[15]
-		*/
 		
 		
 	}
