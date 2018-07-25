@@ -824,7 +824,8 @@ public class ChartCtrl
 		
 		
 		
-		double c_close_price_3min = new BigDecimal(data_3min.close_price).setScale(2).doubleValue();
+		Double c_close_price_3min = new BigDecimal(data_3min.close_price).setScale(2).doubleValue();
+		Double c_open_price_3min = new BigDecimal(data_3min.open_price).setScale(2).doubleValue();
 		Double c_high_price_3min = new BigDecimal(data_3min.high_price).setScale(2).doubleValue();
 		Double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
 		
@@ -865,12 +866,12 @@ public class ChartCtrl
 		
 		String res = "";
 		
-		if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min  )
+		if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min)
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 				res= "S";
 		}
-		else if(c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min )
+		else if(c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min)
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 				res= "L";
