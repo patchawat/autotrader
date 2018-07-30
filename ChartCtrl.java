@@ -523,7 +523,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\120min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\15min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -859,14 +859,14 @@ public class ChartCtrl
 			
 
 				
-		//if(c_vol_3min < p_vol1_3min)
-			//return "";
+		if(c_vol_3min < p_vol1_3min)
+			return "";
 		
 		
 		
 		String res = "";
 		
-		if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min)
+		/*if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min)
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 				res= "S";
@@ -876,12 +876,12 @@ public class ChartCtrl
 			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 				res= "L";
 		}
-		else if(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min)
+		else */if(c_close_price_3min > p_high1_price_3min)
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 				res= "L";
 		}
-		else if(c_close_price_3min < p_low1_price_3min && c_vol_3min >= p_vol1_3min)
+		else if(c_close_price_3min < p_low1_price_3min)
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 				res= "S";
