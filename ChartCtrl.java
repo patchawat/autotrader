@@ -63,7 +63,7 @@ public class ChartCtrl
 	private final int Y = 20;
 	private final int X = 20;
 	
-	
+	private final int MIN_VOL = 6000;
 	
 	
 	ChartCtrl()
@@ -825,7 +825,7 @@ public class ChartCtrl
 		
 		
 		Double c_close_price_3min = new BigDecimal(data_3min.close_price).setScale(2).doubleValue();
-		Double c_open_price_3min = new BigDecimal(data_3min.open_price).setScale(2).doubleValue();
+		//Double c_open_price_3min = new BigDecimal(data_3min.open_price).setScale(2).doubleValue();
 		Double c_high_price_3min = new BigDecimal(data_3min.high_price).setScale(2).doubleValue();
 		Double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
 		
@@ -859,7 +859,7 @@ public class ChartCtrl
 			
 
 				
-		if(c_vol_3min < p_vol1_3min)
+		if(c_vol_3min < MIN_VOL)
 			return "";
 		
 		
