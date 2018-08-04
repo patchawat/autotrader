@@ -213,7 +213,47 @@ public class ChartCtrl
 			System.out.println(cex.getMessage() );
 		} 
 	}
+	private void updateRSI(String rsi)
+	{
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("trend_status.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("rsi"))
+		    	config.addProperty("rsi", rsi);
+		    else
+		    	config.setProperty("rsi", rsi);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+	}
 	
+	private Double getRSI()
+	{
+		
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties()
+		        .setFileName("trend_status.properties"));
+		try
+		{
+		    Configuration config = builder.getConfiguration();
+		    Double rsi = config.getDouble("rsi");
+		    return rsi;		
+		}
+		catch(Exception cex)
+		{
+		    return (Double) null;
+		} 
+	}
 	private void updatevol1(Integer vol1)
 	{
 		try
