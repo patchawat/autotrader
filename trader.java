@@ -32,7 +32,7 @@ public class trader
 		ChartCtrl chart = new ChartCtrl();
 		chart.AnalyseMinuteData();
 		//chart.Test();
-		
+		//System.out.println(-(Math.abs(-5)-3));
 		
 		
 		
