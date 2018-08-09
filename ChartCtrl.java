@@ -63,8 +63,11 @@ public class ChartCtrl
 	private final int Y = 20;
 	private final int X = 20;
 	
+	private final int TOP_RSI = 60;
+	private final int BOTTOM_RSI = 100-TOP_RSI;
 	//private final int MIN_VOL = 6000;
 	private final int FEASIBLE_PRICE = 6;
+	
 	
 	
 	ChartCtrl()
@@ -866,7 +869,7 @@ public class ChartCtrl
 		
 		
 		Double c_close_price_3min = new BigDecimal(data_3min.close_price).setScale(2).doubleValue();
-		//Double c_open_price_3min = new BigDecimal(data_3min.open_price).setScale(2).doubleValue();
+		Double c_open_price_3min = new BigDecimal(data_3min.open_price).setScale(2).doubleValue();
 		Double c_high_price_3min = new BigDecimal(data_3min.high_price).setScale(2).doubleValue();
 		Double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
 		
@@ -883,8 +886,30 @@ public class ChartCtrl
 		
 		Double p_rsi = getRSI();
 		updateRSI(data_3min.rsi);
+		Double rsi = getRSI();
 		
 		String res = "";
+		
+		//update vol
+		if(c_vol_3min < p_vol2_3min)
+		{
+			updateHigh1(p_high2_price_3min);
+			updateLow1(p_low2_price_3min);
+			
+			updateHigh2(c_high_price_3min);
+			updateLow2(c_low_price_3min);
+			
+			updatevol1(p_vol2_3min);
+			updatevol2(c_vol_3min);
+			
+		}
+		else
+		{
+			updateHigh2(c_high_price_3min);
+			updateLow2(c_low_price_3min);
+			
+			updatevol2(c_vol_3min);
+		}
 		
 		//determine feasible price
 		String f_price = ReadProperty("trade_status.properties","feasible_price");
@@ -924,7 +949,7 @@ public class ChartCtrl
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
 			if(trade_price - c_close_price_3min < -FEASIBLE_PRICE)
 			{
-				res = "CS";
+				return res = "CS";
 			}
 			else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
@@ -937,7 +962,7 @@ public class ChartCtrl
 				double dif2 = (trade_price - feasible_price)*3/4;
 				if(dif1 < dif2)
 				{
-					res = "CS";
+					return res = "CS";
 				}
 				
 			}
@@ -947,7 +972,7 @@ public class ChartCtrl
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
 			if(c_close_price_3min - trade_price < -FEASIBLE_PRICE)
 			{
-				res = "CL";
+				return res = "CL";
 			}
 			else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
@@ -960,36 +985,48 @@ public class ChartCtrl
 				double dif2 = (feasible_price - trade_price)*3/4;
 				if(dif1 < dif2)
 				{
-					res = "CL";
+					return res = "CL";
 				}
 			}
 		}
 	
-		/**/
-		if(c_vol_3min < p_vol2_3min)
+		
+		
+		
+		//short, long decision
+		if(rsi > TOP_RSI)
 		{
-			updateHigh1(p_high2_price_3min);
-			updateLow1(p_low2_price_3min);
-			
-			updateHigh2(c_high_price_3min);
-			updateLow2(c_low_price_3min);
-			
-			updatevol1(p_vol2_3min);
-			updatevol2(c_vol_3min);
-			return "";
+			if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min)
+					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					res= "L";
+			}
 		}
-
-		updateHigh2(c_high_price_3min);
-		updateLow2(c_low_price_3min);
-		
-		updatevol2(c_vol_3min);
-			
-
-				
-		if(c_vol_3min < MIN_VOL)
-			return "";
-		
-		
+		else if(rsi < BOTTOM_RSI)
+		{
+			if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min)
+					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+					res= "S";
+			}
+		}
+		else
+		{
+			if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min)
+					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					res= "L";
+			}
+			else if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min)
+					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+					res= "S";
+			}
+		}
 		
 		
 		
@@ -1003,7 +1040,7 @@ public class ChartCtrl
 			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 				res= "L";
 		}
-		else */if(c_close_price_3min > p_high1_price_3min)
+		else if(c_close_price_3min > p_high1_price_3min)
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 				res= "L";
@@ -1013,7 +1050,7 @@ public class ChartCtrl
 			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 				res= "S";
 		}
-		
+		*/
 			return res;
 		
 		
