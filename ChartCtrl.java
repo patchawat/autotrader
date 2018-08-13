@@ -884,9 +884,9 @@ public class ChartCtrl
 		Double p_low2_price_3min = getLow2();
 		
 		
-		Double p_rsi = getRSI();
-		updateRSI(data_3min.rsi);
-		Double rsi = getRSI();
+		/*Double p_rsi = getRSI();
+		updateRSI(data_3min.rsi);*/
+		Double rsi  = new BigDecimal(data_3min.rsi).setScale(4).doubleValue();
 		
 		String res = "";
 		
@@ -1058,6 +1058,11 @@ public class ChartCtrl
 	}
 	private void OpenS(String title,String content,String price)
 	{
+		//create trade session
+		
+		
+		
+		//
 		String c_trade = ReadProperty("trade_status.properties","traded");
 		if(c_trade != null&& c_trade.equalsIgnoreCase("L"))
 		{
@@ -1088,6 +1093,11 @@ public class ChartCtrl
 	}
 	private void OpenL(String title,String content,String price)
 	{
+		//create trade session
+		
+		
+		
+		//
 		String c_trade = ReadProperty("trade_status.properties","traded");
 		if(c_trade != null && c_trade.equalsIgnoreCase("S"))
 		{
@@ -1116,6 +1126,11 @@ public class ChartCtrl
 	}
 	private void CloseAll(String title,String content,String price)
 	{
+		//create trade session
+		
+		
+		
+		//
 		String c_trade = ReadProperty("trade_status.properties","traded");
 		double c_price = new BigDecimal(price).setScale(2).doubleValue();
 		if(c_trade == null)
@@ -1202,12 +1217,12 @@ public class ChartCtrl
 		} 
 		catch (IOException e) 
 		{
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		catch (AWTException e) 
 		{
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
@@ -1215,14 +1230,14 @@ public class ChartCtrl
 	{
 		//case1
 		
-		 try 
-		 {
-			sendMailwithAttachment("Test", "Here is testing",new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
-		 } 
-		 catch (IOException e)
-		 {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		TradeCtrl trade = new TradeCtrl();
+		try 
+		{
+			trade.close();
+		} catch (IOException e1) 
+		{
+			
+			e1.printStackTrace();
 		}
 		
 		
