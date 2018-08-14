@@ -65,8 +65,8 @@ public class ChartCtrl
 	
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
-	//private final int MIN_VOL = 6000;
-	private final int FEASIBLE_PRICE = 6;
+	private final int MIN_VOL = 3500;
+	private final int FEASIBLE_PRICE = 3;
 	
 	
 	
@@ -567,7 +567,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\120min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\5min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -902,6 +902,9 @@ public class ChartCtrl
 			updatevol1(p_vol2_3min);
 			updatevol2(c_vol_3min);
 			
+			if(c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS")))
+				resetConf("trade_status.properties");
+			
 		}
 		else
 		{
@@ -996,8 +999,11 @@ public class ChartCtrl
 		//short, long decision
 		if(rsi > TOP_RSI)
 		{
-			if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min)
-					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))
+			/*if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min 
+					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min
+					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
+					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
+			if(c_close_price_3min > p_high1_price_3min && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 					res= "L";
@@ -1005,8 +1011,11 @@ public class ChartCtrl
 		}
 		else if(rsi < BOTTOM_RSI)
 		{
-			if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min)
-					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))
+			/*if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min 
+					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min
+					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
+					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
+			if(c_close_price_3min < p_low1_price_3min && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
@@ -1014,43 +1023,25 @@ public class ChartCtrl
 		}
 		else
 		{
-			if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min)
-					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))
+			/*if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min 
+					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min
+					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
+					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
+			if(c_close_price_3min > p_high1_price_3min && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 					res= "L";
 			}
-			else if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min)
-					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))
+			/*else if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min 
+					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min
+					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
+					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
+			else if(c_close_price_3min < p_low1_price_3min && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
 			}
 		}
-		
-		
-		
-		/*if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min)
-		{
-			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-				res= "S";
-		}
-		else if(c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min)
-		{
-			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-				res= "L";
-		}
-		else if(c_close_price_3min > p_high1_price_3min)
-		{
-			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-				res= "L";
-		}
-		else if(c_close_price_3min < p_low1_price_3min)
-		{
-			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-				res= "S";
-		}
-		*/
 			return res;
 		
 		
