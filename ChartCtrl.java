@@ -65,8 +65,8 @@ public class ChartCtrl
 	
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
-	private final int MIN_VOL = 3500;
-	private final int FEASIBLE_PRICE = 3;
+	private final int MIN_VOL = 30000;
+	private final int FEASIBLE_PRICE = 5;
 	
 	
 	
@@ -567,7 +567,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\5min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\120min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -1003,7 +1003,7 @@ public class ChartCtrl
 					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min
 					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
 					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
-			if(c_close_price_3min > p_high1_price_3min && c_vol_3min >= MIN_VOL)
+			if((c_close_price_3min > p_high1_price_3min|| c_close_price_3min > c_open_price_3min) && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 					res= "L";
@@ -1015,7 +1015,7 @@ public class ChartCtrl
 					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min
 					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
 					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
-			if(c_close_price_3min < p_low1_price_3min && c_vol_3min >= MIN_VOL)
+			if((c_close_price_3min < p_low1_price_3min || c_close_price_3min < c_open_price_3min) && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
@@ -1027,7 +1027,7 @@ public class ChartCtrl
 					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min
 					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
 					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
-			if(c_close_price_3min > p_high1_price_3min && c_vol_3min >= MIN_VOL)
+			if((c_close_price_3min > p_high1_price_3min|| c_close_price_3min > c_open_price_3min) && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 					res= "L";
@@ -1036,7 +1036,7 @@ public class ChartCtrl
 					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min
 					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
 					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
-			else if(c_close_price_3min < p_low1_price_3min && c_vol_3min >= MIN_VOL)
+			else if((c_close_price_3min < p_low1_price_3min || c_close_price_3min < c_open_price_3min) && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
