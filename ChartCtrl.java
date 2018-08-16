@@ -993,17 +993,14 @@ public class ChartCtrl
 			}
 		}
 	
-		
+		if(c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS")))
+			return "";
 		
 		
 		//short, long decision
 		if(rsi > TOP_RSI)
 		{
-			/*if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min 
-					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min
-					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
-					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
-			if((c_close_price_3min > p_high1_price_3min|| c_close_price_3min > c_open_price_3min) && c_vol_3min >= MIN_VOL)
+			if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_close_price_3min > c_open_price_3min) && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 					res= "L";
@@ -1011,11 +1008,7 @@ public class ChartCtrl
 		}
 		else if(rsi < BOTTOM_RSI)
 		{
-			/*if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min 
-					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min
-					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
-					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
-			if((c_close_price_3min < p_low1_price_3min || c_close_price_3min < c_open_price_3min) && c_vol_3min >= MIN_VOL)
+			if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_close_price_3min < c_open_price_3min) && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
@@ -1023,20 +1016,12 @@ public class ChartCtrl
 		}
 		else
 		{
-			/*if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min 
-					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min >= c_open_price_3min
-					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
-					||(c_close_price_3min > p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
-			if((c_close_price_3min > p_high1_price_3min|| c_close_price_3min > c_open_price_3min) && c_vol_3min >= MIN_VOL)
+			if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_close_price_3min > c_open_price_3min) && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 					res= "L";
 			}
-			/*else if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min 
-					&& c_vol_3min/2 >= p_vol1_3min && c_close_price_3min <= c_open_price_3min
-					&& (c_trade == null || !(c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))) )
-					||(c_close_price_3min < p_high1_price_3min && c_vol_3min >= p_vol1_3min))*/
-			else if((c_close_price_3min < p_low1_price_3min || c_close_price_3min < c_open_price_3min) && c_vol_3min >= MIN_VOL)
+			else if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_close_price_3min < c_open_price_3min) && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
