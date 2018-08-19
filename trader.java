@@ -33,9 +33,8 @@ public class trader
 		
 		ChartCtrl chart = new ChartCtrl();
 		chart.AnalyseMinuteData();
-		//chart.Test();
-		//System.out.println(-(Math.abs(-5)-3));
-		
+		//chart.setDatetimeGraphData("08-16 14:15", "08-17 16:54");
+		//chart.getGraphData();
 
 		
 	}

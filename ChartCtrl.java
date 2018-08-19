@@ -16,13 +16,17 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -65,14 +69,21 @@ public class ChartCtrl
 	
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
-	private final int MIN_VOL = 30000;
+	private final int MIN_VOL = 3400;
 	private final int FEASIBLE_PRICE = 5;
 	
+	private final int STEP = 7;
+	private ArrayList <Data>prc;
 	
+	private String start_str;
+	private String end_str;
+	
+	private Data lastData;
 	
 	ChartCtrl()
 	{
-		
+		prc = new ArrayList <Data>();
+		lastData = null;
 	}
 	private String getEmail()
 	{
@@ -567,7 +578,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\120min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\5min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -993,14 +1004,58 @@ public class ChartCtrl
 			}
 		}
 	
-		if(c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS")))
+		if(c_vol_3min < MIN_VOL || (c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))))
 			return "";
 		
 		
 		//short, long decision
-		if(rsi > TOP_RSI)
+		if(c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min)/*high trend*/
 		{
-			if((c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min && c_close_price_3min > c_open_price_3min) && c_vol_3min >= MIN_VOL)
+			Double determined_price = c_open_price_3min < p_high1_price_3min? c_open_price_3min:p_high1_price_3min;
+			if( c_close_price_3min > determined_price)
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					res= "L";
+			}
+			
+		}
+		else if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min)/*low trend*/
+		{
+			Double determined_price = c_open_price_3min > p_low1_price_3min? c_open_price_3min:p_low1_price_3min;
+			if( c_close_price_3min < determined_price)
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+					res= "S";
+			}
+			
+		}
+		else if(
+				(c_high_price_3min > p_high1_price_3min && c_low_price_3min < p_low1_price_3min)
+				||
+				(c_high_price_3min < p_high1_price_3min && c_low_price_3min > p_low1_price_3min)
+				)/*wide or narrow*/
+		{
+			Double determined_price = (c_high_price_3min + c_low_price_3min)/2;
+			if(c_close_price_3min > determined_price)
+			{
+				if( c_close_price_3min > determined_price)
+				{
+					if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+						res= "L";
+				}
+			}
+			else if( c_close_price_3min < determined_price)
+			{
+				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+					res= "S";
+			}
+			
+		}
+		
+		/*if(rsi > TOP_RSI)
+		{
+			Double determined_price = c_open_price_3min < p_high1_price_3min? c_open_price_3min:p_high1_price_3min;
+			if( c_close_price_3min > determined_price && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 					res= "L";
@@ -1008,7 +1063,8 @@ public class ChartCtrl
 		}
 		else if(rsi < BOTTOM_RSI)
 		{
-			if((c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min && c_close_price_3min < c_open_price_3min) && c_vol_3min >= MIN_VOL)
+			Double determined_price = c_open_price_3min > p_low1_price_3min? c_open_price_3min:p_low1_price_3min;
+			if( c_close_price_3min < determined_price && c_vol_3min >= MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
@@ -1026,7 +1082,7 @@ public class ChartCtrl
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 					res= "S";
 			}
-		}
+		}*/
 			return res;
 		
 		
@@ -1201,6 +1257,275 @@ public class ChartCtrl
 			
 			e.printStackTrace();
 		}
+	}
+	public void setDatetimeGraphData(String start,String end)
+	{
+		start_str = start;
+		end_str = end;
+	}
+	public void getGraphData() throws IOException
+	{
+		/*------------------------------------------Pre condition------------------------------------------------------*/
+		
+		
+		Calendar starttime1 = new GregorianCalendar(Calendar.getInstance().get(Calendar.YEAR),Integer.valueOf(start_str.substring(0, 2)),
+				Integer.valueOf(start_str.substring(3, 5)),Integer.valueOf(start_str.substring(6, 8)),Integer.valueOf(start_str.substring(9)));
+		
+		Calendar finishtime1 = new GregorianCalendar(Calendar.getInstance().get(Calendar.YEAR),Integer.valueOf(end_str.substring(0, 2)),
+				Integer.valueOf(end_str.substring(3, 5)),Integer.valueOf(end_str.substring(6, 8)),Integer.valueOf(end_str.substring(9)));
+		
+		
+	
+		
+		//if(!((now.getTimeInMillis() >= starttime1.getTimeInMillis() && now.getTimeInMillis() <= finishtime1.getTimeInMillis())||(now.getTimeInMillis() >= starttime2.getTimeInMillis() && now.getTimeInMillis() <= finishtime2.getTimeInMillis())))
+			//return;
+		
+		
+		//SimpleDateFormat ft = new SimpleDateFormat ("MM-dd HH:mm");
+		
+		
+		
+		//String starttime_str = ft.format(now.getTime());
+		
+		/*--------------------------------------------------------------------------------------------------------------------------*/
+		Data data = null;
+		
+		Screen s = new Screen();
+		Pattern p = new Pattern(new File(".").getCanonicalPath().concat("\\img\\efin.jpg"));
+		p.similar(new Float(SIMILARITY_SCORE));
+		
+		//stream
+		try
+		{
+			s.wait(p,WAITNUM);
+			s.click();
+			
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\draw.jpg"));
+			s.click(p);
+			
+			
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\crosshair.jpg"));
+			s.click(p);
+		}
+		catch(Exception e)
+		{
+			LogData(e.getMessage());
+			return;
+			
+		}
+			//go to chart	
+			Match m1 = null;
+			Match m2 = null;
+		try
+		{
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\period.jpg"));
+			m1 = s.find(p);
+			
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\limitleft.jpg"));
+			m2 = s.find(p);
+		}
+		catch(Exception e)
+		{
+			LogData(e.getMessage());
+			return;
+			
+		}
+			Location c_loc = new Location(m1.getBottomLeft().x,m2.getTopLeft().y - Y);
+			Location right_limit = new Location(m1.getBottomLeft().x,m2.getTopLeft().y - Y);
+			Location left_limit = new Location(m2.getBottomLeft().x,m2.getTopLeft().y - Y);
+		
+		
+		
+		while(true)
+		{
+			//System.out.println(String.format("Before process c_loc %d %d", c_loc.x, c_loc.y));
+			//System.out.println(String.format("right_limit %d %d", right_limit.x, right_limit.y));
+			//System.out.println(String.format("left_limit %d %d", left_limit.x, left_limit.y));
+			try
+			{
+				if(c_loc.x < left_limit.x )
+				{
+					c_loc.setLocation(right_limit.x,right_limit.y);
+					s.mouseDown(Button.LEFT);
+					s.mouseMove(c_loc);
+					s.mouseUp(Button.LEFT);
+				}
+				s.rightClick(c_loc.x,c_loc.y);
+				
+				//System.out.println("Mouse click "+c_loc.x+" "+c_loc.y);
+				p.setFilename(new File(".").getCanonicalPath().concat("\\img\\viewsource.jpg"));
+				
+				s.click(p);
+				
+				
+				p.setFilename(new File(".").getCanonicalPath().concat("\\img\\notepad.jpg"));
+				s.mouseMove(p);
+				s.mouseMove(0, Y);
+				s.keyDown(Key.CTRL);
+				s.keyDown(KeyEvent.VK_A);
+				s.keyUp(KeyEvent.VK_A);
+				s.keyDown(KeyEvent.VK_C);
+				s.keyUp(KeyEvent.VK_C);
+				s.keyUp(Key.CTRL);
+				
+				s.keyDown(Key.ALT);
+				s.keyDown(Key.F4);
+				s.keyUp(Key.ALT);
+				s.keyUp(Key.F4);
+				
+				Thread.sleep(500);
+				String str = (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
+				
+				
+				
+				data = new Data();
+				
+				data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.close_price = RegexNumeric(str," id=\"huClose\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				
+				data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.b_vol = RegexNumeric(str," BUYVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.s_vol = RegexNumeric(str," SELLVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.cci = RegexNumeric(str," RESULT CCI \\(20\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.trix = RegexNumeric(str," RESULT TRIX \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.mom = RegexNumeric(str," RESULT MOMENTUM \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.atr = RegexNumeric(str," RESULT TRUE RANGE = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.macd = RegexNumeric(str," MACD \\(12,26,9\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.s_macd = RegexNumeric(str," SIGNAL MACD \\(12,26,9\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.mfi = RegexNumeric(str," RESULT M FL \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.rocr = RegexNumeric(str," PROC PRICE ROC \\(12\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.swing = RegexNumeric(str," RESULT SWING \\(0.5\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.adx = RegexNumeric(str," ADX DIRECTIONAL \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.obv = RegexNumeric(str," RESULT OBV \\(C\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.std = RegexNumeric(str," RESULT STD DEV \\(14,C,2,SMAV\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				if(data.std.trim().equalsIgnoreCase("N"))
+				{
+					System.out.println("std error");
+					c_loc = c_loc.setLocation(c_loc.x - STEP, c_loc.y);
+				    Mouse.move(c_loc);
+				    continue;
+				}
+				
+				data.willr = RegexNumeric(str," RESULT WILLIAMS %R \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				
+				data.DateTime = RegexNumericDate(str,"[0-9][0-9][-][0-9][0-9][ ][0-9][0-9][:][0-9][0-9]");
+			}
+			catch(Exception e)
+			{
+				System.out.println("Data error");
+				LogData(e.getMessage());
+			}
+		    try
+		    {
+			    /*if(prc.size() > 0)
+			    {
+			    	Data c_data = prc.get(prc.size()-1);
+				    
+				    if(!c_data.DateTime.trim().equalsIgnoreCase(data.DateTime))
+				    	prc.add(data);
+			    }
+			    else if(lastData == null || !lastData.DateTime.trim().equalsIgnoreCase(data.DateTime))
+			    {
+			    	prc.add(data);
+			    }
+			    
+			    //LogData("finish graph");
+			    
+			    if(lastData != null && (lastData.DateTime.trim().equalsIgnoreCase(data.DateTime)))
+			    	break;*/
+		    	Calendar c_time = new GregorianCalendar(Calendar.getInstance().get(Calendar.YEAR),Integer.valueOf(data.DateTime.substring(0, 2)),
+						Integer.valueOf(data.DateTime.substring(3, 5)),Integer.valueOf(data.DateTime.substring(6, 8)),Integer.valueOf(data.DateTime.substring(9)));
+		    	
+		    	
+		    	//System.out.println(String.format("starttime1 %d finishtime1 %d c_time %d", starttime1.getTimeInMillis(), finishtime1.getTimeInMillis(),c_time.getTimeInMillis()));
+		    	if(c_time.getTimeInMillis() >= starttime1.getTimeInMillis() && c_time.getTimeInMillis() <= finishtime1.getTimeInMillis() && (prc.size()==0 || !prc.get(prc.size()-1).DateTime.trim().equalsIgnoreCase(data.DateTime) ))
+		    	{
+		    		
+		    		prc.add(data);
+		    		//saveData(data);
+		    		c_loc = c_loc.setLocation(c_loc.x - STEP, c_loc.y);
+		    		//s.mouseMove(c_loc);
+				    Mouse.move(c_loc);
+				    //System.out.println("In process move "+c_loc.x+" "+c_loc.y);
+				    continue;
+		    	}
+		    	else if(c_time.getTimeInMillis() < starttime1.getTimeInMillis())
+		    	{
+		    		LogData("current time:"+c_time.getTime().toString()+" start time:"+starttime1.getTime().toString());
+		    		break;
+		    	}
+		    	
+		    	
+	    		c_loc = c_loc.setLocation(c_loc.x - STEP, c_loc.y);
+	    		//s.mouseMove(c_loc);
+			    Mouse.move(c_loc);
+			    
+		    }
+		    catch(Exception e)
+			{
+		    	System.out.println(e.getMessage());
+				LogData(e.getMessage());
+				
+			}
+		}
+	    
+		
+		saveData();
+			
+		
+		
+			
+	}
+	
+	private void LogData(String str)
+	{
+	    try
+	    {
+	    	PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\GetminuteLog.txt")),true )); 
+		    pw.write(LocalDateTime.now().toString() + str + "\r\n");
+		    pw.close();
+	    }
+	    catch(Exception e)
+	    {
+	    	System.out.println("save fail");
+	    }
+	}
+	private void saveData()
+	{
+		Collections.reverse(prc);
+		//prc.remove(prc.size()-1);
+		try
+		{
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\price.txt")), true )); 
+			for(int i=0;i<prc.size();++i)
+			{
+				Data d = prc.get(i);
+				pw.write(String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\r\n", 
+						d.open_price, d.close_price,d.high_price, d.low_price,d.adx,d.atr,d.b_vol,d.cci,d.macd,d.mfi,d.mom,
+						d.obv,d.rocr,d.rsi,d.s_macd,d.s_vol,d.std,d.swing,d.trix,d.tsf,d.willr,d.DateTime));
+			}
+			pw.close();
+		}
+		catch(Exception e)
+	    {
+	    	System.out.println("save fail");
+	    	LogData(e.getMessage());
+	    }
+	    
+	}
+	private String RegexNumericDate(String str,String patternDate)
+	{
+	    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(patternDate);
+	    Matcher matcher = pattern.matcher(str);
+	    if(!matcher.find())
+	    {
+	    	return "N";
+	    }
+	    String res = str.substring(matcher.start(),matcher.end());
+	    return res.trim().equalsIgnoreCase("")?"N":res;
 	}
 	public void Test()
 	{

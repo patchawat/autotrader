@@ -9,7 +9,7 @@ public class Data
 	close_price,
 	rsi,
 	vol,
-	/*macd,
+	macd,
 	s_macd,
 	cci,
 	willr,
@@ -24,7 +24,7 @@ public class Data
 	atr,
 	std,
 	b_vol,
-	s_vol,*/
+	s_vol,
 	DateTime;
 	
 	Data()
@@ -37,7 +37,7 @@ public class Data
 		open_price = "";
 		close_price = "";
 		rsi= "";
-		/*macd= "";
+		macd= "";
 		s_macd= "";
 		cci= "";
 		willr= "";
@@ -52,7 +52,7 @@ public class Data
 		atr= "";
 		std= "";
 		b_vol= "";
-		s_vol= "";*/
+		s_vol= "";
 		DateTime= "";
 	}
 }
