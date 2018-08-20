@@ -70,7 +70,7 @@ public class ChartCtrl
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
 	private final int MIN_VOL = 3400;
-	private final int FEASIBLE_PRICE = 5;
+	private final int FEASIBLE_PRICE = 4;
 	
 	private final int STEP = 7;
 	private ArrayList <Data>prc;
