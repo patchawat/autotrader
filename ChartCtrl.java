@@ -940,9 +940,9 @@ public class ChartCtrl
 			
 			if(c_trade.equalsIgnoreCase("L"))
 			{
-				if(c_high_price_3min - trade_price >= FEASIBLE_PRICE)
+				if(c_close_price_3min - trade_price >= FEASIBLE_PRICE)
 				{
-					if(f_price == null || (new BigDecimal(f_price).setScale(2).doubleValue() < c_high_price_3min))
+					if(f_price == null || (new BigDecimal(f_price).setScale(2).doubleValue() < c_close_price_3min))
 					{
 						WriteProperty("trade_status.properties","feasible_price",data_3min.high_price);
 						sendMail("Feasible price L "+data_3min.DateTime,data_3min.high_price);
@@ -952,9 +952,9 @@ public class ChartCtrl
 			}
 			else if(c_trade.equalsIgnoreCase("S"))
 			{
-				if(trade_price - c_low_price_3min >= FEASIBLE_PRICE)
+				if(trade_price - c_close_price_3min >= FEASIBLE_PRICE)
 				{
-					if(f_price == null || (new BigDecimal(f_price).setScale(2).doubleValue() > c_low_price_3min))
+					if(f_price == null || (new BigDecimal(f_price).setScale(2).doubleValue() > c_close_price_3min))
 					{
 						WriteProperty("trade_status.properties","feasible_price",data_3min.low_price);
 						sendMail("Feasible price S "+data_3min.DateTime,data_3min.low_price);
