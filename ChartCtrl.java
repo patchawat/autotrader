@@ -69,7 +69,7 @@ public class ChartCtrl
 	
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
-	private final int MIN_VOL = /*3400*/35000;
+	private final int MIN_VOL = 3500;
 	private final int FEASIBLE_PRICE = 4;
 	
 	private final int STEP = 7;
@@ -578,7 +578,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\120min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\3min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -885,52 +885,40 @@ public class ChartCtrl
 		Double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
 		
 		Integer c_vol_3min =   new BigDecimal(data_3min.vol).intValue();
-		Integer p_vol1_3min = getVol1();
-		Integer p_vol2_3min = getVol2();
+		
+		
 		
 		Double p_high1_price_3min = getHigh1();
 		Double p_low1_price_3min = getLow1();
 		
-		Double p_high2_price_3min = getHigh2();
-		Double p_low2_price_3min = getLow2();
-		
-		
-		/*Double p_rsi = getRSI();
-		updateRSI(data_3min.rsi);*/
-		Double rsi  = new BigDecimal(data_3min.rsi).setScale(4).doubleValue();
 		
 		String res = "";
 		
 		//update vol
-		if(c_vol_3min < p_vol2_3min)
+		if(c_vol_3min < MIN_VOL)
 		{
-			updateHigh1(p_high2_price_3min);
-			updateLow1(p_low2_price_3min);
-			
-			updateHigh2(c_high_price_3min);
-			updateLow2(c_low_price_3min);
-			
-			updatevol1(p_vol2_3min);
-			updatevol2(c_vol_3min);
+			if(p_high1_price_3min == null || p_low1_price_3min == null)
+			{
+				updateHigh1(c_high_price_3min);
+				updateLow1(c_low_price_3min);
+				
+			}
+			else
+			{
+				if(p_high1_price_3min < c_high_price_3min)
+					updateHigh1(c_high_price_3min);
+				if(p_low1_price_3min > c_low_price_3min)
+					updateLow1(c_low_price_3min);
+					
+			}
 			
 			if(c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS") ))
 				resetConf("trade_status.properties");
 			
-		}
-		else
-		{
-			updateHigh2(c_high_price_3min);
-			updateLow2(c_low_price_3min);
 			
-			updatevol2(c_vol_3min);
 		}
 		
-		if(
-			(c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS")))
-			&&
-			(c_vol_3min < MIN_VOL)
-		  )
-				resetConf("trade_status.properties");
+		
 		
 		//determine feasible price
 		String f_price = ReadProperty("trade_status.properties","feasible_price");
@@ -968,11 +956,7 @@ public class ChartCtrl
 		if(c_trade != null && c_trade.equalsIgnoreCase("S"))
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
-			/*if(trade_price - c_close_price_3min < -FEASIBLE_PRICE)
-			{
-				return res = "CS";
-			}
-			else*/ if(f_price == null || f_price.equalsIgnoreCase(""))
+			if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
 			}
@@ -991,11 +975,7 @@ public class ChartCtrl
 		else if(c_trade != null && c_trade.equalsIgnoreCase("L"))
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
-			/*if(c_close_price_3min - trade_price < -FEASIBLE_PRICE)
-			{
-				return res = "CL";
-			}
-			else*/ if(f_price == null || f_price.equalsIgnoreCase(""))
+			if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
 			}
@@ -1015,49 +995,24 @@ public class ChartCtrl
 			return "";
 		
 		
+		resetConf("trend_status.properties");
+		
 		//short, long decision
 		if(c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min)/*high trend*/
 		{
-			Double determined_price = c_open_price_3min < p_high1_price_3min? c_open_price_3min:p_high1_price_3min;
-			if( c_close_price_3min > determined_price)
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
+			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+				res= "L";
+			
 			
 		}
 		else if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min)/*low trend*/
 		{
-			Double determined_price = c_open_price_3min > p_low1_price_3min? c_open_price_3min:p_low1_price_3min;
-			if( c_close_price_3min < determined_price)
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
-			}
+			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+				res= "S";
+			
 			
 		}
-		else if(
-				(c_high_price_3min > p_high1_price_3min && c_low_price_3min < p_low1_price_3min)
-				||
-				(c_high_price_3min < p_high1_price_3min && c_low_price_3min > p_low1_price_3min)
-				)/*wide or narrow*/
-		{
-			Double determined_price = (c_high_price_3min + c_low_price_3min)/2;
-			if(c_close_price_3min > determined_price)
-			{
-				if( c_close_price_3min > determined_price)
-				{
-					if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-						res= "L";
-				}
-			}
-			else if( c_close_price_3min < determined_price)
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
-			}
-			
-		}
+		
 		
 			return res;
 		
@@ -1475,11 +1430,11 @@ public class ChartCtrl
 		prc.remove(prc.size()-1);
 		try
 		{
-			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\price.txt")), true )); 
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\feature.csv")), true )); 
 			for(int i=0;i<prc.size();++i)
 			{
 				Data d = prc.get(i);
-				pw.write(String.format("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\r\n", 
+				pw.write(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", 
 						d.open_price, d.close_price,d.high_price, d.low_price,d.adx,d.atr,d.b_vol,d.cci,d.macd,d.mfi,d.mom,
 						d.obv,d.rocr,d.rsi,d.s_macd,d.s_vol,d.std,d.swing,d.trix,d.tsf,d.willr,d.DateTime));
 			}
