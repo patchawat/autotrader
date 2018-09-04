@@ -33,7 +33,7 @@ public class trader
 		
 		ChartCtrl chart = new ChartCtrl();
 		chart.AnalyseMinuteData();
-		//chart.setDatetimeGraphData("08-31 09:45", "08-31 16:54");
+		//chart.setDatetimeGraphData("09-04 09:45", "09-04 16:54");
 		//chart.getGraphData();
 
 		

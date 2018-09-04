@@ -69,8 +69,9 @@ public class ChartCtrl
 	
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
-	private final int MIN_VOL = 3500;
+	private final int MIN_VOL = 1200;
 	private final int FEASIBLE_PRICE = 4;
+	private final int CONSECUTIVE_LOW_VOL = 5;
 	
 	private final int STEP = 7;
 	private ArrayList <Data>prc;
@@ -539,6 +540,192 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
+	private void updateHigh(Double high)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("high"))
+		    	config.addProperty("high", high);
+		    else
+		    	config.setProperty("high", high);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Double getHigh()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Double high = config.getDouble("high");
+		    return high;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private void updateLow(Double low)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("low"))
+		    	config.addProperty("low", low);
+		    else
+		    	config.setProperty("low", low);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Double getLow()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Double low = config.getDouble("low");
+		    return low;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private void updateLastDateTime(String lastdatetime)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("lastdatetime"))
+		    	config.addProperty("lastdatetime", lastdatetime);
+		    else
+		    	config.setProperty("lastdatetime", lastdatetime);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private String getLastDateTime()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    String lastdatetime = config.getString("lastdatetime");
+		    return lastdatetime;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	
+	private void updateConsecutiveLowVol(Integer consecutive_low_vol)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("consecutive_low_vol"))
+		    	config.addProperty("consecutive_low_vol", consecutive_low_vol);
+		    else
+		    	config.setProperty("consecutive_low_vol", consecutive_low_vol);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Integer getConsecutiveLowVol()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Integer consecutive_low_vol = config.getInt("consecutive_low_vol");
+		    return consecutive_low_vol;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	
+	
+	
+	
+	
 	public void AnalyseMinuteData()throws IOException
 	{
 		Calendar now = new GregorianCalendar(GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.YEAR),GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.MONTH),
@@ -677,8 +864,8 @@ public class ChartCtrl
 				
 				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				//<li><span id="huPeriod" class="huField">20/07/2018 15:00:00</span></li>
-				data.DateTime = t_str;
-				
+				//data.DateTime = t_str;
+				data.DateTime = Regex(str,"\\d*[/]\\d*[/]\\d*\\s*\\d*[:]\\d*[:]\\d*");
 				
 			}
 			catch(Exception e)
@@ -891,34 +1078,76 @@ public class ChartCtrl
 		Double p_high1_price_3min = getHigh1();
 		Double p_low1_price_3min = getLow1();
 		
+		Double p_high2_price_3min = getHigh2();
+		Double p_low2_price_3min = getLow2();
+		
+		Double high_price = getHigh();
+		Double low_price = getLow();
+		
+		String p_datetime = getLastDateTime(); 
+		String c_datetime = data_3min.DateTime;
+		
+		Integer p_vol1_3min = getVol1();
+		Integer p_vol2_3min = getVol2();
+		
+		Integer consecutive_low_vol = getConsecutiveLowVol();
+		
+		
 		
 		String res = "";
+		
+		
+		updateLastDateTime(c_datetime);
+		
+		
 		
 		//update vol
 		if(c_vol_3min < MIN_VOL)
 		{
-			if(p_high1_price_3min == null || p_low1_price_3min == null)
+			if(!c_datetime.equalsIgnoreCase(p_datetime))
 			{
-				updateHigh1(c_high_price_3min);
-				updateLow1(c_low_price_3min);
+				if(p_high1_price_3min == null || p_high2_price_3min > p_high1_price_3min)
+					updateHigh1(p_high2_price_3min);
+				if(p_low1_price_3min == null || p_low2_price_3min < p_low1_price_3min)
+					updateLow1(p_low2_price_3min);
 				
+				updateHigh2(c_high_price_3min);
+				updateLow2(c_low_price_3min);
+				if(p_vol1_3min < MIN_VOL)
+					updateConsecutiveLowVol(consecutive_low_vol+1);
+				if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
+				{
+					updateHigh(getHigh1());
+					updateLow(getLow1());
+				}
+				updatevol1(p_vol2_3min == null? c_vol_3min:p_vol2_3min);
+				updatevol2(c_vol_3min);
+				if(c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS") ))
+					resetConf("trade_status.properties");
 			}
 			else
 			{
-				if(p_high1_price_3min < c_high_price_3min)
-					updateHigh1(c_high_price_3min);
-				if(p_low1_price_3min > c_low_price_3min)
-					updateLow1(c_low_price_3min);
-					
+				if(c_high_price_3min > p_high2_price_3min)
+					updateHigh2(c_high_price_3min);
+				if(c_low_price_3min < p_low2_price_3min)
+					updateLow2(c_low_price_3min);
+				
+				updatevol2(c_vol_3min);
 			}
+		}
 			
-			if(c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS") ))
-				resetConf("trade_status.properties");
+		else
+		{
 			
-			
+			resetConf("trend_status.properties");
+			updateLastDateTime(c_datetime);
+			updateHigh(high_price);
+			updateLow(low_price);
+			updateConsecutiveLowVol(0);
 		}
 		
-		
+			
+
 		
 		//determine feasible price
 		String f_price = ReadProperty("trade_status.properties","feasible_price");
@@ -991,21 +1220,20 @@ public class ChartCtrl
 			}
 		}
 	
-		if(c_vol_3min < MIN_VOL || (c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS"))))
+		//exit if low vol
+		if(c_vol_3min < MIN_VOL)
 			return "";
 		
 		
-		resetConf("trend_status.properties");
-		
 		//short, long decision
-		if(c_high_price_3min > p_high1_price_3min && c_low_price_3min > p_low1_price_3min)/*high trend*/
+		if(c_high_price_3min > high_price && c_low_price_3min > low_price)/*high trend*/
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 				res= "L";
 			
 			
 		}
-		else if(c_high_price_3min < p_high1_price_3min && c_low_price_3min < p_low1_price_3min)/*low trend*/
+		else if(c_high_price_3min < high_price && c_low_price_3min < low_price)/*low trend*/
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 				res= "S";
