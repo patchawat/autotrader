@@ -1107,9 +1107,9 @@ public class ChartCtrl
 			if(!c_datetime.equalsIgnoreCase(p_datetime))
 			{
 				if(p_high1_price_3min == null || p_high2_price_3min > p_high1_price_3min)
-					updateHigh1(p_high2_price_3min);
+					updateHigh1(p_high2_price_3min == null?c_high_price_3min: p_high2_price_3min);
 				if(p_low1_price_3min == null || p_low2_price_3min < p_low1_price_3min)
-					updateLow1(p_low2_price_3min);
+					updateLow1(p_low2_price_3min == null?c_low_price_3min:p_low2_price_3min);
 				
 				updateHigh2(c_high_price_3min);
 				updateLow2(c_low_price_3min);
