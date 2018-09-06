@@ -1113,7 +1113,7 @@ public class ChartCtrl
 				
 				updateHigh2(c_high_price_3min);
 				updateLow2(c_low_price_3min);
-				if(p_vol1_3min < MIN_VOL)
+				if(p_vol1_3min != null && p_vol1_3min < MIN_VOL)
 					updateConsecutiveLowVol(consecutive_low_vol+1);
 				if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
 				{
