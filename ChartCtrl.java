@@ -70,7 +70,7 @@ public class ChartCtrl
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
 	private final int MIN_VOL = 1200;
-	private final int FEASIBLE_PRICE = 4;
+	private final int FEASIBLE_PRICE = 3;
 	private final int CONSECUTIVE_LOW_VOL = 5;
 	
 	private final int STEP = 7;
@@ -1157,9 +1157,9 @@ public class ChartCtrl
 			
 			if(c_trade.equalsIgnoreCase("L"))
 			{
-				if(c_close_price_3min - trade_price >= FEASIBLE_PRICE)
+				if(c_high_price_3min - trade_price >= FEASIBLE_PRICE)
 				{
-					if(f_price == null || (new BigDecimal(f_price).setScale(2).doubleValue() < c_close_price_3min))
+					if(f_price == null || (new BigDecimal(f_price).setScale(2).doubleValue() < c_high_price_3min))
 					{
 						WriteProperty("trade_status.properties","feasible_price",data_3min.high_price);
 						sendMail("Feasible price L "+data_3min.DateTime,data_3min.high_price);
@@ -1169,9 +1169,9 @@ public class ChartCtrl
 			}
 			else if(c_trade.equalsIgnoreCase("S"))
 			{
-				if(trade_price - c_close_price_3min >= FEASIBLE_PRICE)
+				if(trade_price - c_low_price_3min >= FEASIBLE_PRICE)
 				{
-					if(f_price == null || (new BigDecimal(f_price).setScale(2).doubleValue() > c_close_price_3min))
+					if(f_price == null || (new BigDecimal(f_price).setScale(2).doubleValue() > c_low_price_3min))
 					{
 						WriteProperty("trade_status.properties","feasible_price",data_3min.low_price);
 						sendMail("Feasible price S "+data_3min.DateTime,data_3min.low_price);
