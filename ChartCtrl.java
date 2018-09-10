@@ -1193,7 +1193,7 @@ public class ChartCtrl
 			{
 				double feasible_price = new BigDecimal(f_price).setScale(2).doubleValue();
 				double dif1 = trade_price - c_close_price_3min;
-				double dif2 = (trade_price - feasible_price)/2;
+				double dif2 = (trade_price - feasible_price)*3/4;
 				if(dif1 < dif2)
 				{
 					return res = "CS";
@@ -1212,7 +1212,7 @@ public class ChartCtrl
 			{
 				double feasible_price = new BigDecimal(f_price).setScale(2).doubleValue();
 				double dif1 = c_close_price_3min - trade_price;
-				double dif2 = (feasible_price - trade_price)/2;
+				double dif2 = (feasible_price - trade_price)*3/4;
 				if(dif1 < dif2)
 				{
 					return res = "CL";
@@ -1226,14 +1226,14 @@ public class ChartCtrl
 		
 		
 		//short, long decision
-		if(c_high_price_3min > high_price && c_low_price_3min > low_price)/*high trend*/
+		if(c_high_price_3min > high_price && c_low_price_3min > low_price && c_high_price_3min - c_close_price_3min < c_close_price_3min - c_low_price_3min)/*high trend*/
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
 				res= "L";
 			
 			
 		}
-		else if(c_high_price_3min < high_price && c_low_price_3min < low_price)/*low trend*/
+		else if(c_high_price_3min < high_price && c_low_price_3min < low_price && c_high_price_3min - c_close_price_3min > c_close_price_3min - c_low_price_3min)/*low trend*/
 		{
 			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
 				res= "S";
