@@ -70,7 +70,7 @@ public class ChartCtrl
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
 	private final int MIN_VOL = 1200;
-	private final int FEASIBLE_PRICE = 3;
+	private final int FEASIBLE_PRICE = 4;
 	private final int CONSECUTIVE_LOW_VOL = 5;
 	
 	private final int STEP = 7;
@@ -540,7 +540,7 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
-	private void updateHigh(Double high)
+	private void updateCurrentHigh(Double currenthigh)
 	{
 		try
 		{
@@ -551,10 +551,10 @@ public class ChartCtrl
 		       
 		
 		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("high"))
-		    	config.addProperty("high", high);
+		    if(!config.containsKey("currenthigh"))
+		    	config.addProperty("currenthigh", currenthigh);
 		    else
-		    	config.setProperty("high", high);
+		    	config.setProperty("currenthigh", currenthigh);
 		    builder.save();
 		}
 		catch(ConfigurationException cex)
@@ -566,7 +566,7 @@ public class ChartCtrl
 			System.out.println(cex.getMessage() );
 		} 
 	}
-	private Double getHigh()
+	private Double getCurrentHigh()
 	{
 		
 		try
@@ -577,15 +577,15 @@ public class ChartCtrl
 		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
 			
 		    Configuration config = builder.getConfiguration();
-		    Double high = config.getDouble("high");
-		    return high;		
+		    Double currenthigh = config.getDouble("currenthigh");
+		    return currenthigh;		
 		}
 		catch(Exception cex)
 		{
 		    return null;
 		} 
 	}
-	private void updateLow(Double low)
+	private void updateCurrentLow(Double currentlow)
 	{
 		try
 		{
@@ -596,10 +596,10 @@ public class ChartCtrl
 		       
 		
 		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("low"))
-		    	config.addProperty("low", low);
+		    if(!config.containsKey("currentlow"))
+		    	config.addProperty("currentlow", currentlow);
 		    else
-		    	config.setProperty("low", low);
+		    	config.setProperty("currentlow", currentlow);
 		    builder.save();
 		}
 		catch(ConfigurationException cex)
@@ -611,7 +611,7 @@ public class ChartCtrl
 			System.out.println(cex.getMessage() );
 		} 
 	}
-	private Double getLow()
+	private Double getCurrentLow()
 	{
 		
 		try
@@ -622,8 +622,98 @@ public class ChartCtrl
 		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
 			
 		    Configuration config = builder.getConfiguration();
-		    Double low = config.getDouble("low");
-		    return low;		
+		    Double currentlow = config.getDouble("currentlow");
+		    return currentlow;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private void updatePreviousHigh(Double previoushigh)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("previoushigh"))
+		    	config.addProperty("previoushigh", previoushigh);
+		    else
+		    	config.setProperty("previoushigh", previoushigh);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Double getPreviousHigh()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Double previoushigh = config.getDouble("previoushigh");
+		    return previoushigh;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private void updatePreviousLow(Double previouslow)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("previouslow"))
+		    	config.addProperty("previouslow", previouslow);
+		    else
+		    	config.setProperty("previouslow", previouslow);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Double getPreviousLow()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Double previouslow = config.getDouble("previouslow");
+		    return previouslow;		
 		}
 		catch(Exception cex)
 		{
@@ -1081,8 +1171,11 @@ public class ChartCtrl
 		Double p_high2_price_3min = getHigh2();
 		Double p_low2_price_3min = getLow2();
 		
-		Double high_price = getHigh();
-		Double low_price = getLow();
+		Double c_high_price = getCurrentHigh();
+		Double c_low_price = getCurrentLow();
+		
+		Double p_high_price = getPreviousHigh();
+		Double p_low_price = getPreviousLow();
 		
 		String p_datetime = getLastDateTime(); 
 		String c_datetime = data_3min.DateTime;
@@ -1115,10 +1208,18 @@ public class ChartCtrl
 				updateLow2(c_low_price_3min);
 				if(p_vol1_3min != null && p_vol1_3min < MIN_VOL)
 					updateConsecutiveLowVol(consecutive_low_vol+1);
-				if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
+				if(consecutive_low_vol == CONSECUTIVE_LOW_VOL)
 				{
-					updateHigh(getHigh1());
-					updateLow(getLow1());
+					updatePreviousHigh(c_high_price);
+					updatePreviousLow(c_low_price);
+					
+					updateCurrentHigh(getHigh1());
+					updateCurrentLow(getLow1());
+				}
+				else if(consecutive_low_vol > CONSECUTIVE_LOW_VOL)
+				{
+					updateCurrentHigh(getHigh1());
+					updateCurrentLow(getLow1());
 				}
 				updatevol1(p_vol2_3min == null? c_vol_3min:p_vol2_3min);
 				updatevol2(c_vol_3min);
@@ -1141,8 +1242,13 @@ public class ChartCtrl
 			
 			resetConf("trend_status.properties");
 			updateLastDateTime(c_datetime);
-			updateHigh(high_price);
-			updateLow(low_price);
+			
+			updatePreviousHigh(p_high_price);
+			updatePreviousLow(p_low_price);
+			
+			updateCurrentHigh(c_high_price);
+			updateCurrentLow(c_low_price);
+			
 			updateConsecutiveLowVol(0);
 		}
 		
@@ -1193,9 +1299,14 @@ public class ChartCtrl
 			{
 				double feasible_price = new BigDecimal(f_price).setScale(2).doubleValue();
 				double dif1 = trade_price - c_close_price_3min;
-				double dif2 = (trade_price - feasible_price)*3/4;
-				if(dif1 < dif2)
+				double dif2 = (trade_price - feasible_price)*2/3;
+				if(dif1 < dif2 &&  c_high_price_3min - c_close_price_3min < c_close_price_3min - c_low_price_3min)
 				{
+					updatePreviousHigh(c_high_price);
+					updatePreviousLow(c_low_price);
+					
+					updateCurrentHigh(c_high_price_3min);
+					updateCurrentLow(c_low_price_3min);
 					return res = "CS";
 				}
 				
@@ -1212,9 +1323,15 @@ public class ChartCtrl
 			{
 				double feasible_price = new BigDecimal(f_price).setScale(2).doubleValue();
 				double dif1 = c_close_price_3min - trade_price;
-				double dif2 = (feasible_price - trade_price)*3/4;
-				if(dif1 < dif2)
+				double dif2 = (feasible_price - trade_price)*2/3;
+				if(dif1 < dif2 && c_high_price_3min - c_close_price_3min > c_close_price_3min - c_low_price_3min)
 				{
+					updatePreviousHigh(c_high_price);
+					updatePreviousLow(c_low_price);
+					
+					updateCurrentHigh(c_high_price_3min);
+					updateCurrentLow(c_low_price_3min);
+					
 					return res = "CL";
 				}
 			}
@@ -1224,6 +1341,8 @@ public class ChartCtrl
 		if(c_vol_3min < MIN_VOL)
 			return "";
 		
+		Double high_price = getPreviousHigh() > getCurrentHigh()? getPreviousHigh():getCurrentHigh();
+		Double low_price = getPreviousLow() < getCurrentLow()? getPreviousLow():getCurrentLow();
 		
 		//short, long decision
 		if(c_high_price_3min > high_price && c_low_price_3min > low_price && c_high_price_3min - c_close_price_3min < c_close_price_3min - c_low_price_3min)/*high trend*/
