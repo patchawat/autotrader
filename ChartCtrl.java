@@ -69,9 +69,9 @@ public class ChartCtrl
 	
 	private final int TOP_RSI = 60;
 	private final int BOTTOM_RSI = 100-TOP_RSI;
-	private final int MIN_VOL = 1200;
+	private final int MIN_VOL = 3500;
 	private final int FEASIBLE_PRICE = 4;
-	private final int CONSECUTIVE_LOW_VOL = 5;
+	private final int CONSECUTIVE_LOW_VOL = 2;
 	
 	private final int STEP = 7;
 	private ArrayList <Data>prc;
@@ -945,7 +945,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\3min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\5min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -1266,10 +1266,10 @@ public class ChartCtrl
 		
 		Double p_high_price = getPreviousHigh();
 		Double p_low_price = getPreviousLow();
-		
+		/*
 		Double tmp_high_price = getTempHigh();
 		Double tmp_low_price = getTempLow();
-		
+		*/
 		String p_datetime = getLastDateTime(); 
 		String c_datetime = data_3min.DateTime;
 		
@@ -1284,8 +1284,6 @@ public class ChartCtrl
 		
 		
 		updateLastDateTime(c_datetime);
-		
-		
 		
 		//determine feasible price
 		String f_price = ReadProperty("trade_status.properties","feasible_price");
@@ -1323,12 +1321,12 @@ public class ChartCtrl
 		if(c_trade != null && c_trade.equalsIgnoreCase("S"))
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
-			if(f_price == null || f_price.equalsIgnoreCase(""))
+			if(c_close_price_3min - trade_price >= FEASIBLE_PRICE)
+				return "CS";
+			else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
 			}
-			else if(c_close_price_3min - trade_price >= FEASIBLE_PRICE)
-				return "CS";
 			else
 			{
 				double feasible_price = new BigDecimal(f_price).setScale(2).doubleValue();
@@ -1344,12 +1342,12 @@ public class ChartCtrl
 		else if(c_trade != null && c_trade.equalsIgnoreCase("L"))
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
-			if(f_price == null || f_price.equalsIgnoreCase(""))
+			if(trade_price - c_close_price_3min   >= FEASIBLE_PRICE)
+				return "CL";
+			else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
 			}
-			else if(trade_price - c_close_price_3min   >= FEASIBLE_PRICE)
-				return "CL";
 			else
 			{
 				double feasible_price = new BigDecimal(f_price).setScale(2).doubleValue();
@@ -1362,37 +1360,27 @@ public class ChartCtrl
 			}
 		}
 	
-		
-		
 		//update vol
 		if(c_vol_3min < MIN_VOL)
 		{
 			if(!c_datetime.equalsIgnoreCase(p_datetime))
 			{
-				if(p_high1_price_3min == null || p_high2_price_3min > p_high1_price_3min)
-					updateHigh1(p_high2_price_3min == null?c_high_price_3min: p_high2_price_3min);
-				if(p_low1_price_3min == null || p_low2_price_3min < p_low1_price_3min)
-					updateLow1(p_low2_price_3min == null?c_low_price_3min:p_low2_price_3min);
 				
-				updateHigh2(c_high_price_3min);
-				updateLow2(c_low_price_3min);
+				
 				if(p_vol1_3min != null && p_vol1_3min < MIN_VOL)
-					updateConsecutiveLowVol(consecutive_low_vol+1);
-				if(consecutive_low_vol == CONSECUTIVE_LOW_VOL)
+					updateConsecutiveLowVol(++consecutive_low_vol);
+				if(consecutive_low_vol < CONSECUTIVE_LOW_VOL)
 				{
-					updatePreviousHigh(c_high_price);
-					updatePreviousLow(c_low_price);
+					updatePreviousHigh(c_high_price_3min);
+					updatePreviousLow(c_high_price_3min);
 					
-					updateCurrentHigh(tmp_high_price);
-					updateCurrentLow(tmp_low_price);
-					
-					updateTempHigh(getHigh1());
-					updateTempLow(getLow1());
+					updateCurrentHigh(c_high_price_3min);
+					updateCurrentLow(c_low_price_3min);
 				}
-				else if(consecutive_low_vol > CONSECUTIVE_LOW_VOL)
+				else if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
 				{
-					updateTempHigh(getHigh1());
-					updateTempLow(getLow1());
+					updateCurrentHigh(c_high_price_3min);
+					updateCurrentLow(c_low_price_3min);
 				}
 				updatevol1(p_vol2_3min == null? c_vol_3min:p_vol2_3min);
 				updatevol2(c_vol_3min);
@@ -1401,11 +1389,6 @@ public class ChartCtrl
 			}
 			else
 			{
-				if(c_high_price_3min > p_high2_price_3min)
-					updateHigh2(c_high_price_3min);
-				if(c_low_price_3min < p_low2_price_3min)
-					updateLow2(c_low_price_3min);
-				
 				updatevol2(c_vol_3min);
 			}
 		}
@@ -1413,77 +1396,41 @@ public class ChartCtrl
 		else
 		{
 			
-			
-			
-			sendMail("Trend lines updated "+data_3min.DateTime,String.format("previous high : %f previous low : %f current high : %f current low : %f temp high : %f temp low : %f", 
-					p_high_price,p_low_price,c_high_price,c_low_price,tmp_high_price ,tmp_low_price));
-			
-			
 			resetConf("trend_status.properties");
 			updateLastDateTime(c_datetime);
 			
-			updatePreviousHigh(p_high_price);
-			updatePreviousLow(p_low_price);
-			
-			updateCurrentHigh(c_high_price);
-			updateCurrentLow(c_low_price);
-			
-			updateTempHigh(tmp_high_price);
-			updateTempLow(tmp_low_price);
-			
-			updateConsecutiveLowVol(0);
-			
-			if(tmp_high_price > c_high_price && tmp_high_price - c_high_price < Math.abs(c_high_price - p_high_price))
+			if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
 			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
-			}
-			else if(tmp_high_price > c_high_price && tmp_high_price - c_high_price > Math.abs(c_high_price - p_high_price))
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-			else if(tmp_low_price < c_low_price && c_low_price - tmp_low_price < Math.abs(c_low_price - p_low_price))
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					res= "L";
-			}
-			else if(tmp_low_price < c_low_price && c_low_price - tmp_low_price > Math.abs(c_low_price - p_low_price))
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					res= "S";
+				//L,S decision
+				if(c_high_price > p_high_price && c_low_price > p_low_price)
+				{
+					
+					if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
+					{
+						sendMail("Trend lines updated "+data_3min.DateTime,String.format("previous high : %.1f previous low : %.1f current high : %.1f current low : %.1f", 
+								p_high_price,p_low_price,c_high_price,c_low_price));
+						res= "L";
+					}
+				}
+				else if(c_high_price < p_high_price && c_low_price < p_low_price)
+				{
+					if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
+					{
+						sendMail("Trend lines updated "+data_3min.DateTime,String.format("previous high : %.1f previous low : %.1f current high : %.1f current low : %.1f", 
+								p_high_price,p_low_price,c_high_price,c_low_price));
+						res= "S";
+					}
+				}
+				
 			}
 			
-		}
-		
-		/*
-		//exit if low vol
-		if(c_vol_3min < MIN_VOL)
-			return "";
-		
-		Double high_price = getPreviousHigh() > getCurrentHigh()? getPreviousHigh():getCurrentHigh();
-		Double low_price = getPreviousLow() < getCurrentLow()? getPreviousLow():getCurrentLow();
-		
-		//short, long decision
-		if(c_high_price_3min > high_price && c_low_price_3min > low_price && c_high_price_3min - c_close_price_3min < c_close_price_3min - c_low_price_3min)//high trend
-		{
-			if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-				res= "L";
+			
+			consecutive_low_vol = 0;
+			updateConsecutiveLowVol(consecutive_low_vol);
 			
 			
 		}
-		else if(c_high_price_3min < high_price && c_low_price_3min < low_price && c_high_price_3min - c_close_price_3min > c_close_price_3min - c_low_price_3min)//low trend
-		{
-			if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-				res= "S";
-			
-			
-		}
-		*/
-		
 			return res;
-		
-		
 		
 	}
 	private void OpenS(String title,String content,String price)
