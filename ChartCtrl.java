@@ -1372,7 +1372,7 @@ public class ChartCtrl
 				if(consecutive_low_vol < CONSECUTIVE_LOW_VOL)
 				{
 					updatePreviousHigh(c_high_price_3min);
-					updatePreviousLow(c_high_price_3min);
+					updatePreviousLow(c_low_price_3min);
 					
 					updateCurrentHigh(c_high_price_3min);
 					updateCurrentLow(c_low_price_3min);
