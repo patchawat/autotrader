@@ -1367,7 +1367,7 @@ public class ChartCtrl
 			{
 				
 				
-				if(p_vol1_3min != null && p_vol1_3min < MIN_VOL)
+				if(p_vol1_3min == null || p_vol1_3min < MIN_VOL)
 					updateConsecutiveLowVol(++consecutive_low_vol);
 				if(consecutive_low_vol < CONSECUTIVE_LOW_VOL)
 				{
@@ -1389,6 +1389,19 @@ public class ChartCtrl
 			}
 			else
 			{
+				if(consecutive_low_vol < CONSECUTIVE_LOW_VOL)
+				{
+					updatePreviousHigh(c_high_price_3min);
+					updatePreviousLow(c_low_price_3min);
+					
+					updateCurrentHigh(c_high_price_3min);
+					updateCurrentLow(c_low_price_3min);
+				}
+				else if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
+				{
+					updateCurrentHigh(c_high_price_3min);
+					updateCurrentLow(c_low_price_3min);
+				}
 				updatevol2(c_vol_3min);
 			}
 		}
