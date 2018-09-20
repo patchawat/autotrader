@@ -21,13 +21,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
+
+
 import java.util.Properties;
-import java.text.SimpleDateFormat;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.Calendar;
 import java.util.Collections;
 
@@ -41,7 +41,7 @@ import org.sikuli.script.*;
 import org.sikuli.script.Pattern;
 
 import java.util.regex.*;
-import java.util.stream.Collectors;
+
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -67,11 +67,10 @@ public class ChartCtrl
 	private final int Y = 20;
 	private final int X = 20;
 	
-	private final int TOP_RSI = 60;
-	private final int BOTTOM_RSI = 100-TOP_RSI;
-	private final int MIN_VOL = 3500;
+	
+	
+	private final int MIN_VOL = /*15000*/500;
 	private final int FEASIBLE_PRICE = 4;
-	private final int CONSECUTIVE_LOW_VOL = 2;
 	
 	private final int STEP = 7;
 	private ArrayList <Data>prc;
@@ -79,12 +78,12 @@ public class ChartCtrl
 	private String start_str;
 	private String end_str;
 	
-	private Data lastData;
+	
 	
 	ChartCtrl()
 	{
 		prc = new ArrayList <Data>();
-		lastData = null;
+		
 	}
 	private String getEmail()
 	{
@@ -315,501 +314,7 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
-	private void updatevol2(Integer vol2)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("vol2"))
-		    	config.addProperty("vol2", vol2);
-		    else
-		    	config.setProperty("vol2", vol2);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Integer getVol2()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Integer vol2 = config.getInt("vol2");
-		    return vol2;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateHigh1(Double high1)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("high1"))
-		    	config.addProperty("high1", high1);
-		    else
-		    	config.setProperty("high1", high1);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getHigh1()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double high = config.getDouble("high1");
-		    return high;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateLow1(Double low1)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("low1"))
-		    	config.addProperty("low1", low1);
-		    else
-		    	config.setProperty("low1", low1);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getLow1()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double low = config.getDouble("low1");
-		    return low;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateHigh2(Double high2)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("high2"))
-		    	config.addProperty("high2", high2);
-		    else
-		    	config.setProperty("high2", high2);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getHigh2()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double high = config.getDouble("high2");
-		    return high;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateLow2(Double low2)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("low2"))
-		    	config.addProperty("low2", low2);
-		    else
-		    	config.setProperty("low2", low2);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getLow2()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double low = config.getDouble("low2");
-		    return low;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateCurrentHigh(Double currenthigh)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("currenthigh"))
-		    	config.addProperty("currenthigh", currenthigh);
-		    else
-		    	config.setProperty("currenthigh", currenthigh);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getCurrentHigh()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double currenthigh = config.getDouble("currenthigh");
-		    return currenthigh;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateCurrentLow(Double currentlow)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("currentlow"))
-		    	config.addProperty("currentlow", currentlow);
-		    else
-		    	config.setProperty("currentlow", currentlow);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getCurrentLow()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double currentlow = config.getDouble("currentlow");
-		    return currentlow;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updatePreviousHigh(Double previoushigh)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("previoushigh"))
-		    	config.addProperty("previoushigh", previoushigh);
-		    else
-		    	config.setProperty("previoushigh", previoushigh);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getPreviousHigh()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double previoushigh = config.getDouble("previoushigh");
-		    return previoushigh;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updatePreviousLow(Double previouslow)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("previouslow"))
-		    	config.addProperty("previouslow", previouslow);
-		    else
-		    	config.setProperty("previouslow", previouslow);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getPreviousLow()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double previouslow = config.getDouble("previouslow");
-		    return previouslow;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateTempHigh(Double temphigh)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("temphigh"))
-		    	config.addProperty("temphigh", temphigh);
-		    else
-		    	config.setProperty("temphigh", temphigh);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getTempHigh()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double temphigh = config.getDouble("temphigh");
-		    return temphigh;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
-	private void updateTempLow(Double templow)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("templow"))
-		    	config.addProperty("templow", templow);
-		    else
-		    	config.setProperty("templow", templow);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Double getTempLow()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Double templow = config.getDouble("templow");
-		    return templow;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
+	
 	private void updateLastDateTime(String lastdatetime)
 	{
 		try
@@ -856,51 +361,7 @@ public class ChartCtrl
 		} 
 	}
 	
-	private void updateConsecutiveLowVol(Integer consecutive_low_vol)
-	{
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-		       
-		
-		    Configuration config = builder.getConfiguration();
-		    if(!config.containsKey("consecutive_low_vol"))
-		    	config.addProperty("consecutive_low_vol", consecutive_low_vol);
-		    else
-		    	config.setProperty("consecutive_low_vol", consecutive_low_vol);
-		    builder.save();
-		}
-		catch(ConfigurationException cex)
-		{
-		    
-		} 
-		catch(Exception cex)
-		{
-			System.out.println(cex.getMessage() );
-		} 
-	}
-	private Integer getConsecutiveLowVol()
-	{
-		
-		try
-		{
-			Parameters params = new Parameters();
-			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
-			
-		    Configuration config = builder.getConfiguration();
-		    Integer consecutive_low_vol = config.getInt("consecutive_low_vol");
-		    return consecutive_low_vol;		
-		}
-		catch(Exception cex)
-		{
-		    return null;
-		} 
-	}
+	
 	
 	
 	
@@ -908,16 +369,16 @@ public class ChartCtrl
 	
 	public void AnalyseMinuteData()throws IOException
 	{
-		Calendar now = new GregorianCalendar(GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.YEAR),GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.MONTH),
+		/*Calendar now = new GregorianCalendar(GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.YEAR),GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.MONTH),
 				GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.DAY_OF_MONTH),GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.HOUR_OF_DAY),
 				GregorianCalendar.getInstance(Locale.ENGLISH).get(GregorianCalendar.MINUTE));
+		*/
+		
+		//SimpleDateFormat ft = new SimpleDateFormat ("MM-dd HH:mm");
 		
 		
-		SimpleDateFormat ft = new SimpleDateFormat ("MM-dd HH:mm");
 		
-		
-		
-		String t_str = ft.format(now.getTime());
+		//String t_str = ft.format(now.getTime());
 		
 		
 		/*------------------------------------------Start collect graph data------------------------------------------------------*/
@@ -945,7 +406,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\5min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\30min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -1247,43 +708,31 @@ public class ChartCtrl
 		
 		
 		Double c_close_price_3min = new BigDecimal(data_3min.close_price).setScale(2).doubleValue();
-		Double c_open_price_3min = new BigDecimal(data_3min.open_price).setScale(2).doubleValue();
+		//Double c_open_price_3min = new BigDecimal(data_3min.open_price).setScale(2).doubleValue();
 		Double c_high_price_3min = new BigDecimal(data_3min.high_price).setScale(2).doubleValue();
 		Double c_low_price_3min = new BigDecimal(data_3min.low_price).setScale(2).doubleValue();
 		
 		Integer c_vol_3min =   new BigDecimal(data_3min.vol).intValue();
 		
+		Double c_rsi = new BigDecimal(data_3min.rsi).setScale(4).doubleValue();
+		Double p_rsi = getRSI()==null?c_rsi:getRSI();
 		
-		
-		Double p_high1_price_3min = getHigh1();
-		Double p_low1_price_3min = getLow1();
-		
-		Double p_high2_price_3min = getHigh2();
-		Double p_low2_price_3min = getLow2();
-		
-		Double c_high_price = getCurrentHigh();
-		Double c_low_price = getCurrentLow();
-		
-		Double p_high_price = getPreviousHigh();
-		Double p_low_price = getPreviousLow();
-		/*
-		Double tmp_high_price = getTempHigh();
-		Double tmp_low_price = getTempLow();
-		*/
-		String p_datetime = getLastDateTime(); 
 		String c_datetime = data_3min.DateTime;
+		String p_datetime = getLastDateTime()==null?c_datetime:getLastDateTime(); 
 		
-		Integer p_vol1_3min = getVol1();
-		Integer p_vol2_3min = getVol2();
 		
-		Integer consecutive_low_vol = getConsecutiveLowVol();
+		updateLastDateTime(c_datetime);
+		
+		Integer p_vol1_3min = getVol1()==null?c_vol_3min:getVol1();
+		updatevol1(c_vol_3min);
+		
 		
 		
 		
 		String res = "";
 		
 		
-		updateLastDateTime(c_datetime);
+		
 		
 		//determine feasible price
 		String f_price = ReadProperty("trade_status.properties","feasible_price");
@@ -1332,7 +781,7 @@ public class ChartCtrl
 				double feasible_price = new BigDecimal(f_price).setScale(2).doubleValue();
 				double dif1 = trade_price - c_close_price_3min;
 				double dif2 = (trade_price - feasible_price)*2/3;
-				if(dif1 < dif2 &&  c_high_price_3min - c_close_price_3min < c_close_price_3min - c_low_price_3min)
+				if(dif1 < dif2)
 				{
 					return res = "CS";
 				}
@@ -1353,7 +802,7 @@ public class ChartCtrl
 				double feasible_price = new BigDecimal(f_price).setScale(2).doubleValue();
 				double dif1 = c_close_price_3min - trade_price;
 				double dif2 = (feasible_price - trade_price)*2/3;
-				if(dif1 < dif2 && c_high_price_3min - c_close_price_3min > c_close_price_3min - c_low_price_3min)
+				if(dif1 < dif2 )
 				{
 					return res = "CL";
 				}
@@ -1361,88 +810,31 @@ public class ChartCtrl
 		}
 	
 		//update vol
-		if(c_vol_3min < MIN_VOL)
+		Integer vol = c_datetime.equalsIgnoreCase(p_datetime)? c_vol_3min - p_vol1_3min :c_vol_3min;
+		if(vol > MIN_VOL)
 		{
-			if(!c_datetime.equalsIgnoreCase(p_datetime))
+			if(new BigDecimal(c_rsi/10).intValue() > new BigDecimal(p_rsi/10).intValue())
 			{
-				
-				
-				if(p_vol1_3min == null || p_vol1_3min < MIN_VOL)
-					updateConsecutiveLowVol(++consecutive_low_vol);
-				if(consecutive_low_vol < CONSECUTIVE_LOW_VOL)
+				if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
 				{
-					updatePreviousHigh(c_high_price_3min);
-					updatePreviousLow(c_low_price_3min);
-					
-					updateCurrentHigh(c_high_price_3min);
-					updateCurrentLow(c_low_price_3min);
+					res = "L";
+					updateRSI(data_3min.rsi);
 				}
-				else if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
-				{
-					updateCurrentHigh(c_high_price_3min);
-					updateCurrentLow(c_low_price_3min);
-				}
-				updatevol1(p_vol2_3min == null? c_vol_3min:p_vol2_3min);
-				updatevol2(c_vol_3min);
-				if(c_trade != null && (c_trade.equalsIgnoreCase("CL") || c_trade.equalsIgnoreCase("CS") ))
-					resetConf("trade_status.properties");
+				
 			}
-			else
+			if(new BigDecimal(c_rsi/10).intValue() < new BigDecimal(p_rsi/10).intValue())
 			{
-				if(consecutive_low_vol < CONSECUTIVE_LOW_VOL)
+				if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
 				{
-					updatePreviousHigh(c_high_price_3min);
-					updatePreviousLow(c_low_price_3min);
-					
-					updateCurrentHigh(c_high_price_3min);
-					updateCurrentLow(c_low_price_3min);
+					res = "S";
+					updateRSI(data_3min.rsi);
 				}
-				else if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
-				{
-					updateCurrentHigh(c_high_price_3min);
-					updateCurrentLow(c_low_price_3min);
-				}
-				updatevol2(c_vol_3min);
+				
 			}
+			
 		}
 			
-		else
-		{
-			
-			resetConf("trend_status.properties");
-			updateLastDateTime(c_datetime);
-			
-			if(consecutive_low_vol >= CONSECUTIVE_LOW_VOL)
-			{
-				//L,S decision
-				if(c_high_price > p_high_price && c_low_price > p_low_price)
-				{
-					
-					if(c_trade == null || !c_trade.equalsIgnoreCase("L") )
-					{
-						sendMail("Trend lines updated "+data_3min.DateTime,String.format("previous high : %.1f previous low : %.1f current high : %.1f current low : %.1f", 
-								p_high_price,p_low_price,c_high_price,c_low_price));
-						res= "L";
-					}
-				}
-				else if(c_high_price < p_high_price && c_low_price < p_low_price)
-				{
-					if(c_trade == null || !c_trade.equalsIgnoreCase("S") )
-					{
-						sendMail("Trend lines updated "+data_3min.DateTime,String.format("previous high : %.1f previous low : %.1f current high : %.1f current low : %.1f", 
-								p_high_price,p_low_price,c_high_price,c_low_price));
-						res= "S";
-					}
-				}
-				
-			}
-			
-			
-			consecutive_low_vol = 0;
-			updateConsecutiveLowVol(consecutive_low_vol);
-			
-			
-		}
+		
 			return res;
 		
 	}
