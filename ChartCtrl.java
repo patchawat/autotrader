@@ -230,13 +230,14 @@ public class ChartCtrl
 	}
 	private void updateRSI(String rsi)
 	{
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
 		try
 		{
+			
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+				new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+			    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		
 		    Configuration config = builder.getConfiguration();
 		    if(!config.containsKey("rsi"))
 		    	config.addProperty("rsi", rsi);
@@ -244,7 +245,7 @@ public class ChartCtrl
 		    	config.setProperty("rsi", rsi);
 		    builder.save();
 		}
-		catch(ConfigurationException cex)
+		catch(Exception cex)
 		{
 		    
 		} 
@@ -252,14 +253,14 @@ public class ChartCtrl
 	
 	private Double getRSI()
 	{
-		
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
-		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-		    .configure(params.properties()
-		        .setFileName("trend_status.properties"));
 		try
 		{
+		
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+				new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+			    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		
 		    Configuration config = builder.getConfiguration();
 		    Double rsi = config.getDouble("rsi");
 		    return rsi;		
@@ -1280,16 +1281,15 @@ public class ChartCtrl
 	public void Test()
 	{
 		//case1
-		
-		TradeCtrl trade = new TradeCtrl();
-		try 
-		{
-			trade.close();
-		} catch (IOException e1) 
-		{
-			
-			e1.printStackTrace();
-		}
+		Data data = new Data();
+		data.high_price = "1000.00";
+		data.low_price = "1000.00";
+		data.open_price = "1000.00";
+		data.close_price = "1000.00";
+		data.rsi = "21.00";
+		data.DateTime = "21/09/2018 16:20:00";
+		data.vol = "30000";
+		analyse(data);
 		
 		
 		//case2
