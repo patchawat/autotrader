@@ -772,7 +772,7 @@ public class ChartCtrl
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
 			if(c_close_price_3min - trade_price >= FEASIBLE_PRICE)
-				return "CS";
+				res = "CS";
 			else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
@@ -784,7 +784,7 @@ public class ChartCtrl
 				double dif2 = (trade_price - feasible_price)*2/3;
 				if(dif1 < dif2)
 				{
-					return res = "CS";
+					res = "CS";
 				}
 				
 			}
@@ -793,7 +793,7 @@ public class ChartCtrl
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
 			if(trade_price - c_close_price_3min   >= FEASIBLE_PRICE)
-				return "CL";
+				res = "CL";
 			else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
@@ -805,7 +805,7 @@ public class ChartCtrl
 				double dif2 = (feasible_price - trade_price)*2/3;
 				if(dif1 < dif2 )
 				{
-					return res = "CL";
+					res = "CL";
 				}
 			}
 		}
