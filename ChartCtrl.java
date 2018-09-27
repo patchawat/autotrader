@@ -407,7 +407,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\5min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\30min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -812,9 +812,9 @@ public class ChartCtrl
 	
 		//update vol
 		Integer vol = c_datetime.equalsIgnoreCase(p_datetime)? c_vol_3min - p_vol1_3min :c_vol_3min;
-		if((c_rsi >= 40 && c_rsi <= 60) || (p_rsi >= 40 && p_rsi <= 60))
+		if((c_rsi >= 40 && c_rsi <= 60) && (p_rsi >= 40 && p_rsi <= 60))
 		{
-			if((p_rsi < 40 &&  c_rsi >= 40))
+			if((p_rsi < 45 &&  c_rsi >= 45))
 			{
 				updateRSI(data_3min.rsi);
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
@@ -823,7 +823,7 @@ public class ChartCtrl
 					
 				}
 			}
-			else if(c_rsi <= 60 &&  p_rsi > 60 )
+			else if(c_rsi <= 55 &&  p_rsi > 55 )
 			{
 				updateRSI(data_3min.rsi);
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
@@ -834,31 +834,37 @@ public class ChartCtrl
 			}
 			
 		}
-		else if(vol > MIN_VOL)
+		
+		else if(new BigDecimal(c_rsi/10).intValue() > new BigDecimal(p_rsi/10).intValue())
 		{
-			
-			if(new BigDecimal(c_rsi/10).intValue() > new BigDecimal(p_rsi/10).intValue())
+			updateRSI(data_3min.rsi);
+			if(vol > MIN_VOL)
 			{
-				updateRSI(data_3min.rsi);
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
 				{
 					res = "L";
 					
 				}
-				
 			}
-			else if(new BigDecimal(c_rsi/10).intValue() < new BigDecimal(p_rsi/10).intValue())
+			
+			
+		}
+		else if(new BigDecimal(c_rsi/10).intValue() < new BigDecimal(p_rsi/10).intValue())
+		{
+			updateRSI(data_3min.rsi);
+			if(vol > MIN_VOL)
 			{
-				updateRSI(data_3min.rsi);
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
 				{
 					res = "S";
 					
 				}
-				
 			}
 			
+			
 		}
+			
+		
 			
 		
 			return res;
