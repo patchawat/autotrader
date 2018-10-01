@@ -70,7 +70,7 @@ public class ChartCtrl
 	
 	
 	private final int MIN_VOL = /*15000*/500;
-	private final int FEASIBLE_PRICE = 4;
+	private final int FEASIBLE_PRICE = 5;
 	
 	private final int STEP = 7;
 	private ArrayList <Data>prc;
@@ -407,7 +407,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\30min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\120min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
