@@ -271,7 +271,52 @@ public class ChartCtrl
 		    return (Double) null;
 		} 
 	}
-	private void updatevol1(Integer vol1)
+	private void updateVol(Integer vol)
+	{
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+		       
+		
+		    Configuration config = builder.getConfiguration();
+		    if(!config.containsKey("vol"))
+		    	config.addProperty("vol", vol);
+		    else
+		    	config.setProperty("vol", vol);
+		    builder.save();
+		}
+		catch(ConfigurationException cex)
+		{
+		    
+		} 
+		catch(Exception cex)
+		{
+			System.out.println(cex.getMessage() );
+		} 
+	}
+	private Integer getVol()
+	{
+		
+		try
+		{
+			Parameters params = new Parameters();
+			FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+		    new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+		    .configure(params.properties().setPath(new File(".").getCanonicalPath().concat("\\conf\\trend_status.properties")));
+			
+		    Configuration config = builder.getConfiguration();
+		    Integer vol = config.getInt("vol");
+		    return vol;		
+		}
+		catch(Exception cex)
+		{
+		    return null;
+		} 
+	}
+	private void updateVol1(Integer vol1)
 	{
 		try
 		{
@@ -316,7 +361,7 @@ public class ChartCtrl
 		    return null;
 		} 
 	}
-	private void updatevol2(Integer vol2)
+	private void updateVol2(Integer vol2)
 	{
 		try
 		{
@@ -816,9 +861,10 @@ public class ChartCtrl
 		
 		updateLastDateTime(c_datetime);
 		
+		Integer p_vol = getVol()==null ?0:getVol();
 		Integer p_vol1 = getVol1()==null ?0:getVol1();
 		Integer p_vol2 = getVol2()==null ?c_vol:getVol2();
-		updatevol2(c_vol);
+		updateVol2(c_vol);
 		
 		Integer state = getstate()==null?0:getstate();
 		
@@ -838,19 +884,19 @@ public class ChartCtrl
 			if(c_datetime.equalsIgnoreCase(p_datetime))
 			{
 				
-				updatevol2(c_vol);
+				updateVol2(c_vol);
 				vol =  c_vol + p_vol1 ;
 			}
 			else
 			{
-				updatevol2(c_vol);
+				updateVol2(c_vol);
 				if(p_vol2 == 0)
 				{
-					updatevol1(0);
+					updateVol1(0);
 				}
 				else
 				{
-					updatevol1(p_vol1 + p_vol2);
+					updateVol1(p_vol1 + p_vol2);
 				}
 				vol =  c_vol + p_vol1 + p_vol2;
 			}
@@ -866,25 +912,27 @@ public class ChartCtrl
 			{
 				if(p_vol2 == 0)
 				{
-					updatevol2(0);
+					updateVol2(0);
 				}
-				vol =  p_vol1 ;
+				vol =  p_vol1 + p_vol2;
 				
 			}
 			else
 			{
-				updatevol2(0);
+				updateVol2(0);
 				if(p_vol2 == 0)
 				{
-					updatevol1(0);
+					updateVol1(0);
 				}
 				else
 				{
-					updatevol1(p_vol1 + p_vol2);
+					updateVol1(p_vol1 + p_vol2);
 				}
 				vol =  p_vol1 + p_vol2;
+				
 			}
-			
+			p_vol = vol==0?p_vol:vol;
+			updateVol(p_vol);
 		}
 		
 		//determine feasible price
@@ -964,7 +1012,7 @@ public class ChartCtrl
 	*/
 		if(c_rsi < MAX_RSI && c_rsi > MIN_RSI && p_rsi > MAX_RSI && p_vol2 == 0)
 		{
-			if(vol < MIN_VOL)
+			if(p_vol < MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
 				{
@@ -989,7 +1037,7 @@ public class ChartCtrl
 		}
 		else if(c_rsi < MAX_RSI && c_rsi > MIN_RSI && p_rsi < MIN_RSI && p_vol2 == 0)
 		{
-			if(vol < MIN_VOL)
+			if(p_vol < MIN_VOL)
 			{
 				if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
 				{
@@ -1012,59 +1060,18 @@ public class ChartCtrl
 				}
 			}
 		}
-		/*if((c_rsi >= 40 && c_rsi <= 60) && (p_rsi >= 40 && p_rsi <= 60))
-		{
-			if((p_rsi < 45 &&  c_rsi >= 45))
-			{
-				updateRSI(_data.rsi);
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
-				{
-					res = "L";
-					
-				}
-			}
-			else if(c_rsi <= 55 &&  p_rsi > 55 )
-			{
-				updateRSI(_data.rsi);
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
-				{
-					res = "S";
-					
-				}
-			}
 			
+		//close all end of day
+		if(c_trade != null && c_trade.equalsIgnoreCase("S"))
+		{
+			if(lasttime.equalsIgnoreCase(i_lasttime))
+				res = "CS";
 		}
-		
-		else if(new BigDecimal(c_rsi/10).intValue() > new BigDecimal(p_rsi/10).intValue())
+		else if(c_trade != null && c_trade.equalsIgnoreCase("L"))
 		{
-			updateRSI(_data.rsi);
-			if(vol > MIN_VOL)
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
-				{
-					res = "L";
-					
-				}
-			}
-			
-			
+			if(lasttime.equalsIgnoreCase(i_lasttime))
+				res = "CL";
 		}
-		else if(new BigDecimal(c_rsi/10).intValue() < new BigDecimal(p_rsi/10).intValue())
-		{
-			updateRSI(_data.rsi);
-			if(vol > MIN_VOL)
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
-				{
-					res = "S";
-					
-				}
-			}
-			
-			
-		}*/
-			
-		
 			
 		
 			return res;
