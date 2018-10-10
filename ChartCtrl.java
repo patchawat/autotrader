@@ -71,7 +71,7 @@ public class ChartCtrl
 	private final int MIN_RSI = 100-MAX_RSI;
 	
 	private final int MIN_VOL = 5000;
-	//private final int FEASIBLE_PRICE = 5;
+	private final int FEASIBLE_PRICE = 5;
 	
 	private final int STEP = 7;
 	private ArrayList <Data>prc;
@@ -870,13 +870,13 @@ public class ChartCtrl
 		
 		String lasttime = c_datetime.substring(6);
 		final String i_lasttime = "16:50";
+		final String i_starttime = "09:45";
 		
 		
 		String res = "";
 		
 		
 		//update vol
-		//Integer vol = c_datetime.equalsIgnoreCase(p_datetime)? c_vol - p_vol1 :c_vol;
 		Integer vol;
 		if(c_rsi > MAX_RSI || c_rsi < MIN_RSI)
 		{
@@ -966,14 +966,14 @@ public class ChartCtrl
 				}
 			}
 			
-		}
+		}*/
 		//close if possible
 		if(c_trade != null && c_trade.equalsIgnoreCase("S"))
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
 			if(c_close_price - trade_price >= FEASIBLE_PRICE || lasttime.equalsIgnoreCase(i_lasttime))
-				res = "CS";
-			else if(f_price == null || f_price.equalsIgnoreCase(""))
+				return res = "CS";
+			/*else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
 			}
@@ -987,14 +987,14 @@ public class ChartCtrl
 					res = "CS";
 				}
 				
-			}
+			}*/
 		}
 		else if(c_trade != null && c_trade.equalsIgnoreCase("L"))
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
 			if(trade_price - c_close_price   >= FEASIBLE_PRICE || lasttime.equalsIgnoreCase(i_lasttime))
-				res = "CL";
-			else if(f_price == null || f_price.equalsIgnoreCase(""))
+				return res = "CL";
+			/*else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
 			}
@@ -1007,71 +1007,63 @@ public class ChartCtrl
 				{
 					res = "CL";
 				}
-			}
+			}*/
 		}
-	*/
-		if(c_rsi < MAX_RSI && c_rsi > MIN_RSI && p_rsi > MAX_RSI && p_vol2 == 0)
+	
+		if(!c_datetime.equalsIgnoreCase(p_datetime) && !lasttime.equalsIgnoreCase(i_lasttime) && !lasttime.equalsIgnoreCase(i_starttime))
 		{
-			if(p_vol < MIN_VOL)
+			if(c_rsi < MAX_RSI && c_rsi > MIN_RSI && p_rsi > MAX_RSI && p_vol2 == 0)
 			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
-				{
-					res = "S";
-					
-				}
-			}
-			else
-			{
-				if(c_rsi < 50 && state == 0)
-					updatestate(++state);
-				else if(c_rsi > 50 && state > 0)
-				{
-					if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
-					{
-						res = "L";
-						
-					}
-					
-				}
-			}
-		}
-		else if(c_rsi < MAX_RSI && c_rsi > MIN_RSI && p_rsi < MIN_RSI && p_vol2 == 0)
-		{
-			if(p_vol < MIN_VOL)
-			{
-				if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
-				{
-					res = "L";
-					
-				}
-			}
-			else
-			{
-				if(c_rsi > 50 && state == 0)
-					updatestate(++state);
-				else if(c_rsi < 50 && state > 0)
+				if(p_vol < MIN_VOL)
 				{
 					if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
 					{
 						res = "S";
 						
 					}
-					
+				}
+				else
+				{
+					if(c_rsi < 50 && state == 0)
+						updatestate(++state);
+					else if(c_rsi > 50 && state > 0)
+					{
+						if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
+						{
+							res = "L";
+							
+						}
+						
+					}
+				}
+			}
+			else if(c_rsi < MAX_RSI && c_rsi > MIN_RSI && p_rsi < MIN_RSI && p_vol2 == 0)
+			{
+				if(p_vol < MIN_VOL)
+				{
+					if(c_trade == null || !c_trade.equalsIgnoreCase("L"))
+					{
+						res = "L";
+						
+					}
+				}
+				else
+				{
+					if(c_rsi > 50 && state == 0)
+						updatestate(++state);
+					else if(c_rsi < 50 && state > 0)
+					{
+						if(c_trade == null || !c_trade.equalsIgnoreCase("S"))
+						{
+							res = "S";
+							
+						}
+						
+					}
 				}
 			}
 		}
-			
-		//close all end of day
-		if(c_trade != null && c_trade.equalsIgnoreCase("S"))
-		{
-			if(lasttime.equalsIgnoreCase(i_lasttime))
-				res = "CS";
-		}
-		else if(c_trade != null && c_trade.equalsIgnoreCase("L"))
-		{
-			if(lasttime.equalsIgnoreCase(i_lasttime))
-				res = "CL";
-		}
+		
 			
 		
 			return res;
