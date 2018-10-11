@@ -846,8 +846,8 @@ public class ChartCtrl
 		
 		Double c_close_price = new BigDecimal(_data.close_price).setScale(2).doubleValue();
 		//Double c_open_price = new BigDecimal(_data.open_price).setScale(2).doubleValue();
-		Double c_high_price = new BigDecimal(_data.high_price).setScale(2).doubleValue();
-		Double c_low_price = new BigDecimal(_data.low_price).setScale(2).doubleValue();
+		//Double c_high_price = new BigDecimal(_data.high_price).setScale(2).doubleValue();
+		//Double c_low_price = new BigDecimal(_data.low_price).setScale(2).doubleValue();
 		
 		Integer c_vol =   new BigDecimal(_data.vol).intValue();
 		
@@ -868,9 +868,9 @@ public class ChartCtrl
 		
 		Integer state = getstate()==null?0:getstate();
 		
-		String lasttime = c_datetime.substring(6);
-		final String i_lasttime = "16:50";
-		final String i_starttime = "09:45";
+		String lasttime = c_datetime.substring(11);
+		final String i_lasttime = "16:50:00";
+		//final String i_starttime = "09:45:00";
 		
 		
 		String res = "";
@@ -973,6 +973,10 @@ public class ChartCtrl
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
 			if(c_close_price - trade_price >= FEASIBLE_PRICE || lasttime.equalsIgnoreCase(i_lasttime))
 				return res = "CS";
+			else if( trade_price - c_close_price >= 1 && lasttime.equalsIgnoreCase(i_lasttime))
+			{
+				return res = "CS";
+			}
 			/*else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
@@ -992,8 +996,12 @@ public class ChartCtrl
 		else if(c_trade != null && c_trade.equalsIgnoreCase("L"))
 		{
 			double trade_price = new BigDecimal(ReadProperty("trade_status.properties","tradedprice")).setScale(2).doubleValue();
-			if(trade_price - c_close_price   >= FEASIBLE_PRICE || lasttime.equalsIgnoreCase(i_lasttime))
+			if(trade_price - c_close_price   >= FEASIBLE_PRICE  )
 				return res = "CL";
+			else if(c_close_price - trade_price >= 1 && lasttime.equalsIgnoreCase(i_lasttime))
+			{
+				return res = "CL";
+			}
 			/*else if(f_price == null || f_price.equalsIgnoreCase(""))
 			{
 				
@@ -1010,7 +1018,7 @@ public class ChartCtrl
 			}*/
 		}
 	
-		if(!c_datetime.equalsIgnoreCase(p_datetime) && !lasttime.equalsIgnoreCase(i_lasttime) && !lasttime.equalsIgnoreCase(i_starttime))
+		if(!c_datetime.equalsIgnoreCase(p_datetime) && !lasttime.equalsIgnoreCase(i_lasttime) /*&& !lasttime.equalsIgnoreCase(i_starttime)*/)
 		{
 			if(c_rsi < MAX_RSI && c_rsi > MIN_RSI && p_rsi > MAX_RSI && p_vol2 == 0)
 			{
