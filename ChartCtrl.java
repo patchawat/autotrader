@@ -15,10 +15,13 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.util.GregorianCalendar;
 
@@ -631,20 +634,35 @@ public class ChartCtrl
 					s.click(p);
 					AnalyseMinuteData();
 				}
-				
-				//data.reset();
-				
-				data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				//data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.close_price = RegexNumeric(str," id=\"huClose\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				
+				//data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				//data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				//<li><span id="huPeriod" class="huField">20/07/2018 15:00:00</span></li>
-				//data.DateTime = t_str;
-				data.DateTime = Regex(str,"\\d*[/]\\d*[/]\\d*\\s*\\d*[:]\\d*[:]\\d*");
+				data.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				
+				//data.b_vol = RegexNumeric(str," BUYVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				//data.s_vol = RegexNumeric(str," SELLVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.cci = RegexNumeric(str," RESULT CCI \\(20\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.trix = RegexNumeric(str," RESULT TRIX \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.mom = RegexNumeric(str," RESULT MOMENTUM \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				
+				data.atr = RegexNumeric(str," RESULT TRUE RANGE = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.macd = RegexNumeric(str," MACD \\(12,26,9\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.s_macd = RegexNumeric(str," SIGNAL MACD \\(12,26,9\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.mfi = RegexNumeric(str," RESULT M FL \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.rocr = RegexNumeric(str," PROC PRICE ROC \\(12\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.swing = RegexNumeric(str," RESULT SWING \\(0.5\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.adx = RegexNumeric(str," ADX DIRECTIONAL \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.obv = RegexNumeric(str," RESULT OBV \\(C\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.std = RegexNumeric(str," RESULT STD DEV \\(14,C,2,SMAV\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				
+				data.willr = RegexNumeric(str," RESULT WILLIAMS %R \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				
+				//data.DateTime = RegexNumericDate(str,"[0-9][0-9][-][0-9][0-9][ ][0-9][0-9][:][0-9][0-9]"); // 09-21 16:00
+				data.DateTime = Regex(str,"\\d*[/]\\d*[/]\\d*\\s*\\d*[:]\\d*[:]\\d*");//<li><span id="huPeriod" class="huField">20/07/2018 15:00:00</span></li>
+				//
 			}
 			catch(Exception e)
 			{
@@ -666,8 +684,8 @@ public class ChartCtrl
 				Runtime.getRuntime().exec(new File(".").getCanonicalPath().concat("\\login.bat"));
 			}
 			
-			analyse(data);
-		
+			//analyse(data);
+			saveData(data);
 		
 	}
 	
@@ -1369,18 +1387,20 @@ public class ChartCtrl
 				
 				data = new Data();
 				
-				data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				//data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.close_price = RegexNumeric(str," id=\"huClose\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				
+				//data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				//data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.b_vol = RegexNumeric(str," BUYVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.s_vol = RegexNumeric(str," SELLVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				
+				//data.b_vol = RegexNumeric(str," BUYVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				//data.s_vol = RegexNumeric(str," SELLVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.cci = RegexNumeric(str," RESULT CCI \\(20\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.trix = RegexNumeric(str," RESULT TRIX \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.mom = RegexNumeric(str," RESULT MOMENTUM \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				
 				data.atr = RegexNumeric(str," RESULT TRUE RANGE = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.macd = RegexNumeric(str," MACD \\(12,26,9\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.s_macd = RegexNumeric(str," SIGNAL MACD \\(12,26,9\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
@@ -1400,7 +1420,7 @@ public class ChartCtrl
 				
 				data.willr = RegexNumeric(str," RESULT WILLIAMS %R \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				
-				data.DateTime = RegexNumericDate(str,"[0-9][0-9][-][0-9][0-9][ ][0-9][0-9][:][0-9][0-9]");
+				data.DateTime = Regex(str,"\\d*[/]\\d*[/]\\d*\\s*\\d*[:]\\d*[:]\\d*");
 			}
 			catch(Exception e)
 			{
@@ -1425,8 +1445,8 @@ public class ChartCtrl
 			    
 			    if(lastData != null && (lastData.DateTime.trim().equalsIgnoreCase(data.DateTime)))
 			    	break;*/
-		    	Calendar c_time = new GregorianCalendar(Calendar.getInstance().get(Calendar.YEAR),Integer.valueOf(data.DateTime.substring(0, 2)),
-						Integer.valueOf(data.DateTime.substring(3, 5)),Integer.valueOf(data.DateTime.substring(6, 8)),Integer.valueOf(data.DateTime.substring(9)));
+		    	Calendar c_time = new GregorianCalendar(Calendar.getInstance().get(Calendar.YEAR),Integer.valueOf(data.DateTime.substring(3, 5)),
+						Integer.valueOf(data.DateTime.substring(0, 2)),Integer.valueOf(data.DateTime.substring(11, 13)),Integer.valueOf(data.DateTime.substring(14,16)));
 		    	
 		    	
 		    	//System.out.println(String.format("starttime1 %d finishtime1 %d c_time %d", starttime1.getTimeInMillis(), finishtime1.getTimeInMillis(),c_time.getTimeInMillis()));
@@ -1492,10 +1512,60 @@ public class ChartCtrl
 			for(int i=0;i<prc.size();++i)
 			{
 				Data d = prc.get(i);
-				pw.write(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", 
-						d.open_price, d.close_price,d.high_price, d.low_price,d.adx,d.atr,d.b_vol,d.cci,d.macd,d.mfi,d.mom,
-						d.obv,d.rocr,d.rsi,d.s_macd,d.s_vol,d.std,d.swing,d.trix,d.tsf,d.willr,d.DateTime));
+				pw.write(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", 
+						d.close_price,d.rsi,d.vol,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
+						d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr,d.DateTime));
 			}
+			pw.close();
+		}
+		catch(Exception e)
+	    {
+	    	System.out.println("save fail");
+	    	LogData(e.getMessage());
+	    }
+	    
+	}
+	private void saveData(Data d)
+	{
+		try
+		{
+			String sCurrentLine;
+
+			BufferedReader br = new BufferedReader(new FileReader(new File(".").getCanonicalPath().concat("\\feature.csv")));
+			String lastLine = "";
+
+		    while ((sCurrentLine = br.readLine()) != null) 
+		    {
+		        System.out.println(sCurrentLine);
+		        lastLine = sCurrentLine;
+		    }
+		    String date = lastLine.substring(lastLine.lastIndexOf(',')+1);
+		    
+		    if(d.DateTime.equalsIgnoreCase(date))
+		    {
+		    
+			    RandomAccessFile f = new RandomAccessFile(new File(".").getCanonicalPath().concat("\\feature.csv"), "rw");
+			    long length = f.length() - 1;
+			    byte b;
+			    do
+			    {                     
+			      length -= 1;
+			      f.seek(length);
+			      b = f.readByte();
+			    } while(b != 10);
+			    
+			    f.setLength(length+1);
+			    f.close();
+		    }
+			    
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\feature.csv")), true )); 
+		    
+			
+			
+			pw.write(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", 
+						d.close_price,d.rsi,d.vol,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
+						d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr,d.DateTime));
+			
 			pw.close();
 		}
 		catch(Exception e)

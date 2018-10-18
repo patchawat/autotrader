@@ -1,4 +1,7 @@
 package autotrader;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 /*import java.util.concurrent.ExecutorService;
 import java.util.Arrays;
@@ -7,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.concurrent.Executors;
 */
+import java.io.RandomAccessFile;
 
 
 
@@ -31,14 +35,14 @@ public class trader
 		trade.login();
 		*/
 		
+		
 		ChartCtrl chart = new ChartCtrl();
-		//chart.Test();
 		chart.AnalyseMinuteData();
-		//chart.setDatetimeGraphData("09-05 09:45", "09-05 16:54");
+		
 		//chart.setDatetimeGraphData(args[0], args[1]);
 		//chart.getGraphData();
 
-		
+		//chart.setDatetimeGraphData("09-05 09:45", "09-05 16:54");
 	}
 
 }
