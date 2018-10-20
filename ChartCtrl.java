@@ -640,11 +640,11 @@ public class ChartCtrl
 				//data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				//data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				
 				//data.b_vol = RegexNumeric(str," BUYVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				//data.s_vol = RegexNumeric(str," SELLVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.cci = RegexNumeric(str," RESULT CCI \\(20\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				/*data.cci = RegexNumeric(str," RESULT CCI \\(20\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.trix = RegexNumeric(str," RESULT TRIX \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.mom = RegexNumeric(str," RESULT MOMENTUM \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				
@@ -658,7 +658,7 @@ public class ChartCtrl
 				data.obv = RegexNumeric(str," RESULT OBV \\(C\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.std = RegexNumeric(str," RESULT STD DEV \\(14,C,2,SMAV\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				
-				data.willr = RegexNumeric(str," RESULT WILLIAMS %R \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.willr = RegexNumeric(str," RESULT WILLIAMS %R \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");*/
 				
 				//data.DateTime = RegexNumericDate(str,"[0-9][0-9][-][0-9][0-9][ ][0-9][0-9][:][0-9][0-9]"); // 09-21 16:00
 				data.DateTime = Regex(str,"\\d*[/]\\d*[/]\\d*\\s*\\d*[:]\\d*[:]\\d*");//<li><span id="huPeriod" class="huField">20/07/2018 15:00:00</span></li>
@@ -1393,11 +1393,11 @@ public class ChartCtrl
 				//data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				//data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				
 				//data.b_vol = RegexNumeric(str," BUYVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				//data.s_vol = RegexNumeric(str," SELLVOL = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				data.cci = RegexNumeric(str," RESULT CCI \\(20\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				/*data.cci = RegexNumeric(str," RESULT CCI \\(20\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.trix = RegexNumeric(str," RESULT TRIX \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.mom = RegexNumeric(str," RESULT MOMENTUM \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				
@@ -1418,7 +1418,7 @@ public class ChartCtrl
 				    continue;
 				}
 				
-				data.willr = RegexNumeric(str," RESULT WILLIAMS %R \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.willr = RegexNumeric(str," RESULT WILLIAMS %R \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");*/
 				
 				data.DateTime = Regex(str,"\\d*[/]\\d*[/]\\d*\\s*\\d*[:]\\d*[:]\\d*");
 			}
@@ -1512,9 +1512,9 @@ public class ChartCtrl
 			for(int i=0;i<prc.size();++i)
 			{
 				Data d = prc.get(i);
-				pw.write(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", 
-						d.close_price,d.rsi,d.vol,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
-						d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr,d.DateTime));
+				pw.write(String.format("%s,%s,%s,%s\r\n", 
+						d.close_price,d.rsi,d.vol/*,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
+						d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr*/,d.DateTime));
 			}
 			pw.close();
 		}
@@ -1562,9 +1562,9 @@ public class ChartCtrl
 		    
 			
 			
-			pw.write(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\r\n", 
-						d.close_price,d.rsi,d.vol,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
-						d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr,d.DateTime));
+			pw.write(String.format("%s,%s,%s,%s\r\n", 
+						d.close_price,d.rsi,d.vol/*,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
+						d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr*/,d.DateTime));
 			
 			pw.close();
 		}
