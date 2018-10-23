@@ -1,11 +1,19 @@
 import pandas as pd
 
 
-data_path = "..\\..\\..\\..\\feature.csv"
-img_path = "..\\..\\..\\..\\img\\regression.png"
-trade_status_path = "..\\..\\..\\..\\trade_status.ini"
-basic_conf_path = "..\\..\\..\\..\\conf\\basic.ini"
-rsi_mid = 50
+data_path = "feature.csv"
+img_path = "img\\regression.png"
+trade_status_path = "trade_status.ini"
+basic_conf_path = "conf\\basic.ini"
+
+
+rsi_max = 70
+rsi_max_c = rsi_max - 10
+rsi_min = 100 - rsi_max
+rsi_min_c = rsi_min + 10
+
+
+ticks = 83
 
 def send_mail_img(from_usr,from_usr_pass,to_usr,img_filepath=img_path,subject="test",text="regression test"):
 	import smtplib,ssl,os
@@ -37,52 +45,42 @@ def send_mail_img(from_usr,from_usr_pass,to_usr,img_filepath=img_path,subject="t
 	s.quit()
 
 
-def median_vol(df,ticks=-1):
-	if ticks < 0:
-		return df['vol'].median()
-	df = df[len(df)-ticks:]
-	return df['vol'].median()
-
-def ticks(day=1,tickperday=65):
-	return day*tickperday
-
-
-
-
-
 def median_linear_regression(df):
 	from sklearn import linear_model
 	import matplotlib.pyplot as plt
 	
 	
-	y5day = df[len(df)-ticks(2,16):][df['vol'] < median_vol(df,ticks(2,16))]['price']
-	y1day = df[len(df)-ticks(1,16):][df['vol'] < median_vol(df,ticks(1,16))]['price']
-	
-	y5dayh = df[len(df)-ticks(2,16):][df['vol'] >= median_vol(df,ticks(2,16))]['price']
-
-	x5day = pd.DataFrame(data={'series':y5day.index})
-	x5dayh = pd.DataFrame(data={'series':y5dayh.index})
-	x1day = pd.DataFrame(data={'series':y1day.index})	
+	y_previous = df['price'][len(df)-(ticks*2):len(df)-ticks]
+	y_current = df['price'][len(df)-ticks:]
 	
 
+	x_previous = pd.DataFrame(data={'series':y_previous.index})
+	x_current = pd.DataFrame(data={'series':y_current.index})	
+	
+	y_overbuy = df[len(df)-(ticks*2):][df['rsi'] > rsi_max]['price']
+	y_oversell = df[len(df)-(ticks*2):][df['rsi'] < rsi_min]['price']
+	
+	x_overbuy = pd.DataFrame(data={'series':y_overbuy.index})
+	x_oversell = pd.DataFrame(data={'series':y_oversell.index})
 
 	lm = linear_model.LinearRegression()
 	
-	model5day = lm.fit(x5day, y5day)
-	median5day = lm.predict(x5day)
+	model_previous = lm.fit(x_previous, y_previous)
+	regression_previous = lm.predict(x_previous)
 	
 	
-	model1day = lm.fit(x1day, y1day)
-	median1day = lm.predict(x1day)
+	model_current = lm.fit(x_current, y_current)
+	regression_current = lm.predict(x_current)
 	
-	plt.scatter(x5day, y5day, color='cornflowerblue', label='actual price')
-	plt.scatter(x5dayh, y5dayh, color='darkorange', label='high vol actual price')
-	plt.plot(x5day, median5day, color='navy', lw=2, label='regression x2 ticks')
-	plt.plot(x1day, median1day, color='c', lw=2, label='regression x ticks')
-	# plt.scatter(X, y, color='darkorange', label='data')
-	# plt.plot(X, y_rbf, color='navy', lw=lw, label='RBF model')
-	# plt.plot(X, y_lin, color='c', lw=lw, label='Linear model')
-	# plt.plot(X, y_poly, color='cornflowerblue', lw=lw, label='Polynomial model')
+	plt.scatter(x_previous, y_previous, color='#0000FF', label='history price')
+	plt.scatter(x_current, y_current, color='#000055', label='actual price')
+	
+	plt.scatter(x_overbuy, y_overbuy, color='#00FF00', label='overbuy point')
+	plt.scatter(x_oversell, y_oversell, color='#FF0000', label='oversell point')
+	
+	plt.plot(x_previous, regression_previous, color='#00FFFF', lw=2, label='regression history')
+	plt.plot(x_current, regression_current, color='#005555', lw=2, label='regression current')
+
 	plt.xlabel('series')
 	plt.ylabel('price')
 	plt.title('Linear Regression')
@@ -90,7 +88,7 @@ def median_linear_regression(df):
 	# plt.show()
 	plt.savefig(img_path)
 	
-	return median1day[len(median1day)-1]-median1day[0] > median5day[len(median5day)-1]-median5day[0] 
+	return regression_current[len(regression_current)-1]-regression_current[0] , regression_previous[len(regression_previous)-1]-regression_previous[0] 
 	
 def L(df):
 	import configparser
@@ -142,6 +140,36 @@ def S(df):
 		to_usr = config['email']['email_to']
 		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S",str(df['price'][len(df)-1]))
 
+		
+def close_position(df):
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	try:
+		if(config['trade']['position'] == "S" or config['trade']['position'] == "L" ):
+			position = config['trade']['position']
+			trade_price = config['trade']['trade_price']
+			
+			config['trade'] = {'position': '','trade_price': ''}
+			with open(trade_status_path, 'w') as configfile:
+				config.write(configfile)
+			config.read(basic_conf_path)
+			from_usr = config['email']['email_from']
+			from_usr_pass = config['email']['email_password']
+			to_usr = config['email']['email_to']
+			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close",position+": "+str(trade_price)+" current price: "+str(df['price'][len(df)-1]))
+	except:
+		config['trade'] = {'position': '','trade_price': ''}
+		with open(trade_status_path, 'w') as configfile:
+			config.write(configfile)
+		config.read(basic_conf_path)
+		from_usr = config['email']['email_from']
+		from_usr_pass = config['email']['email_password']
+		to_usr = config['email']['email_to']
+		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close","no price and position")	
+		
+		
 def get_trade_position():
 	import configparser
 	
@@ -151,6 +179,8 @@ def get_trade_position():
 		return config['trade']['position']
 	except:
 		return ""
+
+
 
 df = pd.read_csv(data_path)
 
@@ -164,14 +194,35 @@ d = {
 
 df = pd.DataFrame(data=d)
 
-if(median_linear_regression(df) == True and df['vol'][len(df)-1] > median_vol(df,ticks(1,16)) and df['rsi'][len(df)-1] < rsi_mid ):
+c_reg,h_reg = median_linear_regression(df)
+# print(c_reg,h_reg)
+
+
+
+if(get_trade_position()== "L" and df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max):
+	close_position(df)
+
+elif(get_trade_position()== "S" and df['rsi'][len(df)-2] < rsi_min and df['rsi'][len(df)-1] > rsi_min):
+	close_position(df)
+	
+
+elif(c_reg > 0 and  h_reg > 0 and df['rsi'][len(df)-2] < rsi_min_c and df['rsi'][len(df)-1] > rsi_min_c ):
 	L(df)
 
 	
 
-elif(median_linear_regression(df) == False and df['vol'][len(df)-1] > median_vol(df,ticks(1,16)) and df['rsi'][len(df)-1] > rsi_mid ):
+elif(c_reg < 0 and  h_reg < 0 and df['rsi'][len(df)-2] > rsi_max_c and df['rsi'][len(df)-1] < rsi_max_c ):
 	S(df)
 	
+	
+elif(((c_reg > 0 and c_reg > abs(h_reg)) or (c_reg < 0 and abs(c_reg) < h_reg)) and df['rsi'][len(df)-2] < rsi_min and df['rsi'][len(df)-1] > rsi_min ):
+	L(df)
+	
+	
+elif(((c_reg > 0 and c_reg < abs(h_reg)) or (c_reg < 0 and abs(c_reg) > h_reg)) and df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max ):
+	S(df)
+
+
 
 
 
