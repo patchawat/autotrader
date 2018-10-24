@@ -179,6 +179,16 @@ def get_trade_position():
 		return config['trade']['position']
 	except:
 		return ""
+		
+def get_trade_price():
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	try:
+		return float(config['trade']['trade_price'])
+	except:
+		return -1
 
 
 
@@ -199,19 +209,16 @@ c_reg,h_reg = median_linear_regression(df)
 
 
 
-if(get_trade_position()== "L" and df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max):
-	close_position(df)
 
-elif(get_trade_position()== "S" and df['rsi'][len(df)-2] < rsi_min and df['rsi'][len(df)-1] > rsi_min):
-	close_position(df)
 	
 
-elif(c_reg > 0 and  h_reg > 0 and df['rsi'][len(df)-2] < rsi_min_c and df['rsi'][len(df)-1] > rsi_min_c ):
+
+if(c_reg > 0 and  h_reg > 0 and get_trade_position()!= "L" ):
 	L(df)
 
 	
 
-elif(c_reg < 0 and  h_reg < 0 and df['rsi'][len(df)-2] > rsi_max_c and df['rsi'][len(df)-1] < rsi_max_c ):
+elif(c_reg < 0 and  h_reg < 0 and get_trade_position()!= "S" ):
 	S(df)
 	
 	
@@ -222,6 +229,12 @@ elif(((c_reg > 0 and c_reg > abs(h_reg)) or (c_reg < 0 and abs(c_reg) < h_reg)) 
 elif(((c_reg > 0 and c_reg < abs(h_reg)) or (c_reg < 0 and abs(c_reg) > h_reg)) and df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max ):
 	S(df)
 
+
+
+elif(((c_reg > 0 and  h_reg < 0) or (c_reg < 0 and h_reg > 0)) and df['rsi'][len(df)-1] > rsi_min and df['rsi'][len(df)-1] < rsi_max ):
+	close_position(df)
+	
+	
 
 
 
