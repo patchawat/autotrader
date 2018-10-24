@@ -231,7 +231,7 @@ elif(((c_reg > 0 and c_reg < abs(h_reg)) or (c_reg < 0 and abs(c_reg) > h_reg)) 
 
 
 
-elif(((c_reg > 0 and  h_reg < 0) or (c_reg < 0 and h_reg > 0)) and df['rsi'][len(df)-1] > rsi_min and df['rsi'][len(df)-1] < rsi_max ):
+elif(get_trade_position() == "S" or get_trade_position() == "L" ):
 	close_position(df)
 	
 	
