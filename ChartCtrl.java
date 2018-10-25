@@ -556,7 +556,7 @@ public class ChartCtrl
 			//sendMail("Minute collector fail", "Cannot find period and 5 minute data");
 			takeSS();
 			sendMailwithAttachment("3min img detect fail", "Here is SS",new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
-			String fail = ReadProperty("trade_status.properties","fail");
+			/*String fail = ReadProperty("trade_status.properties","fail");
 			if(fail == null)
 				WriteProperty("trade_status.properties","fail","1");
 			int fail_t = Integer.valueOf(fail) + 1;
@@ -566,7 +566,7 @@ public class ChartCtrl
 			{
 				sendMail("Minute collector period fail", "Shutting down");
 				Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
-			}
+			}*/
 			Runtime.getRuntime().exec("taskkill /F /IM efinTradePlus.exe");
 			Runtime.getRuntime().exec(new File(".").getCanonicalPath().concat("\\login.bat"));
 			return;
@@ -670,7 +670,7 @@ public class ChartCtrl
 				//Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
 				takeSS();
 				sendMailwithAttachment("3 min HTML fail", "Here is SS",new File(".").getCanonicalPath().concat("\\img\\SS.jpg"));
-				String fail = ReadProperty("trade_status.properties","fail");
+				/*String fail = ReadProperty("trade_status.properties","fail");
 				if(fail == null)
 					WriteProperty("trade_status.properties","fail","1");
 				int fail_t = Integer.valueOf(fail) + 1;
@@ -679,7 +679,7 @@ public class ChartCtrl
 				{
 					sendMail("Minute collector HTML fail", "Shutting down");
 					Runtime.getRuntime().exec("shutdown.exe /s /f /t 00");
-				}
+				}*/
 				Runtime.getRuntime().exec("taskkill /F /IM efinTradePlus.exe");
 				Runtime.getRuntime().exec(new File(".").getCanonicalPath().concat("\\login.bat"));
 			}

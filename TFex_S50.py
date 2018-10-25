@@ -190,10 +190,20 @@ def get_trade_price():
 	except:
 		return -1
 
+def keep_last_n_data(df,n=ticks*2):
+	try:
+		if(len(df) > n):
+			df = df[len(df)-n:]
+			df.to_csv(data_path,index=False)
+		return df
+	except:
+		return df
+
 
 
 df = pd.read_csv(data_path)
 
+df = keep_last_n_data(df)
 
 d = {
 	'price':df['price'],
@@ -210,9 +220,6 @@ c_reg,h_reg = median_linear_regression(df)
 
 
 
-	
-
-
 if(c_reg > 0 and  h_reg > 0 and get_trade_position()!= "L" ):
 	L(df)
 
@@ -222,17 +229,12 @@ elif(c_reg < 0 and  h_reg < 0 and get_trade_position()!= "S" ):
 	S(df)
 	
 	
-elif(((c_reg > 0 and c_reg > abs(h_reg)) or (c_reg < 0 and abs(c_reg) < h_reg)) and df['rsi'][len(df)-2] < rsi_min and df['rsi'][len(df)-1] > rsi_min ):
-	L(df)
-	
-	
-elif(((c_reg > 0 and c_reg < abs(h_reg)) or (c_reg < 0 and abs(c_reg) > h_reg)) and df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max ):
-	S(df)
-
-
-
-elif(get_trade_position() == "S" or get_trade_position() == "L" ):
+elif(((c_reg > 0 and h_reg < 0) or (c_reg < 0 and  h_reg > 0))  and (get_trade_position()== "L" or get_trade_position()== "S")):
 	close_position(df)
+	
+	
+
+
 	
 	
 
