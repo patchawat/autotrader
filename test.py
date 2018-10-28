@@ -44,10 +44,14 @@ def send_mail_img(from_usr,from_usr_pass,to_usr,img_filepath=img_path,subject="t
 	s.sendmail(gmail_user, to, msg.as_string())
 	s.quit()
 
-
-def linear_regression(df):
+def median_vol(df):
+	return df['vol'].median()
+	
+def median_linear_regression(df):
 	from sklearn import linear_model
-
+	import matplotlib.pyplot as plt
+	
+	
 	y_previous = df['price'][len(df)-(ticks*2):len(df)-ticks]
 	y_current = df['price'][len(df)-ticks:]
 	
@@ -70,13 +74,6 @@ def linear_regression(df):
 	model_current = lm.fit(x_current, y_current)
 	regression_current = lm.predict(x_current)
 	
-	
-	return regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell
-
-	
-def plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell):
-	import matplotlib.pyplot as plt
-	
 	plt.scatter(x_previous, y_previous, color='#0000FF', label='history price')
 	plt.scatter(x_current, y_current, color='#000055', label='actual price')
 	
@@ -93,6 +90,7 @@ def plot(regression_previous,regression_current , x_previous, x_current,y_previo
 	# plt.show()
 	plt.savefig(img_path)
 	
+	return regression_current[len(regression_current)-1]-regression_current[0] , regression_previous[len(regression_previous)-1]-regression_previous[0] 
 	
 def L(df):
 	import configparser
@@ -218,35 +216,14 @@ d = {
 
 df = pd.DataFrame(data=d)
 
-regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell = linear_regression(df)
+c_reg,h_reg = median_linear_regression(df)
+# print(c_reg,h_reg)
 
-max_val = max(regression_current[-1],regression_previous[0],regression_previous[-1])
-min_val = min(regression_current[-1],regression_previous[0],regression_previous[-1])
 
-if(max_val not in regression_current and min_val not in regression_current ):
-	if(df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max and get_trade_position()!= "S"):
-		plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-		S(df)
-	elif(df['rsi'][len(df)-2] < rsi_min and df['rsi'][len(df)-1] > rsi_min and get_trade_position()!= "L"):
-		plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-		L(df)
 
-if( max_val in regression_current and get_trade_position()!= "L"):
-	plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-	L(df)
-
-elif( min_val in regression_current and get_trade_position()!= "S"):
-	plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-	S(df)
-		
 	
-elif(max_val not in regression_current and min_val not in regression_current ):
-	if(df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max and get_trade_position()!= "S"):
-		plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-		S(df)
-	elif(df['rsi'][len(df)-2] < rsi_min and df['rsi'][len(df)-1] > rsi_min and get_trade_position()!= "L"):
-		plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-		L(df)
+	
+
 
 	
 	
