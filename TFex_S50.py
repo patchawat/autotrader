@@ -13,7 +13,7 @@ rsi_min = 100 - rsi_max
 rsi_min_c = rsi_min + 10
 
 
-ticks = 83
+ticks = 500
 
 def send_mail_img(from_usr,from_usr_pass,to_usr,img_filepath=img_path,subject="test",text="regression test"):
 	import smtplib,ssl,os
@@ -45,53 +45,57 @@ def send_mail_img(from_usr,from_usr_pass,to_usr,img_filepath=img_path,subject="t
 	s.quit()
 
 
-def linear_regression(df):
+
+
+def linear_regression_by_period(df):
 	from sklearn import linear_model
 
-	y_previous = df['price'][len(df)-(ticks*2):len(df)-ticks]
-	y_current = df['price'][len(df)-ticks:]
+	
+	y_current = df['price']
 	
 
-	x_previous = pd.DataFrame(data={'series':y_previous.index})
+	
 	x_current = pd.DataFrame(data={'series':y_current.index})	
 	
-	y_overbuy = df[len(df)-(ticks*2):][df['rsi'] > rsi_max]['price']
-	y_oversell = df[len(df)-(ticks*2):][df['rsi'] < rsi_min]['price']
+	y_overbuy = df[df['rsi'] > rsi_max]['price']
+	y_oversell = df[df['rsi'] < rsi_min]['price']
 	
 	x_overbuy = pd.DataFrame(data={'series':y_overbuy.index})
 	x_oversell = pd.DataFrame(data={'series':y_oversell.index})
 
 	lm = linear_model.LinearRegression()
 	
-	model_previous = lm.fit(x_previous, y_previous)
-	regression_previous = lm.predict(x_previous)
 	
 	
 	model_current = lm.fit(x_current, y_current)
 	regression_current = lm.predict(x_current)
 	
 	
-	return regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell
-
+	return regression_current , x_current,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell
 	
-def plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell):
+
+
+def plot_period(regression_current , x_current , name, color,y_current = {},x_overbuy = {},y_overbuy = {},x_oversell = {},y_oversell = {}):
 	import matplotlib.pyplot as plt
 	
-	plt.scatter(x_previous, y_previous, color='#0000FF', label='history price')
-	plt.scatter(x_current, y_current, color='#000055', label='actual price')
-	
-	plt.scatter(x_overbuy, y_overbuy, color='#00FF00', label='overbuy point')
-	plt.scatter(x_oversell, y_oversell, color='#FF0000', label='oversell point')
-	
-	plt.plot(x_previous, regression_previous, color='#00FFFF', lw=2, label='regression history')
-	plt.plot(x_current, regression_current, color='#005555', lw=2, label='regression current')
+	try:
+		plt.scatter(x_current, y_current, color='#9999FF', label='price')
+		plt.scatter(x_overbuy, y_overbuy, color='#00FF00', label='overbuy point')
+		plt.scatter(x_oversell, y_oversell, color='#FF0000', label='oversell point')
+	except:
+		{}
+
+	plt.plot(x_current, regression_current, color=color, lw=2, label=name)
 
 	plt.xlabel('series')
 	plt.ylabel('price')
 	plt.title('Linear Regression')
 	plt.legend()
-	# plt.show()
-	plt.savefig(img_path)
+
+def save_img(save_to = img_path):
+	import matplotlib.pyplot as plt
+	plt.savefig(save_to)
+	plt.close()
 	
 	
 def L(df):
@@ -196,7 +200,7 @@ def get_trade_price():
 
 def keep_last_n_data(df,n=ticks*2):
 	try:
-		if(len(df) > n):
+		if(len(df) > n*2):
 			df = df[len(df)-n:]
 			df.to_csv(data_path,index=False)
 		return df
@@ -218,35 +222,42 @@ d = {
 
 df = pd.DataFrame(data=d)
 
-regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell = linear_regression(df)
+regression_current_5 ,  x_current_5,y_current_5,x_overbuy_5,y_overbuy_5,x_oversell_5,y_oversell_5 = linear_regression_by_period(df[len(df)-5:])
+regression_current_15 ,  x_current_15,y_current_15,x_overbuy_15,y_overbuy_15,x_oversell_15,y_oversell_15 = linear_regression_by_period(df[len(df)-15:])
+regression_current_30 ,  x_current_30,y_current_30,x_overbuy_30,y_overbuy_30,x_oversell_30,y_oversell_30 = linear_regression_by_period(df[len(df)-30:])
+regression_current_60 ,  x_current_60,y_current_60,x_overbuy_60,y_overbuy_60,x_oversell_60,y_oversell_60 = linear_regression_by_period(df[len(df)-60:])
+regression_current_120 ,  x_current_120,y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120 = linear_regression_by_period(df[len(df)-120:])
 
-max_val = max(regression_current[-1],regression_previous[0],regression_previous[-1])
-min_val = min(regression_current[-1],regression_previous[0],regression_previous[-1])
 
-if(max_val not in regression_current and min_val not in regression_current ):
-	if(df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max and get_trade_position()!= "S"):
-		plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-		S(df)
-	elif(df['rsi'][len(df)-2] < rsi_min and df['rsi'][len(df)-1] > rsi_min and get_trade_position()!= "L"):
-		plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-		L(df)
 
-if( max_val in regression_current and get_trade_position()!= "L"):
-	plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
+
+idx = [regression_current_5[-1],regression_current_15[-1],regression_current_30[-1],regression_current_60[-1],regression_current_120[-1],df['price'][len(df)-1]]
+idx.sort()
+idx = idx.index(df['price'][len(df)-1])
+
+
+#trade logic
+
+if(idx > 3 and get_trade_position()!= "L"):
+	plot_period(regression_current_5 ,  x_current_5 , '5 min regression', '#777700')
+	plot_period(regression_current_15 ,  x_current_15, '15 min regression', '#007777')
+	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#770077')
+	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#222200')
+	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#220022',y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120)
+
+	save_img()
 	L(df)
 
-elif( min_val in regression_current and get_trade_position()!= "S"):
-	plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
+elif(idx < 3 and get_trade_position()!= "S"):
+	plot_period(regression_current_5 ,  x_current_5 , '5 min regression', '#777700')
+	plot_period(regression_current_15 ,  x_current_15, '15 min regression', '#007777')
+	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#770077')
+	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#222200')
+	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#220022',y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120)
+
+	save_img()
 	S(df)
-		
-	
-elif(max_val not in regression_current and min_val not in regression_current ):
-	if(df['rsi'][len(df)-2] > rsi_max and df['rsi'][len(df)-1] < rsi_max and get_trade_position()!= "S"):
-		plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-		S(df)
-	elif(df['rsi'][len(df)-2] < rsi_min and df['rsi'][len(df)-1] > rsi_min and get_trade_position()!= "L"):
-		plot(regression_previous,regression_current , x_previous, x_current,y_previous,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell)
-		L(df)
+
 
 	
 	
