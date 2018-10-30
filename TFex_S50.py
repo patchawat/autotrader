@@ -11,6 +11,7 @@ rsi_max = 70
 rsi_max_c = rsi_max - 10
 rsi_min = 100 - rsi_max
 rsi_min_c = rsi_min + 10
+min_distance = 5
 
 
 ticks = 500
@@ -233,12 +234,13 @@ regression_current_120 ,  x_current_120,y_current_120,x_overbuy_120,y_overbuy_12
 
 idx = [regression_current_5[-1],regression_current_15[-1],regression_current_30[-1],regression_current_60[-1],regression_current_120[-1],df['price'][len(df)-1]]
 idx.sort()
-idx = idx.index(df['price'][len(df)-1])
+pos = idx.index(df['price'][len(df)-1])
 
+distance =  abs(idx[-1] - idx[0])
 
 #trade logic
 
-if(idx > 3 and get_trade_position()!= "L"):
+if ((pos == 5 and distance < min_distance)or(pos >= 3 and distance > min_distance)) and get_trade_position()!= "L" :
 	plot_period(regression_current_5 ,  x_current_5 , '5 min regression', '#777700')
 	plot_period(regression_current_15 ,  x_current_15, '15 min regression', '#007777')
 	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#770077')
@@ -248,7 +250,7 @@ if(idx > 3 and get_trade_position()!= "L"):
 	save_img()
 	L(df)
 
-elif(idx < 3 and get_trade_position()!= "S"):
+elif ((pos ==0 and distance < min_distance)or(pos <= 2 and distance > min_distance)) and get_trade_position()!= "S":
 	plot_period(regression_current_5 ,  x_current_5 , '5 min regression', '#777700')
 	plot_period(regression_current_15 ,  x_current_15, '15 min regression', '#007777')
 	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#770077')
@@ -258,7 +260,25 @@ elif(idx < 3 and get_trade_position()!= "S"):
 	save_img()
 	S(df)
 
+elif distance < min_distance:
+	if df['rsi'][len(df)-2] >  rsi_max and df['rsi'][len(df)-1] <  rsi_max and get_trade_position()!= "S":
+		plot_period(regression_current_5 ,  x_current_5 , '5 min regression', '#777700')
+		plot_period(regression_current_15 ,  x_current_15, '15 min regression', '#007777')
+		plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#770077')
+		plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#222200')
+		plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#220022',y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120)
 
+		save_img()
+		S(df)
+	elif df['rsi'][len(df)-2] <  rsi_min and df['rsi'][len(df)-1] >  rsi_min and get_trade_position()!= "L":
+		plot_period(regression_current_5 ,  x_current_5 , '5 min regression', '#777700')
+		plot_period(regression_current_15 ,  x_current_15, '15 min regression', '#007777')
+		plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#770077')
+		plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#222200')
+		plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#220022',y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120)
+
+		save_img()
+		L(df)
 	
 	
 
