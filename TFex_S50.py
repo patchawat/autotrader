@@ -206,6 +206,21 @@ def get_trade_price():
 		return float(config['trade']['trade_price'])
 	except:
 		return -1
+		
+def get_profit(df):
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	try:
+		position = get_trade_position()
+		profit =  df['price'][len(df)-1] - float(config['trade']['trade_price'])
+		if position == "S" : 
+			profit = -profit
+		return profit
+		
+	except:
+		return 0
 
 def keep_last_n_data(df,n=ticks*2):
 	try:
@@ -251,34 +266,34 @@ up_reg = [x for x in reg_trends if x > 0]
 
 	
 if len(up_reg) >1 and df['rsi'][len(df)-2] <  50 and df['rsi'][len(df)-1] >  50 and get_trade_position()!= "L" :
-	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#002222')
-	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#222200')
-	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#220022',y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120)
-	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#770077',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
+	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#229999')
+	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#992299')
+	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#999922')
+	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#2255AA',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
 	save_img()
 	L(df)
 
 elif len(up_reg) <= 1 and df['rsi'][len(df)-2] >  50 and df['rsi'][len(df)-1] <  50 and get_trade_position()!= "S":
-	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#002222')
-	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#222200')
-	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#220022',y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120)
-	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#770077',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
+	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#229999')
+	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#992299')
+	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#999922')
+	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#2255AA',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
 	save_img()
 	S(df)
 
-elif get_trade_position()== "L" and regression_current_30[-1] - regression_current_30[0] < 0:
-	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#002222')
-	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#222200')
-	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#220022',y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120)
-	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#770077',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
+elif get_trade_position()== "L" and regression_current_30[-1] - regression_current_30[0] < 0 and get_profit(df) >= 4:
+	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#229999')
+	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#992299')
+	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#999922')
+	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#2255AA',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
 	save_img()
 	close_position(df)
 	
-elif get_trade_position()== "S" and regression_current_30[-1] - regression_current_30[0] > 0:
-	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#002222')
-	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#222200')
-	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#220022',y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120)
-	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#770077',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
+elif get_trade_position()== "S" and regression_current_30[-1] - regression_current_30[0] > 0 and get_profit(df) >= 4:
+	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#229999')
+	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#992299')
+	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#999922')
+	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#2255AA',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
 	save_img()
 	close_position(df)
 	
