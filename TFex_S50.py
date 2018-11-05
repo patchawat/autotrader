@@ -107,14 +107,14 @@ def save_img(save_to = img_path):
 		plt.close()
 	
 	
-def L(df):
+def L(df,trend):
 	import configparser
 	
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
 	try:
 		if(config['trade']['position'] != "L"):
-			config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1]}
+			config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend}
 			with open(trade_status_path, 'w') as configfile:
 				config.write(configfile)
 			config.read(basic_conf_path)
@@ -123,7 +123,7 @@ def L(df):
 			to_usr = config['email']['email_to']
 			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L",str(df['price'][len(df)-1]))
 	except:
-		config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1]}
+		config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend}
 		with open(trade_status_path, 'w') as configfile:
 			config.write(configfile)
 		config.read(basic_conf_path)
@@ -132,14 +132,14 @@ def L(df):
 		to_usr = config['email']['email_to']
 		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L",str(df['price'][len(df)-1]))
 		
-def S(df):
+def S(df,trend):
 	import configparser
 	
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
 	try:
 		if(config['trade']['position'] != "S"):
-			config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1]}
+			config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend}
 			with open(trade_status_path, 'w') as configfile:
 				config.write(configfile)
 			config.read(basic_conf_path)
@@ -148,7 +148,7 @@ def S(df):
 			to_usr = config['email']['email_to']
 			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S",str(df['price'][len(df)-1]))
 	except:
-		config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1]}
+		config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend}
 		with open(trade_status_path, 'w') as configfile:
 			config.write(configfile)
 		config.read(basic_conf_path)
@@ -168,7 +168,7 @@ def close_position(df):
 			position = config['trade']['position']
 			trade_price = config['trade']['trade_price']
 			
-			config['trade'] = {'position': '','trade_price': ''}
+			config['trade'] = {'position': '','trade_price': '','trend': ''}
 			with open(trade_status_path, 'w') as configfile:
 				config.write(configfile)
 			config.read(basic_conf_path)
@@ -177,7 +177,7 @@ def close_position(df):
 			to_usr = config['email']['email_to']
 			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close",position+": "+str(trade_price)+" current price: "+str(df['price'][len(df)-1]))
 	except:
-		config['trade'] = {'position': '','trade_price': ''}
+		config['trade'] = {'position': '','trade_price': '','trend': ''}
 		with open(trade_status_path, 'w') as configfile:
 			config.write(configfile)
 		config.read(basic_conf_path)
@@ -206,6 +206,16 @@ def get_trade_price():
 		return float(config['trade']['trade_price'])
 	except:
 		return -1
+
+def get_trade_trend():
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	try:
+		return float(config['trade']['trend'])
+	except:
+		return ""
 		
 def get_profit(df):
 	import configparser
@@ -246,56 +256,77 @@ d = {
 
 df = pd.DataFrame(data=d)
 
-df30 = df[len(df)-30:]
-df60 = df[len(df)-60:]
-df120 = df[len(df)-120:]
-df240 = df[len(df)-240:]
+df20 = df[len(df)-20:]
+df41 = df[len(df)-41:]
+df82 = df[len(df)-82:]
+df165 = df[len(df)-165:]
 
 
 
-regression_current_30 ,  x_current_30,y_current_30,x_overbuy_30,y_overbuy_30,x_oversell_30,y_oversell_30 = linear_regression_by_period(df30)
-regression_current_60 ,  x_current_60,y_current_60,x_overbuy_60,y_overbuy_60,x_oversell_60,y_oversell_60 = linear_regression_by_period(df60)
-regression_current_120 ,  x_current_120,y_current_120,x_overbuy_120,y_overbuy_120,x_oversell_120,y_oversell_120 = linear_regression_by_period(df120)
-regression_current_240 ,  x_current_240,y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240 = linear_regression_by_period(df240)
+regression_current_20 ,  x_current_20,y_current_20,x_overbuy_20,y_overbuy_20,x_oversell_20,y_oversell_20 = linear_regression_by_period(df20)
+regression_current_41 ,  x_current_41,y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41 = linear_regression_by_period(df41)
+regression_current_82 ,  x_current_82,y_current_82,x_overbuy_82,y_overbuy_82,x_oversell_82,y_oversell_82 = linear_regression_by_period(df82)
+regression_current_165 ,  x_current_165,y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165 = linear_regression_by_period(df165)
 
 
-reg_trends = [regression_current_60[-1]-regression_current_60[0],regression_current_120[-1]-regression_current_120[0],regression_current_240[-1]-regression_current_240[0]]
+reg_trends = [regression_current_20[-1]-regression_current_20[0],regression_current_41[-1]-regression_current_41[0],regression_current_82[-1]-regression_current_82[0],regression_current_165[-1]-regression_current_165[0]]
 up_reg = [x for x in reg_trends if x > 0]
 
 #trade logic
 
+#Up	
+if len(up_reg) >2 and df['rsi'][len(df)-2] <  rsi_min_c and df['rsi'][len(df)-1] >  rsi_min_c and get_trade_position()!= "L" :
+	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
+	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
+	plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
+	save_img()
+	L(df,'U')
+
+#Down
+elif len(up_reg) < 2  and df['rsi'][len(df)-2] >  rsi_max_c and df['rsi'][len(df)-1] <  rsi_max_c and get_trade_position()!= "S":
+	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
+	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
+	plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
+	save_img()
+	S(df,'D')
 	
-if len(up_reg) >1 and df['rsi'][len(df)-2] <  50 and df['rsi'][len(df)-1] >  50 and get_trade_position()!= "L" :
-	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#229999')
-	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#992299')
-	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#999922')
-	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#2255AA',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
+#Sideway	
+elif len(up_reg) == 2  and df['rsi'][len(df)-2] <  rsi_min and df['rsi'][len(df)-1] >  rsi_min and get_trade_position()!= "L" :
+	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
+	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
+	plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
 	save_img()
-	L(df)
-
-elif len(up_reg) <= 1 and df['rsi'][len(df)-2] >  50 and df['rsi'][len(df)-1] <  50 and get_trade_position()!= "S":
-	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#229999')
-	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#992299')
-	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#999922')
-	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#2255AA',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
+	L(df,'S')
+	
+elif len(up_reg) == 2  and df['rsi'][len(df)-2] >  rsi_max and df['rsi'][len(df)-1] <  rsi_max and get_trade_position()!= "S":
+	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
+	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
+	plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
 	save_img()
-	S(df)
+	S(df,'S')
 
-elif get_trade_position()== "L" and regression_current_30[-1] - regression_current_30[0] < 0 and get_profit(df) >= 4:
-	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#229999')
-	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#992299')
-	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#999922')
-	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#2255AA',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
+#Close
+elif get_trade_position()== "L" and get_trade_trend() == "U" and df['rsi'][len(df)-1] <  rsi_min_c and get_profit(df) >= 4:
+	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
+	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
+	plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
 	save_img()
 	close_position(df)
 	
-elif get_trade_position()== "S" and regression_current_30[-1] - regression_current_30[0] > 0 and get_profit(df) >= 4:
-	plot_period(regression_current_30 ,  x_current_30, '30 min regression', '#229999')
-	plot_period(regression_current_60 ,  x_current_60, '60 min regression', '#992299')
-	plot_period(regression_current_120 ,  x_current_120 , '120 min regression', '#999922')
-	plot_period(regression_current_240 ,  x_current_240 , '240 min regression', '#2255AA',y_current_240,x_overbuy_240,y_overbuy_240,x_oversell_240,y_oversell_240)
+elif get_trade_position()== "S" and get_trade_trend() == "D" and df['rsi'][len(df)-1] >  rsi_max_c and get_profit(df) >= 4:
+	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
+	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
+	plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
 	save_img()
 	close_position(df)
+	
+
 	
 	
 
