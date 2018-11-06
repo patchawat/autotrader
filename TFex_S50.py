@@ -275,7 +275,15 @@ up_reg = [x for x in reg_trends if x > 0]
 #trade logic
 
 #Up	
-if len(up_reg) >2 and df['rsi'][len(df)-2] <  rsi_min_c and df['rsi'][len(df)-1] >  rsi_min_c and get_trade_position()!= "L" :
+if len(up_reg) > 3  and get_trade_position()!= "L" :
+	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
+	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
+	plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
+	save_img()
+	L(df,'U')
+	
+elif len(up_reg) == 3 and df['rsi'][len(df)-2] <  rsi_min_c and df['rsi'][len(df)-1] >  rsi_min_c and get_trade_position()!= "L" :
 	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
 	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
 	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
@@ -284,7 +292,15 @@ if len(up_reg) >2 and df['rsi'][len(df)-2] <  rsi_min_c and df['rsi'][len(df)-1]
 	L(df,'U')
 
 #Down
-elif len(up_reg) < 2  and df['rsi'][len(df)-2] >  rsi_max_c and df['rsi'][len(df)-1] <  rsi_max_c and get_trade_position()!= "S":
+elif len(up_reg) < 1  and get_trade_position()!= "S":
+	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
+	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
+	plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
+	save_img()
+	S(df,'D')
+	
+elif len(up_reg) == 1  and df['rsi'][len(df)-2] >  rsi_max_c and df['rsi'][len(df)-1] <  rsi_max_c and get_trade_position()!= "S":
 	plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
 	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299')
 	plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
