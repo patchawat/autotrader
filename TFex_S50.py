@@ -278,10 +278,10 @@ d = {
 df = pd.DataFrame(data=d)
 
 df = df[df['vol'] > df['vol'].median()]
-print(df)
+
 df = df.reset_index(drop=True)
 
-print(df)
+
 
 # analyse(df)
 
