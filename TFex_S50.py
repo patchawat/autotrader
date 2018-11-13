@@ -277,7 +277,11 @@ d = {
 
 df = pd.DataFrame(data=d)
 
-# df = df[df['vol'] > df['vol'].median()]
+df = df[df['vol'] > df['vol'].median()]
+print(df)
+df = df.reset_index(drop=True)
+
+print(df)
 
 # analyse(df)
 
@@ -295,7 +299,6 @@ regression_distance = abs(trend)
 min_max_distance = df41['price'].max() - df41['price'].min()
 
 #trade logic
-
 
 #Up	
 if regression_distance > 1 and trend > 0 and df['rsi'][len(df)-2] <  rsi_max and df['rsi'][len(df)-1] >  rsi_max and get_trade_position()!= "L" :
