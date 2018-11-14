@@ -115,7 +115,7 @@ def L(df,trend):
 	config.read(trade_status_path)
 	try:
 		if(config['trade']['position'] != "L"):
-			config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend}
+			config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
 			with open(trade_status_path, 'w') as configfile:
 				config.write(configfile)
 			config.read(basic_conf_path)
@@ -124,7 +124,7 @@ def L(df,trend):
 			to_usr = config['email']['email_to']
 			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L",str(df['price'][len(df)-1]))
 	except:
-		config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend}
+		config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
 		with open(trade_status_path, 'w') as configfile:
 			config.write(configfile)
 		config.read(basic_conf_path)
@@ -140,7 +140,7 @@ def S(df,trend):
 	config.read(trade_status_path)
 	try:
 		if(config['trade']['position'] != "S"):
-			config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend}
+			config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
 			with open(trade_status_path, 'w') as configfile:
 				config.write(configfile)
 			config.read(basic_conf_path)
@@ -149,7 +149,7 @@ def S(df,trend):
 			to_usr = config['email']['email_to']
 			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S",str(df['price'][len(df)-1]))
 	except:
-		config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend}
+		config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
 		with open(trade_status_path, 'w') as configfile:
 			config.write(configfile)
 		config.read(basic_conf_path)
@@ -169,7 +169,7 @@ def close_position(df):
 			position = config['trade']['position']
 			trade_price = config['trade']['trade_price']
 			
-			config['trade'] = {'position': '','trade_price': '','trend': ''}
+			config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': ''}
 			with open(trade_status_path, 'w') as configfile:
 				config.write(configfile)
 			config.read(basic_conf_path)
@@ -178,7 +178,7 @@ def close_position(df):
 			to_usr = config['email']['email_to']
 			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close",position+": "+str(trade_price)+" current price: "+str(df['price'][len(df)-1]))
 	except:
-		config['trade'] = {'position': '','trade_price': '','trend': ''}
+		config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': ''}
 		with open(trade_status_path, 'w') as configfile:
 			config.write(configfile)
 		config.read(basic_conf_path)
@@ -186,7 +186,38 @@ def close_position(df):
 		from_usr_pass = config['email']['email_password']
 		to_usr = config['email']['email_to']
 		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close","no price and position")	
-		
+
+
+def set_expected_price(price):
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	try:
+		if(config['trade']['position'] == "S" or config['trade']['position'] == "L" ):
+			position = config['trade']['position']
+			trade_price = config['trade']['trade_price']
+			trend = config['trade']['trend']
+			
+			config['trade'] = {'position': position,'trade_price': trade_price,'trend': trend,'expected_price': price}
+			with open(trade_status_path, 'w') as configfile:
+				config.write(configfile)
+			
+	except:
+		config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': ''}
+		with open(trade_status_path, 'w') as configfile:
+			config.write(configfile)
+
+			
+def get_expected_price():
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	try:
+		return config['trade']['expected_price']
+	except:
+		return -1
 		
 def get_trade_position():
 	import configparser
@@ -277,9 +308,9 @@ d = {
 
 df = pd.DataFrame(data=d)
 
-df = df[df['vol'] > df['vol'].median()]
+# df = df[df['vol'] > df['vol'].median()]
 
-df = df.reset_index(drop=True)
+# df = df.reset_index(drop=True)
 
 
 
@@ -298,43 +329,63 @@ regression_distance = abs(trend)
 
 min_max_distance = df41['price'].max() - df41['price'].min()
 
+
+
+#update expected_price
+expected_price = get_expected_price()
+trade_price = get_trade_price()
+current_price = df['price'][len(df)-1]
+
+if get_trade_position()== "L":
+	if current_price - trade_price > 4 and current_price > expected_price:
+		expected_price = current_price
+		set_expected_price(expected_price)
+		
+elif get_trade_position()== "S":
+	if trade_price - current_price > 4 and (expected_price == -1 or current_price < expected_price):
+		expected_price = current_price
+		set_expected_price(expected_price)
+
+	
+
+#Close
+if get_trade_position()== "L" and current_price - trade_price > 0 and current_price - trade_price  <= (expected_price - trade_price)*3/5:
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
+	save_img()
+	close_position(df)
+	
+elif get_trade_position()== "S"  and trade_price - current_price > 0 and trade_price - current_price <= (trade_price - expected_price)*3/5:
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
+	save_img()
+	close_position(df)		
+		
+		
 #trade logic
+#Sideway
+if min_max_distance <= 6 and min_max_distance >= 4 and current_price != df41['price'].max() and abs(current_price - df41['price'].max()) <= 0.5  and get_trade_position()!= "L" :
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
+	save_img()
+	L(df,'S')
+	
+elif min_max_distance <= 6 and min_max_distance >= 4 and current_price != df41['price'].min() and abs(current_price - df41['price'].min()) <= 0.5  and get_trade_position()!= "S" :
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
+	save_img()
+	S(df,'S')
 
 #Up	
-if regression_distance > 1 and trend > 0 and df['rsi'][len(df)-2] <  rsi_max and df['rsi'][len(df)-1] >  rsi_max and get_trade_position()!= "L" :
+elif trend > 0 and df['rsi'][len(df)-2] <  rsi_max and df['rsi'][len(df)-1] >  rsi_max and get_trade_position()!= "L" :
 	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
 	save_img()
 	L(df,'U')
 	
 
 #Down
-elif regression_distance > 1 and trend < 0 and df['rsi'][len(df)-2] >  rsi_min and df['rsi'][len(df)-1] <  rsi_min and get_trade_position()!= "S" :
+elif trend < 0 and df['rsi'][len(df)-2] >  rsi_min and df['rsi'][len(df)-1] <  rsi_min and get_trade_position()!= "S" :
 	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
 	save_img()
 	S(df,'D')
 
-#Sideway
-elif min_max_distance > 5 and  abs(df['price'][len(df)-1] - df41['price'].max()) <= 0.5  and get_trade_position()!= "L" :
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	L(df,'S')
-	
-elif min_max_distance > 5 and  abs(df['price'][len(df)-1] - df41['price'].min()) <= 0.5  and get_trade_position()!= "S" :
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	S(df,'S')
 
-
-#Close
-elif get_trade_position()== "L" and df['rsi'][len(df)-1] <  rsi_min and get_profit(df) >= 4:
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	close_position(df)
-	
-elif get_trade_position()== "S"  and df['rsi'][len(df)-1] >  rsi_max and get_profit(df) >= 4:
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	close_position(df)
 	
 
 	
