@@ -362,15 +362,15 @@ elif get_trade_position()== "S"  and trade_price - current_price > 0 and trade_p
 		
 #trade logic
 #Sideway
-if min_max_distance <= 6 and min_max_distance >= 4 and current_price != df41['price'].max() and abs(current_price - df41['price'].max()) <= 0.5  and get_trade_position()!= "L" :
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	L(df,'S')
-	
-elif min_max_distance <= 6 and min_max_distance >= 4 and current_price != df41['price'].min() and abs(current_price - df41['price'].min()) <= 0.5  and get_trade_position()!= "S" :
+if min_max_distance <= 6 and min_max_distance >= 4 and current_price != df41['price'].max() and abs(current_price - df41['price'].max()) <= 0.5  and get_trade_position()!= "S" :
 	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
 	save_img()
 	S(df,'S')
+	
+elif min_max_distance <= 6 and min_max_distance >= 4 and current_price != df41['price'].min() and abs(current_price - df41['price'].min()) <= 0.5  and get_trade_position()!= "L" :
+	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
+	save_img()
+	L(df,'S')
 
 #Up	
 elif trend > 0 and df['rsi'][len(df)-2] <  rsi_max and df['rsi'][len(df)-1] >  rsi_max and get_trade_position()!= "L" :
