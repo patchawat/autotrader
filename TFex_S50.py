@@ -122,7 +122,7 @@ def L(df,trend):
 			from_usr = config['email']['email_from']
 			from_usr_pass = config['email']['email_password']
 			to_usr = config['email']['email_to']
-			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L",str(df['price'][len(df)-1]))
+			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L "+trend,str(df['price'][len(df)-1]))
 	except:
 		config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
 		with open(trade_status_path, 'w') as configfile:
@@ -131,7 +131,7 @@ def L(df,trend):
 		from_usr = config['email']['email_from']
 		from_usr_pass = config['email']['email_password']
 		to_usr = config['email']['email_to']
-		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L",str(df['price'][len(df)-1]))
+		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L "+trend,str(df['price'][len(df)-1]))
 		
 def S(df,trend):
 	import configparser
@@ -147,7 +147,7 @@ def S(df,trend):
 			from_usr = config['email']['email_from']
 			from_usr_pass = config['email']['email_password']
 			to_usr = config['email']['email_to']
-			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S",str(df['price'][len(df)-1]))
+			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S "+trend,str(df['price'][len(df)-1]))
 	except:
 		config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
 		with open(trade_status_path, 'w') as configfile:
@@ -156,7 +156,7 @@ def S(df,trend):
 		from_usr = config['email']['email_from']
 		from_usr_pass = config['email']['email_password']
 		to_usr = config['email']['email_to']
-		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S",str(df['price'][len(df)-1]))
+		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S "+trend,str(df['price'][len(df)-1]))
 
 		
 def close_position(df):
