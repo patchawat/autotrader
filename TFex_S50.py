@@ -1,4 +1,6 @@
 import pandas as pd
+import datetime
+
 
 
 data_path = "feature.csv"
@@ -45,118 +47,161 @@ def send_mail_img(from_usr,from_usr_pass,to_usr,img_filepath=img_path,subject="t
 	s.login(gmail_user, gmail_password)
 	s.sendmail(gmail_user, to, msg.as_string())
 	s.quit()
+	
+def send_mail(from_usr,from_usr_pass,to_usr,subject="test",text="regression test"):
+	import smtplib,ssl,os
+	from email.mime.text import MIMEText
+	from email.mime.multipart import MIMEMultipart
+	
+	gmail_user = from_usr  
+	gmail_password = from_usr_pass
+	to = to_usr  
+	
+	
+	msg = MIMEMultipart()
+	msg['Subject'] = subject
+	msg['From'] = gmail_user
+	msg['To'] = to
 
+	text = MIMEText(text)
+	msg.attach(text)
 
+	s = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+	s.ehlo()
+	#s.starttls()
+	#s.ehlo()
+	s.login(gmail_user, gmail_password)
+	s.sendmail(gmail_user, to, msg.as_string())
+	s.quit()
 
-
-def linear_regression_by_period(df):
-	from sklearn import linear_model
-
-	if len(df) == 0:
-		return [],{},{},{},{},{},{}
-	
-	y_current = df['price']
-	
-
-	
-	x_current = pd.DataFrame(data={'series':y_current.index})	
-	
-	y_overbuy = df[df['rsi'] > rsi_max]['price']
-	y_oversell = df[df['rsi'] < rsi_min]['price']
-	
-	x_overbuy = pd.DataFrame(data={'series':y_overbuy.index})
-	x_oversell = pd.DataFrame(data={'series':y_oversell.index})
-
-	lm = linear_model.LinearRegression()
-	
-	
-	
-	model_current = lm.fit(x_current, y_current)
-	regression_current = lm.predict(x_current)
-	
-	
-	return regression_current , x_current,y_current,x_overbuy,y_overbuy,x_oversell,y_oversell
 	
 
-
-def plot_period(regression_current , x_current , name, color,y_current = {},x_overbuy = {},y_overbuy = {},x_oversell = {},y_oversell = {}):
-	import matplotlib.pyplot as plt
 	
-	try:
-		plt.scatter(x_current, y_current, color='#9999FF', label='price')
-		plt.scatter(x_overbuy, y_overbuy, color='#00FF00', label='overbuy point')
-		plt.scatter(x_oversell, y_oversell, color='#FF0000', label='oversell point')
-	except:
-		{}
-
-	try:
-		plt.plot(x_current, regression_current, color=color, lw=2, label=name)
-	except:
-		return False
-
-	plt.xlabel('series')
-	plt.ylabel('price')
-	plt.title('Linear Regression')
-	plt.legend()
-
-def save_img(save_to = img_path):
-	import matplotlib.pyplot as plt
-	try:
-		plt.savefig(save_to)
-		plt.close()
-	except:
-		plt.close()
+def analyse(df):
 	
-	
-def L(df,trend):
-	import configparser
-	
-	config = configparser.ConfigParser()
-	config.read(trade_status_path)
-	try:
-		if(config['trade']['position'] != "L"):
-			config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
-			with open(trade_status_path, 'w') as configfile:
-				config.write(configfile)
-			config.read(basic_conf_path)
-			from_usr = config['email']['email_from']
-			from_usr_pass = config['email']['email_password']
-			to_usr = config['email']['email_to']
-			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L "+trend,str(df['price'][len(df)-1]))
-	except:
-		config['trade'] = {'position': 'L','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
-		with open(trade_status_path, 'w') as configfile:
-			config.write(configfile)
-		config.read(basic_conf_path)
-		from_usr = config['email']['email_from']
-		from_usr_pass = config['email']['email_password']
-		to_usr = config['email']['email_to']
-		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L "+trend,str(df['price'][len(df)-1]))
+	i = 1
+	while i < len(df) and i > 0:
 		
-def S(df,trend):
+		
+		c_vol = int(df['vol'][i])
+		c_price = float(df['close_price'][i])
+		
+		p_vol = int(df['vol'][i-1])
+		p_high_price = float(df['high_price'][i-1])
+		p_low_price = float(df['low_price'][i-1])
+		
+		c_datetime = str(df['DateTime'][i])
+		Date = c_datetime[:10]
+		Time = c_datetime[11:]
+		
+		
+		position = get_trade_position()
+		
+		if c_datetime.find("09:30:00") != -1 or c_datetime.find("14:00:00") != -1:
+			print(c_datetime)
+			i = i+1
+			continue
+		elif (c_datetime.find("12:00:00") != -1 or c_datetime.find("16:30:00") != -1) and (position == "L" or position == "S"):
+			print(c_datetime)
+			close_position(df)
+			i = i+2
+			continue
+			
+			
+		start_index = df[df['DateTime'].str.contains(Date)].index
+		print (to_last[0])
+		# max_vol_intraday = ['vol'].max()
+		# print (max_vol_intraday)
+		# t = df_15['vol'].max()*7/10
+		
+		
+		
+		# #update expected_price
+		# expected_price = -1
+		# trade_price = -1
+		
+		# if position != "":
+			# expected_price = get_expected_price()
+			# trade_price = get_trade_price()
+			# if position== "L":
+				# if c_price - trade_price > 4 and c_price > expected_price:
+					# expected_price = c_price
+					# set_expected_price(expected_price)
+					
+			# elif position== "S":
+				# if trade_price - c_price > 4 and (expected_price == -1 or c_price < expected_price):
+					# expected_price = c_price
+					# set_expected_price(expected_price)
+		
+		# #trade
+		# if c_vol >= t:
+			# if c_price > p_price :
+				
+				# if (position == "S" and int(c_vol) >= t2) or position == "":
+				# #if position != "L":
+					# print ("L: ",c_price ," at i: " ,i+16," t: ",t)
+					# L(df_15,"U",c_vol)
+					
+				# print("Up trend at vol: ",c_vol," t2: ",t2)
+				
+				# if position == "L":
+					# set_vol(c_vol)
+					
+			# elif c_price < p_price :
+				
+				# if (position == "L" and int(c_vol) >= t2) or position == "":
+				# #if position != "S":
+					# print ("S: ",c_price, " at i: " ,i+16," t: ",t)
+					# S(df_15,"D",c_vol)
+					
+				# print("Down trend at vol: ",c_vol," t2: ",t2)
+				# if position == "S":
+					
+					# set_vol(c_vol)
+		
+		# #Close
+		# position = get_trade_position()
+		# if position != "":
+			# if position == "L" and c_price - trade_price > 0 and c_price - trade_price  <= (expected_price - trade_price)*3/5:
+				# close_position(df_15)
+				# print ("Close L: ",c_price, " at i: " ,i+16)
+				
+			# elif position == "S"  and trade_price - c_price > 0 and trade_price - c_price <= (trade_price - expected_price)*3/5:
+				# close_position(df_15)
+				# print ("Close S: ",c_price, " at i: " ,i+16)
+			
+		i = i+1
+	
+def L(df,trend,vol):
 	import configparser
 	
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
-	try:
-		if(config['trade']['position'] != "S"):
-			config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
-			with open(trade_status_path, 'w') as configfile:
-				config.write(configfile)
-			config.read(basic_conf_path)
-			from_usr = config['email']['email_from']
-			from_usr_pass = config['email']['email_password']
-			to_usr = config['email']['email_to']
-			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S "+trend,str(df['price'][len(df)-1]))
-	except:
-		config['trade'] = {'position': 'S','trade_price': df['price'][len(df)-1],'trend': trend,'expected_price': df['price'][len(df)-1]}
-		with open(trade_status_path, 'w') as configfile:
-			config.write(configfile)
-		config.read(basic_conf_path)
-		from_usr = config['email']['email_from']
-		from_usr_pass = config['email']['email_password']
-		to_usr = config['email']['email_to']
-		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S "+trend,str(df['price'][len(df)-1]))
+	
+	config['trade'] = {'position': 'L','trade_price': df['close_price'][len(df)-1],'trend': trend,'expected_price': df['close_price'][len(df)-1],'volume':vol}
+	with open(trade_status_path, 'w') as configfile:
+		config.write(configfile)
+	config.read(basic_conf_path)
+	from_usr = config['email']['email_from']
+	from_usr_pass = config['email']['email_password']
+	to_usr = config['email']['email_to']
+	send_mail(from_usr,from_usr_pass,to_usr,"L",str(df['close_price'][len(df)-1]))	
+		
+def S(df,trend,vol):
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	
+	config['trade'] = {'position': 'S','trade_price': df['close_price'][len(df)-1],'trend': trend,'expected_price': df['close_price'][len(df)-1],'volume':vol}
+	with open(trade_status_path, 'w') as configfile:
+		config.write(configfile)
+	config.read(basic_conf_path)
+	from_usr = config['email']['email_from']
+	from_usr_pass = config['email']['email_password']
+	to_usr = config['email']['email_to']
+	send_mail(from_usr,from_usr_pass,to_usr,"S",str(df['close_price'][len(df)-1]))
+	
 
 		
 def close_position(df):
@@ -164,28 +209,16 @@ def close_position(df):
 	
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
-	try:
-		if(config['trade']['position'] == "S" or config['trade']['position'] == "L" ):
-			position = config['trade']['position']
-			trade_price = config['trade']['trade_price']
 			
-			config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': ''}
-			with open(trade_status_path, 'w') as configfile:
-				config.write(configfile)
-			config.read(basic_conf_path)
-			from_usr = config['email']['email_from']
-			from_usr_pass = config['email']['email_password']
-			to_usr = config['email']['email_to']
-			send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close",position+": "+str(trade_price)+" current price: "+str(df['price'][len(df)-1]))
-	except:
-		config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': ''}
-		with open(trade_status_path, 'w') as configfile:
-			config.write(configfile)
-		config.read(basic_conf_path)
-		from_usr = config['email']['email_from']
-		from_usr_pass = config['email']['email_password']
-		to_usr = config['email']['email_to']
-		send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close","no price and position")	
+	config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': '','volume':''}
+	with open(trade_status_path, 'w') as configfile:
+		config.write(configfile)
+	config.read(basic_conf_path)
+	from_usr = config['email']['email_from']
+	from_usr_pass = config['email']['email_password']
+	to_usr = config['email']['email_to']
+	send_mail(from_usr,from_usr_pass,to_usr,"close",str(df['close_price'][len(df)-1]))
+	
 
 
 def set_expected_price(price):
@@ -198,16 +231,51 @@ def set_expected_price(price):
 			position = config['trade']['position']
 			trade_price = config['trade']['trade_price']
 			trend = config['trade']['trend']
+			vol = config['trade']['volume']
 			
-			config['trade'] = {'position': position,'trade_price': trade_price,'trend': trend,'expected_price': price}
+			config['trade'] = {'position': position,'trade_price': trade_price,'trend': trend,'expected_price': price,'volume':vol}
 			with open(trade_status_path, 'w') as configfile:
 				config.write(configfile)
 			
 	except:
-		config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': ''}
+		print("except in set_expected_price")
+		position = config['trade']['position']
+		trade_price = config['trade']['trade_price']
+		trend = config['trade']['trend']
+		vol = config['trade']['volume']
+		
+		config['trade'] = {'position': position,'trade_price': trade_price,'trend': trend,'expected_price': price,'volume':vol}
 		with open(trade_status_path, 'w') as configfile:
 			config.write(configfile)
 
+def set_vol(vol):
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	try:
+		if(config['trade']['position'] == "S" or config['trade']['position'] == "L" ):
+			position = config['trade']['position']
+			trade_price = config['trade']['trade_price']
+			trend = config['trade']['trend']
+			expected_price = config['trade']['expected_price']
+			
+			
+			config['trade'] = {'position': position,'trade_price': trade_price,'trend': trend,'expected_price': expected_price,'volume':vol}
+			with open(trade_status_path, 'w') as configfile:
+				config.write(configfile)
+			
+	except:
+		print("except in set_vol")
+		position = config['trade']['position']
+		trade_price = config['trade']['trade_price']
+		trend = config['trade']['trend']
+		expected_price = config['trade']['expected_price']
+		
+		
+		config['trade'] = {'position': position,'trade_price': trade_price,'trend': trend,'expected_price': expected_price,'volume':vol}
+		with open(trade_status_path, 'w') as configfile:
+			config.write(configfile)
 			
 def get_expected_price():
 	import configparser
@@ -215,7 +283,7 @@ def get_expected_price():
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
 	try:
-		return config['trade']['expected_price']
+		return float(config['trade']['expected_price'])
 	except:
 		return -1
 		
@@ -245,7 +313,7 @@ def get_trade_trend():
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
 	try:
-		return float(config['trade']['trend'])
+		return str(config['trade']['trend'])
 	except:
 		return ""
 		
@@ -256,10 +324,10 @@ def get_profit(df):
 	config.read(trade_status_path)
 	try:
 		position = get_trade_position()
-		profit =  df['price'][len(df)-1] - float(config['trade']['trade_price'])
+		profit =  df['close_price'][len(df)-1] - float(config['trade']['trade_price'])
 		if position == "S" : 
 			profit = -profit
-		return profit
+		return float(profit)
 		
 	except:
 		return 0
@@ -273,123 +341,119 @@ def keep_last_n_data(df,n=ticks*2):
 	except:
 		return df
 
-def analyse(df):
-
-	i = 165
-	while i < len(df):
-		df20 = df[i-20:i]
-		df41 = df[i-41:i]
-		df82 = df[i-82:i]
-		df165 = df[i-165:i]
-
-		regression_current_20 ,  x_current_20,y_current_20,x_overbuy_20,y_overbuy_20,x_oversell_20,y_oversell_20 = linear_regression_by_period(df20)
-		regression_current_41 ,  x_current_41,y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41 = linear_regression_by_period(df41)
-		regression_current_82 ,  x_current_82,y_current_82,x_overbuy_82,y_overbuy_82,x_oversell_82,y_oversell_82 = linear_regression_by_period(df82)
-		regression_current_165 ,  x_current_165,y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165 = linear_regression_by_period(df165)
-		
-		# plot_period(regression_current_20 ,  x_current_20, '20 min regression', '#229999')
-		plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-		# plot_period(regression_current_82 ,  x_current_82 , '82 min regression', '#999922')
-		# plot_period(regression_current_165 ,  x_current_165 , '165 min regression', '#2255AA',y_current_165,x_overbuy_165,y_overbuy_165,x_oversell_165,y_oversell_165)
-		save_img("C:\\Users\\USER\\Desktop\\regression result\\"+str(i)+".png")
+def get_trade_volume():
+	import configparser
 	
-		i = i+1
+	config = configparser.ConfigParser()
+	config.read(trade_status_path)
+	try:
+		return int(config['trade']['volume'])
+	except:
+		return -1
+
 
 df = pd.read_csv(data_path)
 
-df = keep_last_n_data(df)
+#df = keep_last_n_data(df)
 
-d = {
-	'price':df['price'],
-	'vol': df['vol'],
-	'rsi': df['rsi']
-	}
+# d = {
+	# 'high_price':df['high_price'],
+	# 'low_price':df['low_price'],
+	# 'open_price':df['open_price'],
+	# 'close_price':df['close_price'],
+	# 'vol': df['vol'],
+	# 'rsi': df['rsi']
+	# }
 
 
-df = pd.DataFrame(data=d)
-
-# df = df[df['vol'] > df['vol'].median()]
-
-# df = df.reset_index(drop=True)
-
+# df = pd.DataFrame(data=d)
 
 
 # analyse(df)
 
-df41 = df[len(df)-41:]
+now = datetime.datetime.now()
 
 
 
+c_vol = int(df['vol'][len(df)-1])
+c_price = float(df['close_price'][len(df)-1])
 
-regression_current_41 ,  x_current_41,y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41 = linear_regression_by_period(df41)
+p_vol = int(df['vol'][len(df)-2])
+p_high_price = float(df['high_price'][len(df)-2])
+p_low_price = float(df['low_price'][len(df)-2])
 
-trend = regression_current_41[-1] - regression_current_41[0]
+c_datetime = str(df['DateTime'][len(df)-1])
+Date = c_datetime[:10]
+Time = c_datetime[11:]
 
-regression_distance = abs(trend)
 
-min_max_distance = df41['price'].max() - df41['price'].min()
-
+position = get_trade_position()
 
 #update expected_price
-expected_price = get_expected_price()
-trade_price = get_trade_price()
-current_price = df['price'][len(df)-1]
+expected_price = -1
+trade_price = -1
 
-if get_trade_position()== "L":
-	if current_price - trade_price > 4 and current_price > expected_price:
-		expected_price = current_price
-		set_expected_price(expected_price)
-		
-elif get_trade_position()== "S":
-	if trade_price - current_price > 4 and (expected_price == -1 or current_price < expected_price):
-		expected_price = current_price
-		set_expected_price(expected_price)
+if position != "":
+	expected_price = get_expected_price()
+	trade_price = get_trade_price()
+	if position== "L":
+		if c_price - trade_price > 4 and c_price > expected_price:
+			expected_price = c_price
+			set_expected_price(expected_price)
+			
+	elif position== "S":
+		if trade_price - c_price > 4 and (expected_price == -1 or c_price < expected_price):
+			expected_price = c_price
+			set_expected_price(expected_price)
+			
+
+if c_datetime.find("09:30:00") != -1 or c_datetime.find("14:00:00") != -1:
+	exit()
+elif ((int(now.hour) == 12 and int(now.minute) >= 25 ) or (int(now.hour) == 16 and int(now.minute) >= 50 )) and (position == "L" or position == "S"):
+	close_position(df)
+	exit()
 
 	
+
+start_index = 0
+end_index = df.index[-1] + 1
+
+
+
+if(int(now.hour) > 12):
+	date_time = Date + " 14:00:00"
+	start_index = df[df['DateTime'].str.contains(date_time)].index[0]
+	
+else:
+	date_time = Date + " 09:30:00"
+	start_index = df[df['DateTime'].str.contains(date_time)].index[0]
+ 
+df2 = df[start_index:end_index]
+ 
+minimum_vol = df2['vol'].max()/2 
+
+if c_vol < minimum_vol:
+	exit()
+
+
+if (c_price > p_high_price or p_high_price - c_price < c_price - p_low_price) and position != 'L':
+	L(df,"U",c_vol)
+elif (c_price < p_low_price or p_high_price - c_price > c_price - p_low_price) and position != 'S':
+	S(df,"D",c_vol)
+
 
 #Close
-if get_trade_position()== "L" and current_price - trade_price > 0 and current_price - trade_price  <= (expected_price - trade_price)*3/5:
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	close_position(df)
-	
-elif get_trade_position()== "S"  and trade_price - current_price > 0 and trade_price - current_price <= (trade_price - expected_price)*3/5:
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	close_position(df)		
-
-
+if position != "":
+	if position == "L" and c_price - trade_price > 0 and c_price - trade_price  <= (expected_price - trade_price)*3/5:
+		close_position(df)
 		
-#trade logic
-#Sideway
-if min_max_distance <= 6 and min_max_distance >= 4 and  abs(current_price - df41['price'].max()) <= 0.5  and get_trade_position()!= "S" :
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	S(df,'S')
-	
-elif min_max_distance <= 6 and min_max_distance >= 4 and  abs(current_price - df41['price'].min()) <= 0.5  and get_trade_position()!= "L" :
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	L(df,'S')
-
-#Up	
-elif trend > 0 and regression_distance > 1 and get_trade_position()!= "L" :
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	L(df,'U')
-	
-
-#Down
-elif trend < 0 and regression_distance > 1 and get_trade_position()!= "S" :
-	plot_period(regression_current_41 ,  x_current_41, '41 min regression', '#992299',y_current_41,x_overbuy_41,y_overbuy_41,x_oversell_41,y_oversell_41)
-	save_img()
-	S(df,'D')
-
-
+	elif position == "S"  and trade_price - c_price > 0 and trade_price - c_price <= (trade_price - expected_price)*3/5:
+		close_position(df)
 	
 
 	
 	
+
 
 	
 	

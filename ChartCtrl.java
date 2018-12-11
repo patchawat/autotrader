@@ -546,7 +546,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\1min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\30min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
@@ -634,10 +634,10 @@ public class ChartCtrl
 					s.click(p);
 					AnalyseMinuteData();
 				}
-				//data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.close_price = RegexNumeric(str," id=\"huClose\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				//data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				//data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				//data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
@@ -1387,10 +1387,10 @@ public class ChartCtrl
 				
 				data = new Data();
 				
-				//data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.open_price = RegexNumeric(str," id=\"huOpen\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.close_price = RegexNumeric(str," id=\"huClose\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				//data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
-				//data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.high_price = RegexNumeric(str," id=\"huHigh\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
+				data.low_price = RegexNumeric(str," id=\"huLow\" class=\"huField\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.rsi = RegexNumeric(str," RSI RSI \\(14\\) = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				data.vol = RegexNumeric(str," id=\"huVolume\" class=\"huField hu_V\">[-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
 				//data.tsf = RegexNumeric(str," LINFCST = [-]*[0-9]*[,]*[0-9]*[.]*[0-9]*");
@@ -1512,8 +1512,8 @@ public class ChartCtrl
 			for(int i=0;i<prc.size();++i)
 			{
 				Data d = prc.get(i);
-				pw.write(String.format("%s,%s,%s,%s\r\n", 
-						d.close_price,d.rsi,d.vol/*,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
+				pw.write(String.format("%s,%s,%s,%s,%s,%s,%s\r\n", 
+						d.high_price,d.low_price,d.open_price,d.close_price,d.rsi,d.vol/*,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
 						d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr*/,d.DateTime));
 			}
 			pw.close();
@@ -1562,9 +1562,9 @@ public class ChartCtrl
 		    
 			
 			
-			pw.write(String.format("%s,%s,%s,%s\r\n", 
-						d.close_price,d.rsi,d.vol/*,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
-						d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr*/,d.DateTime));
+			pw.write(String.format("%s,%s,%s,%s,%s,%s,%s\r\n", 
+					d.high_price,d.low_price,d.open_price,d.close_price,d.rsi,d.vol/*,d.adx,d.atr,d.cci,d.macd,d.mfi,d.mom,
+					d.obv,d.rocr,d.s_macd,d.std,d.swing,d.trix,d.tsf,d.willr*/,d.DateTime));
 			
 			pw.close();
 		}
