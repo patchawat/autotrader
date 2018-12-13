@@ -73,7 +73,17 @@ def send_mail(from_usr,from_usr_pass,to_usr,subject="test",text="regression test
 	s.login(gmail_user, gmail_password)
 	s.sendmail(gmail_user, to, msg.as_string())
 	s.quit()
-
+	
+	
+def send_mail_to_me(subject="test",text="regression test"):
+	import configparser
+	
+	config = configparser.ConfigParser()
+	config.read(basic_conf_path)
+	from_usr = config['email']['email_from']
+	from_usr_pass = config['email']['email_password']
+	to_usr = config['email']['email_to']
+	send_mail(from_usr,from_usr_pass,to_usr,subject,text)	
 	
 
 	
@@ -409,8 +419,9 @@ if position != "":
 
 if c_datetime.find("09:30:00") != -1 or c_datetime.find("14:00:00") != -1:
 	exit()
-elif ((int(now.hour) == 12 and int(now.minute) >= 25 ) or (int(now.hour) == 16 and int(now.minute) >= 50 )) and (position == "L" or position == "S"):
-	close_position(df)
+elif (int(now.hour) == 12 and int(now.minute) >= 25 ) or (int(now.hour) == 16 and int(now.minute) >= 50 ) :
+	if position == "L" or position == "S":
+		close_position(df)
 	exit()
 
 	
@@ -432,13 +443,15 @@ df2 = df[start_index:end_index]
  
 minimum_vol = df2['vol'].max()/2 
 
+
+
 if c_vol < minimum_vol:
 	exit()
 
 
-if (c_price > p_high_price or p_high_price - c_price < c_price - p_low_price) and position != 'L':
+if p_high_price - c_price < c_price - p_low_price and position != 'L':
 	L(df,"U",c_vol)
-elif (c_price < p_low_price or p_high_price - c_price > c_price - p_low_price) and position != 'S':
+elif  p_high_price - c_price > c_price - p_low_price and position != 'S':
 	S(df,"D",c_vol)
 
 
