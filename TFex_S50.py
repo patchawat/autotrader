@@ -360,20 +360,21 @@ def get_trade_volume():
 		return int(config['trade']['volume'])
 	except:
 		return -1
+		
 
 
 df = pd.read_csv(data_path)
 
 #df = keep_last_n_data(df)
 
-# d = {
-	# 'high_price':df['high_price'],
-	# 'low_price':df['low_price'],
-	# 'open_price':df['open_price'],
-	# 'close_price':df['close_price'],
-	# 'vol': df['vol'],
-	# 'rsi': df['rsi']
-	# }
+d = {
+	'high_price':int(df['high_price']),
+	'low_price':df['low_price'],
+	'open_price':df['open_price'],
+	'close_price':df['close_price'],
+	'vol': df['vol'],
+	'rsi': df['rsi']
+	}
 
 
 # df = pd.DataFrame(data=d)
