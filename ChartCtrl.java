@@ -546,7 +546,7 @@ public class ChartCtrl
 			m1 = s.find(p);
 			s.click();
 			
-			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\3min.jpg"));
+			p.setFilename(new File(".").getCanonicalPath().concat("\\img\\5min.jpg"));
 			s.wait(p,WAITNUM);
 			s.click();
 			
