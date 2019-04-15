@@ -377,7 +377,7 @@ def get_support_line(df):
 	
 	elem_under_50rsi = df[df['rsi'] < 50]
 	# elem_under_50rsi = pd.DataFrame(data={'low_price':elem_under_50rsi['low_price'],'group_idx':0,'series':elem_under_50rsi.index})
-	elem_under_50rsi = pd.DataFrame(data={'rsi':elem_under_50rsi['rsi'],'group_idx':0,'series':elem_under_50rsi.index,'vol':elem_under_50rsi['vol']})
+	elem_under_50rsi = pd.DataFrame(data={'rsi':elem_under_50rsi['rsi'],'group_idx':0,'series':elem_under_50rsi.index,'vol':elem_under_50rsi['vol'],'low_price':elem_under_50rsi['low_price']})
 
 	p_row = 0
 	c_row = 0
@@ -414,11 +414,12 @@ def get_support_line(df):
 	# Y = support_line_group['low_price']
 	Y = support_line_group['rsi']
 	vol = support_line_group['vol']
+	prices = support_line_group['low_price']
 	
 	regr = linear_model.LinearRegression()
 	regr.fit(X, Y)
 	support_line = regr.predict(X)
-	return X,Y,vol,support_line
+	return X,Y,vol,prices,support_line
 
 	
 
@@ -440,7 +441,7 @@ def get_resistance_line(df):
 	
 	
 	# elem_over_50rsi = pd.DataFrame(data={'high_price':elem_over_50rsi['high_price'],'group_idx':0,'series':elem_over_50rsi.index})
-	elem_over_50rsi = pd.DataFrame(data={'rsi':elem_over_50rsi['rsi'],'group_idx':0,'series':elem_over_50rsi.index,'vol':elem_over_50rsi['vol']})
+	elem_over_50rsi = pd.DataFrame(data={'rsi':elem_over_50rsi['rsi'],'group_idx':0,'series':elem_over_50rsi.index,'vol':elem_over_50rsi['vol'],'high_price':elem_over_50rsi['high_price']})
 	
 
 	p_row = 0
@@ -480,19 +481,21 @@ def get_resistance_line(df):
 	# Y = resistance_line_group['high_price']
 	Y = resistance_line_group['rsi']
 	vol = resistance_line_group['vol']
+	prices = resistance_line_group['high_price']
 	regr = linear_model.LinearRegression()
 	regr.fit(X, Y)
 	resistance_line = regr.predict(X)
-	return X,Y,vol,resistance_line
+	return X,Y,vol,prices,resistance_line
 
 
 
-def plot(X1,Y1,vol1,line1,X2,Y2,vol2,line2):
+def plot(X1,Y1,vol1,prices1,line1,X2,Y2,vol2,prices2,line2):
 
 	import matplotlib.pyplot as plt 
 	import numpy as np
 	
-	plt.subplot(2, 1, 1)
+	#RSI
+	plt.subplot(3, 1, 1)
 	plt.scatter(X1, Y1,  color='green')
 	plt.plot(X1, line1, color='cyan', linewidth=2)
 	
@@ -502,26 +505,30 @@ def plot(X1,Y1,vol1,line1,X2,Y2,vol2,line2):
 	plt.xlabel('Series')
 	plt.ylabel('RSI')
 	
-	plt.subplot(2, 1, 2)
-	ind1 = np.arange(len(X1))
-	ind2 = np.arange(len(X2))
-	
-	
-	plt.bar(np.array(X1.to_numpy()).flatten(), vol1, color='green',width = 5)
+	#volume
+	plt.subplot(3, 1, 2)
+	plt.bar(np.array(X1.to_numpy()).flatten(), vol1, color='green',width = 3)
 	plt.bar(np.array(X2.to_numpy()).flatten(), vol2, color='red',width = 5)
 	plt.xlabel('Series')
 	plt.ylabel('Volume')
 
+	#prices
+	plt.subplot(3, 1, 3)
+	plt.scatter(X1, prices1,  color='green')
+	plt.scatter(X2, prices2,  color='red')
+	plt.xlabel('Series')
+	plt.ylabel('prices')
+	
 	plt.savefig(img_path)
 
 df = pd.read_csv(data_path)
 
-X1,Y1,vol1,resistance_line = get_resistance_line(df)
-X2,Y2,vol2,support_line = get_support_line(df)
+X1,Y1,vol1,high_price,resistance_line = get_resistance_line(df)
+X2,Y2,vol2,low_price,support_line = get_support_line(df)
 
 
 
-plot(X1,Y1,vol1,resistance_line,X2,Y2,vol2,support_line)
+plot(X1,Y1,vol1,high_price,resistance_line,X2,Y2,vol2,low_price,support_line)
 
 
 
