@@ -4,7 +4,7 @@ import datetime
 
 
 data_path = "feature.csv"
-img_path = "img\\regression.png"
+img_path = "img\\sup_res_line.png"
 trade_status_path = "trade_status.ini"
 basic_conf_path = "conf\\basic.ini"
 
@@ -363,106 +363,271 @@ def get_trade_volume():
 		
 
 
+def get_support_line(df):
+	import matplotlib.pyplot as plt
+	from sklearn import linear_model
+
+	   
+
+	if len(df) == 0:
+
+		return []
+
+				   
+	
+	elem_under_50rsi = df[df['rsi'] < 50]
+	# elem_under_50rsi = pd.DataFrame(data={'low_price':elem_under_50rsi['low_price'],'group_idx':0,'series':elem_under_50rsi.index})
+	elem_under_50rsi = pd.DataFrame(data={'rsi':elem_under_50rsi['rsi'],'group_idx':0,'series':elem_under_50rsi.index,'vol':elem_under_50rsi['vol']})
+
+	p_row = 0
+	c_row = 0
+
+	group_index = 0
+
+	#elem_under_50rsi = elem_under_50rsi.reset_index(drop=True)
+	
+
+	for index, row in elem_under_50rsi.iterrows():
+		
+		if p_row == 0:
+			p_row = index
+			c_row = index
+			continue
+		
+		c_row = index
+			
+		if c_row - p_row == 1:
+			elem_under_50rsi.at[index, 'group_idx'] = group_index
+
+				   
+
+		else:
+			group_index = group_index + 1
+			elem_under_50rsi.at[index, 'group_idx'] = group_index
+		
+		p_row = index
+			
+
+	support_line_group = elem_under_50rsi.groupby(['group_idx']).min()
+	
+	X = pd.DataFrame(data={'series':support_line_group['series']})
+	# Y = support_line_group['low_price']
+	Y = support_line_group['rsi']
+	vol = support_line_group['vol']
+	
+	regr = linear_model.LinearRegression()
+	regr.fit(X, Y)
+	support_line = regr.predict(X)
+	return X,Y,vol,support_line
+
+	
+
+		
+
+def get_resistance_line(df):
+	import matplotlib.pyplot as plt
+	from sklearn import linear_model
+
+	   
+
+	if len(df) == 0:
+
+		return []
+
+				   
+	
+	elem_over_50rsi = df[df['rsi'] > 50]
+	
+	
+	# elem_over_50rsi = pd.DataFrame(data={'high_price':elem_over_50rsi['high_price'],'group_idx':0,'series':elem_over_50rsi.index})
+	elem_over_50rsi = pd.DataFrame(data={'rsi':elem_over_50rsi['rsi'],'group_idx':0,'series':elem_over_50rsi.index,'vol':elem_over_50rsi['vol']})
+	
+
+	p_row = 0
+	c_row = 0
+
+	group_index = 0
+
+	#elem_over_50rsi = elem_over_50rsi.reset_index(drop=True)
+	
+
+	for index, row in elem_over_50rsi.iterrows():
+		
+		if p_row == 0:
+			p_row = index
+			c_row = index
+			continue
+		
+		c_row = index
+			
+		if c_row - p_row == 1:
+			elem_over_50rsi.at[index, 'group_idx'] = group_index
+
+				   
+
+		else:
+			group_index = group_index + 1
+			elem_over_50rsi.at[index, 'group_idx'] = group_index
+		
+		p_row = index
+			
+	
+	resistance_line_group = elem_over_50rsi.groupby(['group_idx']).max()
+	 
+	
+	
+	X = pd.DataFrame(data={'series':resistance_line_group['series']})
+	# Y = resistance_line_group['high_price']
+	Y = resistance_line_group['rsi']
+	vol = resistance_line_group['vol']
+	regr = linear_model.LinearRegression()
+	regr.fit(X, Y)
+	resistance_line = regr.predict(X)
+	return X,Y,vol,resistance_line
+
+
+
+def plot(X1,Y1,vol1,line1,X2,Y2,vol2,line2):
+
+	import matplotlib.pyplot as plt 
+	import numpy as np
+	
+	plt.subplot(2, 1, 1)
+	plt.scatter(X1, Y1,  color='green')
+	plt.plot(X1, line1, color='cyan', linewidth=2)
+	
+	plt.scatter(X2, Y2,  color='red')
+	plt.plot(X2, line2, color='magenta', linewidth=2)	
+
+	plt.xlabel('Series')
+	plt.ylabel('RSI')
+	
+	plt.subplot(2, 1, 2)
+	ind1 = np.arange(len(X1))
+	ind2 = np.arange(len(X2))
+	
+	
+	plt.bar(np.array(X1.to_numpy()).flatten(), vol1, color='green',width = 5)
+	plt.bar(np.array(X2.to_numpy()).flatten(), vol2, color='red',width = 5)
+	plt.xlabel('Series')
+	plt.ylabel('Volume')
+
+	plt.savefig(img_path)
+
 df = pd.read_csv(data_path)
 
-#df = keep_last_n_data(df)
-
-d = {
-	'high_price':int(df['high_price']),
-	'low_price':df['low_price'],
-	'open_price':df['open_price'],
-	'close_price':df['close_price'],
-	'vol': df['vol'],
-	'rsi': df['rsi']
-	}
-
-
-# df = pd.DataFrame(data=d)
-
-
-# analyse(df)
-
-now = datetime.datetime.now()
+X1,Y1,vol1,resistance_line = get_resistance_line(df)
+X2,Y2,vol2,support_line = get_support_line(df)
 
 
 
-c_vol = int(df['vol'][len(df)-1])
-c_price = float(df['close_price'][len(df)-1])
-
-p_vol = int(df['vol'][len(df)-2])
-p_high_price = float(df['high_price'][len(df)-2])
-p_low_price = float(df['low_price'][len(df)-2])
-
-c_datetime = str(df['DateTime'][len(df)-1])
-Date = c_datetime[:10]
-Time = c_datetime[11:]
+plot(X1,Y1,vol1,resistance_line,X2,Y2,vol2,support_line)
 
 
-position = get_trade_position()
 
-#update expected_price
-expected_price = -1
-trade_price = -1
 
-if position != "":
-	expected_price = get_expected_price()
-	trade_price = get_trade_price()
-	if position== "L":
-		if c_price - trade_price > 4 and c_price > expected_price:
-			expected_price = c_price
-			set_expected_price(expected_price)
+
+# #df = keep_last_n_data(df)
+
+# d = {
+	# 'high_price':int(df['high_price']),
+	# 'low_price':df['low_price'],
+	# 'open_price':df['open_price'],
+	# 'close_price':df['close_price'],
+	# 'vol': df['vol'],
+	# 'rsi': df['rsi']
+	# }
+
+
+# # df = pd.DataFrame(data=d)
+
+
+# # analyse(df)
+
+# now = datetime.datetime.now()
+
+
+
+# c_vol = int(df['vol'][len(df)-1])
+# # c_price = float(df['close_price'][len(df)-1])
+
+# # p_vol = int(df['vol'][len(df)-2])
+# # p_high_price = float(df['high_price'][len(df)-2])
+# # p_low_price = float(df['low_price'][len(df)-2])
+
+# c_datetime = str(df['DateTime'][len(df)-1])
+# Date = c_datetime[:10]
+# Time = c_datetime[11:]
+
+
+# position = get_trade_position()
+
+# #update expected_price
+# expected_price = -1
+# trade_price = -1
+
+# if position != "":
+	# expected_price = get_expected_price()
+	# trade_price = get_trade_price()
+	# if position== "L":
+		# if c_price - trade_price > 4 and c_price > expected_price:
+			# expected_price = c_price
+			# set_expected_price(expected_price)
 			
-	elif position== "S":
-		if trade_price - c_price > 4 and (expected_price == -1 or c_price < expected_price):
-			expected_price = c_price
-			set_expected_price(expected_price)
+	# elif position== "S":
+		# if trade_price - c_price > 4 and (expected_price == -1 or c_price < expected_price):
+			# expected_price = c_price
+			# set_expected_price(expected_price)
 			
 
-if c_datetime.find("09:30:00") != -1 or c_datetime.find("14:00:00") != -1:
-	exit()
-elif (int(now.hour) == 12 and int(now.minute) >= 25 ) or (int(now.hour) == 16 and int(now.minute) >= 50 ) :
-	if position == "L" or position == "S":
-		close_position(df)
-	exit()
+# # if c_datetime.find("09:30:00") != -1 or c_datetime.find("14:00:00") != -1:
+	# # exit()
+# # elif (int(now.hour) == 12 and int(now.minute) >= 25 ) or (int(now.hour) == 16 and int(now.minute) >= 50 ) :
+	# # if position == "L" or position == "S":
+		# # close_position(df)
+	# # exit()
 
+# if (int(now.hour) == 12 and int(now.minute) >= 25 ) or (int(now.hour) == 16 and int(now.minute) >= 50 ) :
+	# if position == "L" or position == "S":
+		# close_position(df)
+	# exit()
+
+# start_index = 0
+# end_index = df.index[-1] + 1
+
+
+
+# # if(int(now.hour) > 12):
+	# # date_time = Date + " 14:00:00"
+	# # start_index = df[df['DateTime'].str.contains(date_time)].index[0]
 	
-
-start_index = 0
-end_index = df.index[-1] + 1
-
-
-
-if(int(now.hour) > 12):
-	date_time = Date + " 14:00:00"
-	start_index = df[df['DateTime'].str.contains(date_time)].index[0]
-	
-else:
-	date_time = Date + " 09:30:00"
-	start_index = df[df['DateTime'].str.contains(date_time)].index[0]
+# # else:
+	# # date_time = Date + " 09:30:00"
+	# # start_index = df[df['DateTime'].str.contains(date_time)].index[0]
  
-df2 = df[start_index:end_index]
+# # df2 = df[start_index:end_index]
  
-minimum_vol = df2['vol'].max()/2 
+# # minimum_vol = df2['vol'].max()/2 
 
 
 
-if c_vol < minimum_vol:
-	exit()
+# # if c_vol < minimum_vol:
+	# # exit()
 
 
-if p_high_price - c_price < c_price - p_low_price and position != 'L':
-	L(df,"U",c_vol)
-elif  p_high_price - c_price > c_price - p_low_price and position != 'S':
-	S(df,"D",c_vol)
+# # if p_high_price - c_price < c_price - p_low_price and position != 'L':
+	# # L(df,"U",c_vol)
+# # elif  p_high_price - c_price > c_price - p_low_price and position != 'S':
+	# # S(df,"D",c_vol)
 
 
-#Close
-if position != "":
-	if position == "L" and c_price - trade_price > 0 and c_price - trade_price  <= (expected_price - trade_price)*3/5:
-		close_position(df)
+# # #Close
+# # if position != "":
+	# # if position == "L" and c_price - trade_price > 0 and c_price - trade_price  <= (expected_price - trade_price)*3/5:
+		# # close_position(df)
 		
-	elif position == "S"  and trade_price - c_price > 0 and trade_price - c_price <= (trade_price - expected_price)*3/5:
-		close_position(df)
+	# # elif position == "S"  and trade_price - c_price > 0 and trade_price - c_price <= (trade_price - expected_price)*3/5:
+		# # close_position(df)
 	
 
 	
