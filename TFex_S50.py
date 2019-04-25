@@ -414,7 +414,7 @@ def get_support_line(df):
 		
 		p_row = index
 			
-	min_volume = elem_under_50rsi.groupby(['group_idx'])['vol'].max() * 70/100
+	min_volume = elem_under_50rsi.groupby(['group_idx'])['vol'].max() /2
 	min_volume = np.array(min_volume.to_numpy()).flatten()
 	
 	elem_under_50rsi = elem_under_50rsi.assign(min_vol=lambda x: min_volume[x.group_idx] )
@@ -492,7 +492,7 @@ def get_resistance_line(df):
 		p_row = index
 			
 	
-	min_volume = elem_over_50rsi.groupby(['group_idx'])['vol'].max() * 70/100
+	min_volume = elem_over_50rsi.groupby(['group_idx'])['vol'].max() /2
 	min_volume = np.array(min_volume.to_numpy()).flatten()
 	
 	elem_over_50rsi = elem_over_50rsi.assign(min_vol=lambda x: min_volume[x.group_idx] )
@@ -577,6 +577,12 @@ def plot(resistance_line_group,resistance_line,support_line_group,support_line):
 	plt.savefig(img_path)
 
 df = pd.read_csv(data_path)
+
+df = df.tail(200)
+
+df = df.reset_index(drop=True)
+
+print(df)
 
 resistance_line_group,resistance_line = get_resistance_line(df)
 support_line_group,support_line = get_support_line(df)
