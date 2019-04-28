@@ -32,10 +32,10 @@ public class trader
 		*/
 		
 		ChartCtrl chart = new ChartCtrl();
-		chart.AnalyseMinuteData();
+		//chart.AnalyseMinuteData();
 		
-		//chart.setDatetimeGraphData(args[0], args[1]);
-		//chart.getGraphData();
+		chart.setDatetimeGraphData(args[0], args[1]);
+		chart.getGraphData();
 
 	}
 

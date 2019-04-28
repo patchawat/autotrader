@@ -578,7 +578,7 @@ public class ChartCtrl
 			try
 			{
 				
-				s.rightClick(c_loc.x,c_loc.y);
+				s.rightClick();
 				p.setFilename(new File(".").getCanonicalPath().concat("\\img\\viewsource.jpg"));
 				s.click(p);
 				
@@ -1357,7 +1357,7 @@ public class ChartCtrl
 					s.mouseMove(c_loc);
 					s.mouseUp(Button.LEFT);
 				}
-				s.rightClick(c_loc.x,c_loc.y);
+				s.rightClick(c_loc);
 				
 				//System.out.println("Mouse click "+c_loc.x+" "+c_loc.y);
 				p.setFilename(new File(".").getCanonicalPath().concat("\\img\\viewsource.jpg"));

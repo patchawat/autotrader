@@ -568,7 +568,7 @@ def plot(resistance_line_group,resistance_line,support_line_group,support_line):
 	plt.bar(np.array(X12.to_numpy()).flatten(), vol12, color='red',width = 1)
 	
 	plt.bar(np.array(X21.to_numpy()).flatten(), vol21, color='red',width = 1)
-	plt.bar(np.array(X22.to_numpy()).flatten(), vol22, color='red',width = 1)
+	plt.bar(np.array(X22.to_numpy()).flatten(), vol22, color='green',width = 1)
 	plt.xlabel('Series')
 	plt.ylabel('Volume')
 
@@ -578,11 +578,10 @@ def plot(resistance_line_group,resistance_line,support_line_group,support_line):
 
 df = pd.read_csv(data_path)
 
-df = df.tail(200)
+df = df.tail(100)
 
 df = df.reset_index(drop=True)
 
-print(df)
 
 resistance_line_group,resistance_line = get_resistance_line(df)
 support_line_group,support_line = get_support_line(df)
