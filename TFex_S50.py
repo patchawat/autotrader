@@ -689,13 +689,18 @@ if position != "":
 
 # if c_vol < minimum_vol:
 	# exit()
-print(c_idx,last_index_resistance,last_index_support,resistance_line[-1],support_line[-1])
-if (c_rsi > 50 and p_rsi < 50) or (c_rsi < 50 and p_rsi > 50) or ((c_idx != last_index_resistance) or (c_idx != last_index_support)):
-	exit()
 
-if c_rsi < 50 and c_rsi < support_line[-1] and c_price > c_open_price and position != 'L':
+if (c_rsi > 50 and p_rsi < 50) or (c_rsi < 50 and p_rsi > 50) or ((c_idx != last_index_resistance) and (c_idx != last_index_support)):
+	exit()
+	
+is_up_trend = trend_resistance_line > 0 and trend_support_line > 0
+
+print(c_idx,last_index_resistance,last_index_support,resistance_line[-1],support_line[-1],trend_resistance_line,trend_support_line,is_up_trend)
+
+if c_rsi < 50 and (c_rsi < support_line[-1] or is_up_trend) and c_price > c_open_price and position != 'L':
 	L(df,"U",c_vol)
-elif  c_rsi > 50 and c_rsi > resistance_line[-1] and c_price < c_open_price and position != 'S':
+
+elif  c_rsi > 50 and (c_rsi > resistance_line[-1] or !is_up_trend) and c_price < c_open_price and position != 'S':
 	S(df,"D",c_vol)
 elif  c_rsi > 50 and c_rsi < resistance_line[-1] and c_price < c_open_price and position == 'L':
 	close_position(df)
