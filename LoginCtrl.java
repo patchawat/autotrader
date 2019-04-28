@@ -42,7 +42,7 @@ public class LoginCtrl
 		Runtime.getRuntime().exec("taskkill /F /IM efinTradePlus.exe");
 		Screen s = new Screen();
 		Pattern p = new Pattern(new File(".").getCanonicalPath().concat("\\img\\efin.jpg"));
-		p.similar(new Float(SIMILARITY_SCORE));
+		p.similar(SIMILARITY_SCORE);
 		//p.exact();
 		
 		try
