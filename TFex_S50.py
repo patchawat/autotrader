@@ -700,7 +700,7 @@ print(c_idx,last_index_resistance,last_index_support,resistance_line[-1],support
 if c_rsi < 50 and (c_rsi < support_line[-1] or is_up_trend) and c_price > c_open_price and position != 'L':
 	L(df,"U",c_vol)
 
-elif  c_rsi > 50 and (c_rsi > resistance_line[-1] or !is_up_trend) and c_price < c_open_price and position != 'S':
+elif  c_rsi > 50 and (c_rsi > resistance_line[-1] or is_up_trend == False) and c_price < c_open_price and position != 'S':
 	S(df,"D",c_vol)
 elif  c_rsi > 50 and c_rsi < resistance_line[-1] and c_price < c_open_price and position == 'L':
 	close_position(df)
