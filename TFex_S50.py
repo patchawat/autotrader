@@ -578,7 +578,7 @@ def plot(resistance_line_group,resistance_line,support_line_group,support_line):
 
 df = pd.read_csv(data_path)
 
-df = df.tail(100)
+df = df.tail(200)
 
 df = df.reset_index(drop=True)
 
@@ -694,16 +694,25 @@ if (c_rsi > 50 and p_rsi < 50) or (c_rsi < 50 and p_rsi > 50) or ((c_idx != last
 	exit()
 	
 is_up_trend = trend_resistance_line > 0 and trend_support_line > 0
+is_down_trend = trend_resistance_line < 0 and trend_support_line < 0
 
 print(c_idx,last_index_resistance,last_index_support,resistance_line[-1],support_line[-1],trend_resistance_line,trend_support_line,is_up_trend)
 
-if c_rsi < 50 and (c_rsi < support_line[-1] or is_up_trend) and c_price > c_open_price and position != 'L':
+if c_rsi < 50 and is_up_trend == True and c_price > c_open_price and position != 'L':
+	L(df,"U",c_vol)
+	
+elif c_rsi < 50 and c_rsi < support_line[-1] and is_down_trend == False and c_price > c_open_price and position != 'L':
 	L(df,"U",c_vol)
 
-elif  c_rsi > 50 and (c_rsi > resistance_line[-1] or is_up_trend == False) and c_price < c_open_price and position != 'S':
+elif  c_rsi > 50 and is_down_trend == True and c_price < c_open_price and position != 'S':
 	S(df,"D",c_vol)
+	
+elif  c_rsi > 50 and c_rsi > resistance_line[-1] and is_up_trend == False and c_price < c_open_price and position != 'S':
+	S(df,"D",c_vol)
+	
 elif  c_rsi > 50 and c_rsi < resistance_line[-1] and c_price < c_open_price and position == 'L':
 	close_position(df)
+	
 elif  c_rsi < 50 and c_rsi > support_line[-1] and c_price > c_open_price and position == 'S':
 	close_position(df)
 
