@@ -710,10 +710,10 @@ elif  c_rsi > 50 and is_down_trend == True and c_price < c_open_price and positi
 elif  c_rsi > 50 and c_rsi > resistance_line[-1] and is_up_trend == False and c_price < c_open_price and position != 'S':
 	S(df,"D",c_vol)
 	
-elif  c_rsi > 50 and c_rsi < resistance_line[-1] and c_price < c_open_price and position == 'L':
+elif  c_rsi > 50 and c_rsi < resistance_line[-1] and is_up_trend == False and c_price < c_open_price and position == 'L':
 	close_position(df)
 	
-elif  c_rsi < 50 and c_rsi > support_line[-1] and c_price > c_open_price and position == 'S':
+elif  c_rsi < 50 and c_rsi > support_line[-1] and is_down_trend == False and c_price > c_open_price and position == 'S':
 	close_position(df)
 
 position = get_trade_position()
