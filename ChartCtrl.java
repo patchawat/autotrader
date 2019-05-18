@@ -1505,7 +1505,7 @@ public class ChartCtrl
 	private void saveData()
 	{
 		Collections.reverse(prc);
-		prc.remove(prc.size()-1);
+		//prc.remove(prc.size()-1);
 		try
 		{
 			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\feature.csv")), true )); 
