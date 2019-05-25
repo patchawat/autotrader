@@ -11,17 +11,19 @@ trade_status_test_path = "trade_status_test.ini"
 basic_conf_path = "conf\\basic.ini"
 
 
-rsi_max = 70
-rsi_max_c = rsi_max - 10
+rsi_max = 60
+rsi_overbuy = 70
 rsi_min = 100 - rsi_max
-rsi_min_c = rsi_min + 10
+rsi_oversell = 100 - rsi_overbuy
+
 min_distance = 3
-fit_distance = 5
+fit_distance = 20
+
 global_min_volume = 2500
 global_min_volume_test = 500
 
 elem = 200
-elem_test = 90
+elem_test = 330
 
 minimum_profit = 6
 maximum_loss = 3
@@ -121,10 +123,6 @@ def L_test(df,trend,vol):
 	config['trade'] = {'position': 'L','trade_price': df['close_price'][len(df)-1],'trend': trend,'expected_price': df['close_price'][len(df)-1],'volume':vol}
 	with open(trade_status_test_path, 'w') as configfile:
 		config.write(configfile)
-	config.read(basic_conf_path)
-	from_usr = config['email']['email_from']
-	from_usr_pass = config['email']['email_password']
-	to_usr = config['email']['email_to']
 	print("L",str(df['close_price'][len(df)-1]),"Date:",str(df['DateTime'][len(df)-1]))
 		
 def S(df,trend,vol):
@@ -151,10 +149,6 @@ def S_test(df,trend,vol):
 	config['trade'] = {'position': 'S','trade_price': df['close_price'][len(df)-1],'trend': trend,'expected_price': df['close_price'][len(df)-1],'volume':vol}
 	with open(trade_status_test_path, 'w') as configfile:
 		config.write(configfile)
-	config.read(basic_conf_path)
-	from_usr = config['email']['email_from']
-	from_usr_pass = config['email']['email_password']
-	to_usr = config['email']['email_to']
 	print("S",str(df['close_price'][len(df)-1]),"Date:",str(df['DateTime'][len(df)-1]))
 	
 
@@ -183,10 +177,6 @@ def close_position_test(df):
 	config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': '','volume':''}
 	with open(trade_status_test_path, 'w') as configfile:
 		config.write(configfile)
-	config.read(basic_conf_path)
-	from_usr = config['email']['email_from']
-	from_usr_pass = config['email']['email_password']
-	to_usr = config['email']['email_to']
 	print("close",str(df['close_price'][len(df)-1]),"Date:",str(df['DateTime'][len(df)-1]))
 	
 
@@ -380,81 +370,6 @@ def get_trade_volume():
 		
 
 
-def get_support_line(df):
-	import numpy as np
-	from sklearn import linear_model
-
-	   
-
-	if len(df) == 0:
-
-		return []
-
-				   
-	
-	elem_under_rsi_min = df[df['rsi'] < rsi_min]
-	elem_under_rsi_min = pd.DataFrame(data={
-									'open_price':elem_under_rsi_min['open_price'],
-									'close_price':elem_under_rsi_min['close_price'],
-									'high_price':elem_under_rsi_min['high_price'],
-									'low_price':elem_under_rsi_min['low_price'],
-									'vol':elem_under_rsi_min['vol'],
-									'rsi':elem_under_rsi_min['rsi'],
-									'group_idx':0,
-									'series':elem_under_rsi_min.index
-									})
-
-	p_row = 0
-	c_row = 0
-
-	group_index = 0
-
-	
-
-	for index, row in elem_under_rsi_min.iterrows():
-		
-		if p_row == 0:
-			p_row = index
-			c_row = index
-			continue
-		
-		c_row = index
-			
-		if c_row - p_row == 1:
-			elem_under_rsi_min.at[index, 'group_idx'] = group_index
-
-				   
-
-		else:
-			group_index = group_index + 1
-			elem_under_rsi_min.at[index, 'group_idx'] = group_index
-		
-		p_row = index
-			
-	min_volume = elem_under_rsi_min.groupby(['group_idx'])['vol'].max() /2
-	min_volume = np.array(min_volume.to_numpy()).flatten()
-	
-	elem_under_rsi_min = elem_under_rsi_min.assign(min_vol=lambda x: min_volume[x.group_idx] )
-	support_line_group = elem_under_rsi_min[elem_under_rsi_min['vol'] >= elem_under_rsi_min['min_vol']]
-	# print(support_line_group)
-	
-	if len(support_line_group) < 2:
-		return support_line_group,[]
-	
-	X = pd.DataFrame(data={'series':support_line_group['series']})
-	Y = support_line_group['rsi']
-	vol = support_line_group['vol']
-	prices = support_line_group['low_price']
-	
-	regr = linear_model.LinearRegression()
-	regr.fit(X, Y)
-	support_line = regr.predict(X)
-	return support_line_group,support_line
-
-	
-
-		
-
 def get_resistance_line(df):
 	import numpy as np
 	from sklearn import linear_model
@@ -517,7 +432,7 @@ def get_resistance_line(df):
 	resistance_line_group = elem_over_rsi_max[elem_over_rsi_max['vol'] >= elem_over_rsi_max['min_vol']]
 	# print(resistance_line_group)
 	
-	if len(resistance_line_group) < 2:
+	if len(resistance_line_group) < 3:
 		return resistance_line_group,[]
 	
 	X = pd.DataFrame(data={'series':resistance_line_group['series']})
@@ -529,17 +444,160 @@ def get_resistance_line(df):
 	resistance_line = regr.predict(X)
 	return resistance_line_group,resistance_line
 
+def get_mid_line(df):
+	import numpy as np
+	from sklearn import linear_model
 
+	   
 
-def plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = img_path):
+	if len(df) == 0:
+
+		return []
+
+				   
+	
+	elem_mid = df[(df['rsi'] > rsi_min)&(df['rsi'] < rsi_max)]
+	elem_mid = pd.DataFrame(data={
+									'open_price':elem_mid['open_price'],
+									'close_price':elem_mid['close_price'],
+									'high_price':elem_mid['high_price'],
+									'low_price':elem_mid['low_price'],
+									'vol':elem_mid['vol'],
+									'rsi':elem_mid['rsi'],
+									'group_idx':0,
+									'series':elem_mid.index
+									})
+
+	p_row = 0
+	c_row = 0
+
+	group_index = 0
+
+	
+
+	for index, row in elem_mid.iterrows():
+		
+		if p_row == 0:
+			p_row = index
+			c_row = index
+			continue
+		
+		c_row = index
+			
+		if c_row - p_row == 1:
+			elem_mid.at[index, 'group_idx'] = group_index
+
+				   
+
+		else:
+			group_index = group_index + 1
+			elem_mid.at[index, 'group_idx'] = group_index
+		
+		p_row = index
+			
+	min_volume = elem_mid.groupby(['group_idx'])['vol'].max() /2
+	min_volume = np.array(min_volume.to_numpy()).flatten()
+	
+	elem_mid = elem_mid.assign(min_vol=lambda x: min_volume[x.group_idx] )
+	mid_line_group = elem_mid[elem_mid['vol'] >= elem_mid['min_vol']]
+	
+	
+	if len(mid_line_group) < 3:
+		return mid_line_group,[]
+	
+	X = pd.DataFrame(data={'series':mid_line_group['series']})
+	Y = mid_line_group['rsi']
+	vol = mid_line_group['vol']
+	prices = mid_line_group['low_price']
+	
+	regr = linear_model.LinearRegression()
+	regr.fit(X, Y)
+	mid_line = regr.predict(X)
+	return mid_line_group,mid_line
+
+def get_support_line(df):
+	import numpy as np
+	from sklearn import linear_model
+
+	   
+
+	if len(df) == 0:
+
+		return []
+
+				   
+	
+	elem_under_rsi_min = df[df['rsi'] < rsi_min]
+	elem_under_rsi_min = pd.DataFrame(data={
+									'open_price':elem_under_rsi_min['open_price'],
+									'close_price':elem_under_rsi_min['close_price'],
+									'high_price':elem_under_rsi_min['high_price'],
+									'low_price':elem_under_rsi_min['low_price'],
+									'vol':elem_under_rsi_min['vol'],
+									'rsi':elem_under_rsi_min['rsi'],
+									'group_idx':0,
+									'series':elem_under_rsi_min.index
+									})
+
+	p_row = 0
+	c_row = 0
+
+	group_index = 0
+
+	
+
+	for index, row in elem_under_rsi_min.iterrows():
+		
+		if p_row == 0:
+			p_row = index
+			c_row = index
+			continue
+		
+		c_row = index
+			
+		if c_row - p_row == 1:
+			elem_under_rsi_min.at[index, 'group_idx'] = group_index
+
+				   
+
+		else:
+			group_index = group_index + 1
+			elem_under_rsi_min.at[index, 'group_idx'] = group_index
+		
+		p_row = index
+			
+	min_volume = elem_under_rsi_min.groupby(['group_idx'])['vol'].max() /2
+	min_volume = np.array(min_volume.to_numpy()).flatten()
+	
+	elem_under_rsi_min = elem_under_rsi_min.assign(min_vol=lambda x: min_volume[x.group_idx] )
+	support_line_group = elem_under_rsi_min[elem_under_rsi_min['vol'] >= elem_under_rsi_min['min_vol']]
+	# print(support_line_group)
+	
+	if len(support_line_group) < 3:
+		return support_line_group,[]
+	
+	X = pd.DataFrame(data={'series':support_line_group['series']})
+	Y = support_line_group['rsi']
+	vol = support_line_group['vol']
+	prices = support_line_group['low_price']
+	
+	regr = linear_model.LinearRegression()
+	regr.fit(X, Y)
+	support_line = regr.predict(X)
+	return support_line_group,support_line
+
+def plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = img_path):
 
 	import matplotlib.pyplot as plt 
 	from matplotlib.ticker import StrMethodFormatter
 	import numpy as np
 	
+	#rsi trend line
 	X1 = pd.DataFrame(data={'series':resistance_line_group['series']})
 	X2 = pd.DataFrame(data={'series':support_line_group['series']})
+	X3 = pd.DataFrame(data={'series':mid_line_group['series']})
 	
+	#X Y rsi scatters and bar
 	X11 = pd.DataFrame(data={'series':resistance_line_group[resistance_line_group['open_price'] <= resistance_line_group['close_price']]['series']})
 	X12 = pd.DataFrame(data={'series':resistance_line_group[resistance_line_group['open_price'] > resistance_line_group['close_price']]['series']})
 	Y11 = resistance_line_group[resistance_line_group['open_price'] <= resistance_line_group['close_price']]['rsi']
@@ -550,56 +608,87 @@ def plot(resistance_line_group,resistance_line,support_line_group,support_line,s
 	Y21 = support_line_group[support_line_group['open_price'] >= support_line_group['close_price']]['rsi']
 	Y22 = support_line_group[support_line_group['open_price'] < support_line_group['close_price']]['rsi']
 	
+	X31 = pd.DataFrame(data={'series':mid_line_group[mid_line_group['open_price'] > mid_line_group['close_price']]['series']})
+	X32 = pd.DataFrame(data={'series':mid_line_group[mid_line_group['open_price'] < mid_line_group['close_price']]['series']})
+	X33 = pd.DataFrame(data={'series':mid_line_group[mid_line_group['open_price'] == mid_line_group['close_price']]['series']})
+	Y31 = mid_line_group[mid_line_group['open_price'] > mid_line_group['close_price']]['rsi']
+	Y32 = mid_line_group[mid_line_group['open_price'] < mid_line_group['close_price']]['rsi']
+	Y33 = mid_line_group[mid_line_group['open_price'] == mid_line_group['close_price']]['rsi']
+	
+	#volume bar
 	vol11 = resistance_line_group[resistance_line_group['open_price'] <= resistance_line_group['close_price']]['vol']
 	vol12 = resistance_line_group[resistance_line_group['open_price'] > resistance_line_group['close_price']]['vol']
 	vol21 = support_line_group[support_line_group['open_price'] >= support_line_group['close_price']]['vol']
 	vol22 = support_line_group[support_line_group['open_price'] < support_line_group['close_price']]['vol']
+	vol31 = mid_line_group[mid_line_group['open_price'] > mid_line_group['close_price']]['vol']
+	vol32 = mid_line_group[mid_line_group['open_price'] < mid_line_group['close_price']]['vol']
+	vol33 = mid_line_group[mid_line_group['open_price'] == mid_line_group['close_price']]['vol']
 	
-	prices11 = resistance_line_group[resistance_line_group['open_price'] <= resistance_line_group['close_price']]['high_price']
-	prices12 = resistance_line_group[resistance_line_group['open_price'] > resistance_line_group['close_price']]['high_price']
-	prices21 = support_line_group[support_line_group['open_price'] >= support_line_group['close_price']]['low_price']
-	prices22 = support_line_group[support_line_group['open_price'] < support_line_group['close_price']]['low_price']
-	
+	#Y price scatters
+	prices11 = resistance_line_group[resistance_line_group['open_price'] <= resistance_line_group['close_price']]['close_price']
+	prices12 = resistance_line_group[resistance_line_group['open_price'] > resistance_line_group['close_price']]['close_price']
+	prices21 = support_line_group[support_line_group['open_price'] >= support_line_group['close_price']]['close_price']
+	prices22 = support_line_group[support_line_group['open_price'] < support_line_group['close_price']]['close_price']
+	prices31 = mid_line_group[mid_line_group['open_price'] > mid_line_group['close_price']]['close_price']
+	prices32 = mid_line_group[mid_line_group['open_price'] < mid_line_group['close_price']]['close_price']
+	prices33 = mid_line_group[mid_line_group['open_price'] == mid_line_group['close_price']]['close_price']	
 	
 	#prices
 	plt.subplot(3, 1, 1)
-	if len(resistance_line_group) > 1:
+	if len(resistance_line_group) > 2:
 		if len(X11) > 0 :
 			plt.scatter(X11, prices11,  color='green',marker = '.')
 		if len(X12) > 0 :
 			plt.scatter(X12, prices12,  color='red',marker = 'v')
-	if len(support_line_group) > 1 :
+	if len(support_line_group) > 2 :
 		if len(X21) > 0 :
 			plt.scatter(X21, prices21,  color='red',marker = '.')
 		if len(X22) > 0 :
 			plt.scatter(X22, prices22,  color='green',marker = '^')
+	if len(mid_line_group) > 2 :
+		if len(X31) > 0 :
+			plt.scatter(X31, prices31,  color='blue',marker = 'v')
+		if len(X32) > 0 :
+			plt.scatter(X32, prices32,  color='blue',marker = '^')
+		if len(X33) > 0 :
+			plt.scatter(X33, prices33,  color='blue',marker = '.')
 	plt.xlabel('Series')
 	plt.ylabel('prices')
 	
 	#RSI
 	plt.subplot(3, 1, 2)
-	if len(resistance_line_group) > 1:
+	if len(resistance_line_group) > 2:
 		plt.scatter(X11, Y11,  color='green',marker = '.')
 		plt.scatter(X12, Y12,  color='red',marker = 'v')
 	if len(X1) == len(resistance_line):
 		plt.plot(X1, resistance_line, color='cyan', linewidth=1)
-	if len(support_line_group) > 1 :
+	if len(support_line_group) > 2 :
 		plt.scatter(X21, Y21,  color='red',marker = '.')
 		plt.scatter(X22, Y22,  color='green',marker = '^')
 	if len(X2) == len(support_line):
 		plt.plot(X2, support_line, color='magenta', linewidth=1)	
+	if len(mid_line_group) > 2 :
+		plt.scatter(X31, Y31,  color='blue',marker = 'v')
+		plt.scatter(X32, Y32,  color='blue',marker = '^')
+		plt.scatter(X33, Y33,  color='blue',marker = '.')
+	if len(X3) == len(mid_line):
+		plt.plot(X3, mid_line, color='orange', linewidth=1)
 
 	plt.xlabel('Series')
 	plt.ylabel('RSI')
 	
 	#volume
 	plt.subplot(3, 1, 3)
-	if len(resistance_line_group) > 1:
+	if len(resistance_line_group) > 2:
 		plt.bar(np.array(X11.to_numpy()).flatten(), vol11, color='green',width = 1)
 		plt.bar(np.array(X12.to_numpy()).flatten(), vol12, color='red',width = 1)
-	if len(support_line_group) > 1 :
+	if len(support_line_group) > 2 :
 		plt.bar(np.array(X21.to_numpy()).flatten(), vol21, color='red',width = 1)
 		plt.bar(np.array(X22.to_numpy()).flatten(), vol22, color='green',width = 1)
+	if len(mid_line_group) > 2 :
+		plt.bar(np.array(X31.to_numpy()).flatten(), vol31, color='red',width = 1)
+		plt.bar(np.array(X32.to_numpy()).flatten(), vol32, color='green',width = 1)
+		plt.bar(np.array(X33.to_numpy()).flatten(), vol33, color='blue',width = 1)
 	plt.xlabel('Series')
 	plt.ylabel('Volume')
 
@@ -626,6 +715,7 @@ def test(df):
 
 		resistance_line_group,resistance_line = get_resistance_line(df2)
 		support_line_group,support_line = get_support_line(df2)
+		mid_line_group,mid_line = get_mid_line(df2)
 		
 		
 		
@@ -662,74 +752,86 @@ def test(df):
 
 			
 
-		if len(resistance_line) < 2 and len(support_line) < 2:
+		if len(resistance_line) < 3 and len(support_line) < 3:
 			i = i+1
 			continue
 		#Has only support line
-		if len(resistance_line) < 2:
+		if len(resistance_line) < 3:
 			last_index_support = support_line_group.index[-1]
 			trend_support_line = support_line[-1] - support_line[0]
-			is_up_trend =  trend_support_line > 0
-			is_down_trend = trend_support_line < 0
 
 			if (c_rsi > rsi_max and p_rsi < rsi_min) or (c_rsi < rsi_min and p_rsi > rsi_max) or c_idx != last_index_support or (c_vol < global_min_volume_test):
 				i = i+1
 				continue
 			
-			if is_up_trend == True and c_open_price < c_price and position != 'L':
-				L_test(df2,"U",c_vol)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			elif is_down_trend == True and c_open_price > c_price and position != 'S':
+			if len(mid_line_group) >= len(support_line_group) and c_open_price > c_price and position != 'S':
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 				S_test(df2,"D",c_vol)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			elif len(mid_line_group) >= len(support_line_group) and c_price > c_open_price and position == 'S':
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+				close_position_test(df2)				
 			
 		#Has only resistance line	
-		elif len(support_line) < 2:
+		elif len(support_line) < 3:
 			last_index_resistance = resistance_line_group.index[-1]
 			trend_resistance_line = resistance_line[-1] - resistance_line[0]
-			is_up_trend =  trend_resistance_line > 0
-			is_down_trend = trend_resistance_line < 0	
+			
 			if (c_rsi > rsi_max and p_rsi < rsi_min) or (c_rsi < rsi_min and p_rsi > rsi_max) or c_idx != last_index_resistance  or (c_vol < global_min_volume_test):
 				i = i+1
 				continue
 			
-			if is_up_trend == True and c_open_price < c_price and position != 'L':
+			if len(mid_line_group) < len(resistance_line_group) and c_open_price < c_price and position != 'L':
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 				L_test(df2,"U",c_vol)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			elif is_down_trend == True and c_open_price > c_price and position != 'S':
-				S_test(df2,"D",c_vol)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			elif len(mid_line_group) >= len(resistance_line_group) and c_open_price > c_price and position == 'L':
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+				close_position_test(df2)
+				
 		#Has both lines
 		else:
+			first_index_resistance = resistance_line_group.index[0]
 			last_index_resistance = resistance_line_group.index[-1]
+			first_index_support = support_line_group.index[0]
 			last_index_support = support_line_group.index[-1]
 			trend_resistance_line = resistance_line[-1] - resistance_line[0]
 			trend_support_line = support_line[-1] - support_line[0]
 			is_up_trend = trend_resistance_line > 0 and trend_support_line > 0
 			is_down_trend = trend_resistance_line < 0 and trend_support_line < 0
+			
+			long_slope = trend_resistance_line if last_index_resistance - first_index_resistance > last_index_support - first_index_support else trend_support_line
 
 			if (c_rsi > rsi_max and p_rsi < rsi_min) or (c_rsi < rsi_min and p_rsi > rsi_max) or ((c_idx != last_index_resistance) and (c_idx != last_index_support)) or (c_vol < global_min_volume_test):
 				i = i+1
 				continue
+					
+			if c_rsi <= rsi_oversell and (is_up_trend == True or long_slope > 0) and c_price > c_open_price and position != 'L':
+				#print("case1")
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+				L_test(df2,"U",c_vol)
 				
-			if c_rsi < rsi_min and is_up_trend == True and c_price > c_open_price and position != 'L':
+			elif c_rsi > rsi_oversell and c_rsi <= rsi_min and is_down_trend == False and c_price > c_open_price and position != 'L':
+				#print("case2")
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 				L_test(df2,"U",c_vol)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			elif c_rsi < rsi_min and c_rsi < support_line[-1] and is_down_trend == False and c_price > c_open_price and position != 'L':
-				L_test(df2,"U",c_vol)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			elif  c_rsi > rsi_max and is_down_trend == True and c_price < c_open_price and position != 'S':
+				
+			elif c_rsi >= rsi_overbuy and (is_down_trend == True or long_slope < 0) and c_price < c_open_price and position != 'S':
+				#print("case3")
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 				S_test(df2,"D",c_vol)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			elif  c_rsi > rsi_max and c_rsi > resistance_line[-1] and is_up_trend == False and c_price < c_open_price and position != 'S':
+				
+			elif c_rsi < rsi_overbuy and c_rsi >= rsi_max and is_up_trend == False and c_price < c_open_price and position != 'S':
+				#print("case4")
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 				S_test(df2,"D",c_vol)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			elif  (c_rsi > rsi_max or is_down_trend == True) and c_rsi < resistance_line[-1] and is_up_trend == False and c_price < c_open_price and position == 'L':
+				
+			elif c_rsi >= rsi_overbuy and c_open_price > c_price and (is_up_trend == False or long_slope < 0) and position == 'L':
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 				close_position_test(df2)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			elif  (c_rsi < rsi_min or is_up_trend == True) and c_rsi > support_line[-1] and is_down_trend == False and c_price > c_open_price and position == 'S':
+				
+			elif c_rsi <= rsi_oversell and c_price > c_open_price and (is_down_trend == False or long_slope > 0) and position == 'S':
+				plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 				close_position_test(df2)
-				plot(resistance_line_group,resistance_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+				
 			
 			
 		# position = get_trade_position_test()
