@@ -11,8 +11,8 @@ trade_status_test_path = "trade_status_test.ini"
 basic_conf_path = "conf\\basic.ini"
 
 
-rsi_max = 55
-rsi_overbuy = 70
+rsi_max = 60
+rsi_overbuy = 65
 rsi_min = 100 - rsi_max
 rsi_oversell = 100 - rsi_overbuy
 
@@ -23,7 +23,7 @@ global_min_volume = 2500
 global_min_volume_test = 2500
 
 elem = 200
-elem_test = 250
+elem_test = 66
 
 minimum_profit = 6
 maximum_loss = 3
@@ -425,11 +425,12 @@ def get_resistance_line(df):
 		p_row = index
 			
 	
-	min_volume = elem_over_rsi_max.groupby(['group_idx'])['vol'].max() /2
-	min_volume = np.array(min_volume.to_numpy()).flatten()
+	# min_volume = elem_over_rsi_max.groupby(['group_idx'])['vol'].max() /2
+	# min_volume = np.array(min_volume.to_numpy()).flatten()
 	
-	elem_over_rsi_max = elem_over_rsi_max.assign(min_vol=lambda x: min_volume[x.group_idx] )
-	resistance_line_group = elem_over_rsi_max[elem_over_rsi_max['vol'] >= elem_over_rsi_max['min_vol']]
+	# elem_over_rsi_max = elem_over_rsi_max.assign(min_vol=lambda x: min_volume[x.group_idx] )
+	# resistance_line_group = elem_over_rsi_max[elem_over_rsi_max['vol'] >= elem_over_rsi_max['min_vol']]
+	resistance_line_group = elem_over_rsi_max
 	# print(resistance_line_group)
 	
 	if len(resistance_line_group) < 3:
@@ -495,11 +496,12 @@ def get_mid_line(df):
 		
 		p_row = index
 			
-	min_volume = elem_mid.groupby(['group_idx'])['vol'].max() /2
-	min_volume = np.array(min_volume.to_numpy()).flatten()
+	# min_volume = elem_mid.groupby(['group_idx'])['vol'].max() /2
+	# min_volume = np.array(min_volume.to_numpy()).flatten()
 	
-	elem_mid = elem_mid.assign(min_vol=lambda x: min_volume[x.group_idx] )
-	mid_line_group = elem_mid[elem_mid['vol'] >= elem_mid['min_vol']]
+	# elem_mid = elem_mid.assign(min_vol=lambda x: min_volume[x.group_idx] )
+	# mid_line_group = elem_mid[elem_mid['vol'] >= elem_mid['min_vol']]
+	mid_line_group = elem_mid
 	
 	
 	if len(mid_line_group) < 3:
@@ -566,12 +568,13 @@ def get_support_line(df):
 		
 		p_row = index
 			
-	min_volume = elem_under_rsi_min.groupby(['group_idx'])['vol'].max() /2
-	min_volume = np.array(min_volume.to_numpy()).flatten()
+	# min_volume = elem_under_rsi_min.groupby(['group_idx'])['vol'].max() /2
+	# min_volume = np.array(min_volume.to_numpy()).flatten()
 	
-	elem_under_rsi_min = elem_under_rsi_min.assign(min_vol=lambda x: min_volume[x.group_idx] )
-	support_line_group = elem_under_rsi_min[elem_under_rsi_min['vol'] >= elem_under_rsi_min['min_vol']]
-	# print(support_line_group)
+	# elem_under_rsi_min = elem_under_rsi_min.assign(min_vol=lambda x: min_volume[x.group_idx] )
+	# support_line_group = elem_under_rsi_min[elem_under_rsi_min['vol'] >= elem_under_rsi_min['min_vol']]
+	support_line_group = elem_under_rsi_min
+	
 	
 	if len(support_line_group) < 3:
 		return support_line_group,[]
@@ -752,8 +755,8 @@ def test(df):
 		mid_line_length = mid_line_group.index[-1] - mid_line_group.index[0] if len(mid_line_group) > 2 else 0
 		support_line_length = support_line_group.index[-1] - support_line_group.index[0] if len(support_line_group) > 2 else 0
 		
-		is_up_trend = trend_resistance_line > 0 and trend_support_line > 0 
-		is_down_trend = trend_resistance_line < 0 and trend_support_line < 0 
+		is_up_trend = trend_resistance_line > 0 and trend_support_line >= 0 
+		is_down_trend = trend_resistance_line <= 0 and trend_support_line < 0 
 		
 		trends = [trend_resistance_line,trend_mid_line,trend_support_line]
 		uptrends = [t for t in trends if t > 0]
@@ -785,25 +788,31 @@ def test(df):
 			slope = trend_support_line
 			threshold = support_line[-1]
 
-		if not((len(resistance_line_group) > 2 and c_idx == resistance_line_group.index[-1]) or (len(mid_line_group) > 2 and c_idx == mid_line_group.index[-1]) or (len(support_line_group) > 2 and c_idx == support_line_group.index[-1])) or (c_vol < global_min_volume_test):
-			i = i+1
-			continue
-		if is_down_trend == True and c_rsi > ceiling and position != 'L':
+		# if not((len(resistance_line_group) > 2 and c_idx == resistance_line_group.index[-1]) or (len(mid_line_group) > 2 and c_idx == mid_line_group.index[-1]) or (len(support_line_group) > 2 and c_idx == support_line_group.index[-1])) or (c_vol < global_min_volume_test):
+			# i = i+1
+			# continue
+			
+		if (is_up_trend == True) and c_rsi < rsi_oversell and c_price > c_open_price and position != 'L':
 			plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			L_test(df2,"U",c_vol)
 			
-		elif is_up_trend == True and c_rsi < floor and position != 'S':
+		elif (is_down_trend == True) and c_rsi > rsi_overbuy and c_price < c_open_price and position != 'S':
 			plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			S_test(df2,"D",c_vol)
 
-		elif slope > 0 and c_rsi > threshold and position != 'L':
+		elif slope > 0 and c_rsi > ceiling and c_rsi >= rsi_max and c_price > c_open_price and position != 'L':
 			plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			L_test(df2,"U",c_vol)
 			
-		elif slope < 0 and c_rsi < threshold and position != 'S':
+		elif slope < 0 and c_rsi < floor and c_rsi <= rsi_min and c_price < c_open_price and position != 'S':
 			plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			S_test(df2,"D",c_vol)
-			
+		elif (slope < 0) and c_rsi > rsi_overbuy and position == 'L':
+			plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			close_position_test(df2)	
+		elif (slope > 0) and c_rsi < rsi_oversell and position == 'S':
+			plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			close_position_test(df2)				
 			
 			
 		i = i+1
