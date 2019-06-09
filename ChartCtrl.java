@@ -1508,7 +1508,7 @@ public class ChartCtrl
 		//prc.remove(prc.size()-1);
 		try
 		{
-			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\feature.csv")), true )); 
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\feature_5min.csv")), true )); 
 			for(int i=0;i<prc.size();++i)
 			{
 				Data d = prc.get(i);
@@ -1531,7 +1531,7 @@ public class ChartCtrl
 		{
 			String sCurrentLine;
 
-			BufferedReader br = new BufferedReader(new FileReader(new File(".").getCanonicalPath().concat("\\feature.csv")));
+			BufferedReader br = new BufferedReader(new FileReader(new File(".").getCanonicalPath().concat("\\feature_5min.csv")));
 			String lastLine = "";
 
 		    while ((sCurrentLine = br.readLine()) != null) 
@@ -1544,7 +1544,7 @@ public class ChartCtrl
 		    if(d.DateTime.equalsIgnoreCase(date))
 		    {
 		    
-			    RandomAccessFile f = new RandomAccessFile(new File(".").getCanonicalPath().concat("\\feature.csv"), "rw");
+			    RandomAccessFile f = new RandomAccessFile(new File(".").getCanonicalPath().concat("\\feature_5min.csv"), "rw");
 			    long length = f.length() - 1;
 			    byte b;
 			    do
@@ -1558,7 +1558,7 @@ public class ChartCtrl
 			    f.close();
 		    }
 			    
-			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\feature.csv")), true )); 
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File(new File(".").getCanonicalPath().concat("\\feature_5min.csv")), true )); 
 		    
 			
 			
