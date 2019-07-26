@@ -23,7 +23,7 @@ global_min_volume = 2500
 global_min_volume_test = 2500
 
 elem = 200
-elem_test = 300
+elem_test = 500
 
 minimum_profit = 6
 maximum_loss = 3
@@ -619,6 +619,7 @@ def get_regression_line(df):
 			break
 			
 	elem = df[idx:]
+
 	
 	
 	series = pd.DataFrame(data={'series':elem.index})
@@ -631,6 +632,39 @@ def get_regression_line(df):
 	regr.fit(X, Y)
 	reg_line = regr.predict(X)
 	return elem,reg_line
+
+def get_max_min_price(df):
+	import numpy as np
+	from sklearn import linear_model
+
+	   
+
+	if len(df) == 0:
+
+		return []
+
+				   
+	
+	elem = df[(df['rsi'] < rsi_oversell) | (df['rsi'] > rsi_overbuy)]
+
+	array_idx = -1
+	idx = elem.index[array_idx]
+	
+	while(idx != elem.index[0]):
+		
+		array_idx = array_idx - 1
+		p_idx = elem.index[array_idx]
+		
+		
+		if idx - p_idx == 1:
+			idx = p_idx
+		else:
+			break
+			
+	elem = df[idx:elem.index[-1]]
+	max_price = elem['high_price'].max()
+	min_price = elem['low_price'].min()
+	return max_price,min_price
 
 def plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = img_path):
 
@@ -799,137 +833,135 @@ def plot2(elem,reg_line,save_path = img_path):
 	plt.clf()
 
 	
-def test(df):
+def plot_all(df,save_path = img_path):
+
+	import matplotlib.pyplot as plt 
+	from matplotlib.ticker import StrMethodFormatter
+	import numpy as np
 	
-	i = 2
+	#overbuy,middle,oversell
+	df1 = df[df['rsi'] >= rsi_overbuy]
+	df2 = df[(df['rsi'] < rsi_overbuy) & (df['rsi'] > rsi_oversell)]
+	df3 = df[df['rsi'] <= rsi_oversell]
+	
+	#price trend line
+	X1 = pd.DataFrame(data={'series':df1.index})
+	X2 = pd.DataFrame(data={'series':df2.index})
+	X3 = pd.DataFrame(data={'series':df3.index})
+	
+	#X Y rsi scatters and bar
+	rsi1 = df1['rsi']
+	rsi2 = df2['rsi']
+	rsi3 = df3['rsi']
+	
+	#volume bar
+	vol1 = df1['vol']
+	vol2 = df2['vol']
+	vol3 = df3['vol']
+	
+	#Y price scatters
+	prices1 = df1['close_price']
+	prices2 = df2['close_price']
+	prices3 = df3['close_price']
+	
+	#prices
+	plt.subplot(3, 1, 1)
+	plt.scatter(X1, prices1 , color='green',marker = '.')
+	plt.scatter(X2, prices2, color='blue',marker = '.')
+	plt.scatter(X3, prices3, color='red',marker = '.')
+		
+		
+	plt.xlabel('Series')
+	plt.ylabel('prices')
+	
+	#RSI
+	plt.subplot(3, 1, 2)
+	plt.scatter(X1, rsi1 , color='green',marker = '.')
+	plt.scatter(X2, rsi2 , color='blue',marker = '.')
+	plt.scatter(X3, rsi3 , color='red',marker = '.')
+
+
+	plt.xlabel('Series')
+	plt.ylabel('RSI')
+	
+	#volume
+	plt.subplot(3, 1, 3)
+	
+	plt.bar(np.array(X1.to_numpy()).flatten(), vol1, color='green')
+	plt.bar(np.array(X2.to_numpy()).flatten(), vol2, color='blue')
+	plt.bar(np.array(X3.to_numpy()).flatten(), vol3, color='red')
+
+	
+	plt.xlabel('Series')
+	plt.ylabel('Volume')
+
+
+	
+	plt.savefig(save_path)
+	plt.clf()
+	
+def test(df):
+
+
+	i = elem_test
 	
 	while i < len(df):
 		
 		
-		# df2 = df[i-elem_test:i]
-		df2 = df[:i] if i < elem_test else df[i-elem_test:i]
-
+		df2 = df[i-elem_test:i]
+		#print (i-elem_test,i)
 		df2 = df2.reset_index(drop=True)
-		
-		df3 = df2[(df2['rsi'] < rsi_oversell) | (df2['rsi'] > rsi_overbuy)]
-		
-		if len(df3) == 0:
-			i = i + 1
-			continue		
-		
-		rsi_interest = df3['rsi'].tail(1).get_values()
-		# print(rsi_interest)
-		
+		plot_all(df2,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+		# df2 = df[:i] if i < elem_test else df[i-elem_test:i]
 
-
-		# resistance_line_group,resistance_line = get_resistance_line(df2)
-		# support_line_group,support_line = get_support_line(df2)
-		# mid_line_group,mid_line = get_mid_line(df2)
+		# df2 = df2.reset_index(drop=True)
 		
+		# df3 = df2[(df2['rsi'] < rsi_oversell) | (df2['rsi'] > rsi_overbuy)]
 		
-		
-		c_vol = int(df2['vol'][len(df2)-1])
-		c_rsi = float(df2['rsi'][len(df2)-1])
-		p_rsi = float(df2['rsi'][len(df2)-2])
-		c_price = float(df2['close_price'][len(df2)-1])
-		c_open_price = float(df2['open_price'][len(df2)-1])
-		c_idx = int(df2.index[len(df2)-1])		
-
-		position = get_trade_position_test()
-		
-
-			
-
-		# if len(resistance_line) < 3 and len(support_line) < 3:
-			# i = i+1
-			# continue
-			
-		
-		# trend_resistance_line = resistance_line[-1] - resistance_line[0] if len(resistance_line) > 2 else 0
-		# trend_support_line = support_line[-1] - support_line[0] if len(support_line) > 2 else 0
-		# trend_mid_line = mid_line[-1] - mid_line[0] if len(mid_line) > 2 else 0
-		
-		# resistance_line_length = resistance_line_group.index[-1] - resistance_line_group.index[0] if len(resistance_line_group) > 2 else 0
-		# mid_line_length = mid_line_group.index[-1] - mid_line_group.index[0] if len(mid_line_group) > 2 else 0
-		# support_line_length = support_line_group.index[-1] - support_line_group.index[0] if len(support_line_group) > 2 else 0
-		
-		# is_up_trend = trend_resistance_line > 0 and trend_support_line >= 0 
-		# is_down_trend = trend_resistance_line <= 0 and trend_support_line < 0 
-		
-		# trends = [trend_resistance_line,trend_mid_line,trend_support_line]
-		# uptrends = [t for t in trends if t > 0]
-		# downtrends = [t for t in trends if t < 0]
-		
-		# slope = 0
-		
-		
-		# max_distance = max([resistance_line_length,mid_line_length,support_line_length])
-		
-		# last_index = []
-		# if len(resistance_line) > 2:
-			# last_index.append(resistance_line[-1])
-		# if len(mid_line) > 2:
-			# last_index.append(mid_line[-1])
-		# if len(support_line) > 2:
-			# last_index.append(support_line[-1])
-		
-		# ceiling = max(last_index)
-		# floor =  min(last_index)
-		# threshold = 0
-		
-		# if len(resistance_line_group) > 2 and resistance_line_group.index[-1] - resistance_line_group.index[0] == max_distance:
-			# slope = trend_resistance_line if trend_resistance_line > 0  else 0
-			# threshold = resistance_line[-1]
-		# elif len(mid_line_group) > 2 and mid_line_group.index[-1] - mid_line_group.index[0] == max_distance:
-			# slope = trend_mid_line
-			# threshold = mid_line[-1]
-		# elif len(support_line_group) > 2 and support_line_group.index[-1] - support_line_group.index[0] == max_distance:
-			# slope = trend_support_line if trend_support_line < 0 else 0
-			# threshold = support_line[-1]
-		# if not ((rsi_interest > rsi_overbuy and c_rsi < rsi_overbuy) or (rsi_interest < rsi_oversell and c_rsi > rsi_oversell)):
+		# if len(df3) == 0:
 			# i = i + 1
-			# continue
+			# continue		
 		
-		elem, reg_line = get_regression_line(df2)
+		# rsi_interest = df3['rsi'].tail(1).get_values()
 		
 		
-		trend = reg_line[-1] - reg_line[0]
 		
-		if position != 'L' and rsi_interest < rsi_oversell and c_rsi > rsi_oversell and trend > 0:
-			plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			L_test(df2,"U",c_vol)
-		elif position != 'S' and rsi_interest > rsi_overbuy and c_rsi < rsi_overbuy and trend < 0:
-			plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			S_test(df2,"D",c_vol)
-		elif position == 'L' and (c_rsi < rsi_oversell and trend < 0):
-			plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			S_test(df2,"D",c_vol)
-		elif position == 'S' and (c_rsi > rsi_overbuy and trend > 0):
-			plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			L_test(df2,"U",c_vol)
+		# c_vol = int(df2['vol'][len(df2)-1])
+		# c_rsi = float(df2['rsi'][len(df2)-1])
+		# p_rsi = float(df2['rsi'][len(df2)-2])
+		# c_price = float(df2['close_price'][len(df2)-1])
+		# c_high_price = float(df2['high_price'][len(df2)-1])
+		# c_low_price = float(df2['low_price'][len(df2)-1])
+		# c_open_price = float(df2['open_price'][len(df2)-1])
+		# c_idx = int(df2.index[len(df2)-1])		
+
+		# position = get_trade_position_test()
 		
-		# if slope > 0 and c_rsi < rsi_oversell and position != 'L':
-			# plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+		
+		# max_price, min_price = get_max_min_price(df2)
+		
+		# # print(max_price,min_price)
+		
+		# if position != 'L' and rsi_interest < rsi_oversell and c_rsi > rsi_oversell and c_high_price > max_price:
+			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			# L_test(df2,"U",c_vol)
-			
-		# elif slope < 0 and c_rsi > rsi_overbuy and position != 'S':
-			# plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+		# elif position != 'S' and rsi_interest > rsi_overbuy and c_rsi < rsi_overbuy and c_low_price < min_price:
+			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			# S_test(df2,"D",c_vol)
-		# elif slope > 0 and c_rsi > rsi_max and c_price > ceiling and position != 'L':
-			# plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+		# elif position == 'L' and (c_rsi < rsi_oversell and c_low_price < min_price):
+			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			# S_test(df2,"D",c_vol)
+		# elif position == 'S' and (c_rsi > rsi_overbuy and c_high_price > max_price):
+			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			# L_test(df2,"U",c_vol)
-			
-		# elif slope < 0 and c_rsi < rsi_min and c_price < floor and position != 'S':
-			# plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# S_test(df2,"D",c_vol)	
+		
 			
 
-		i = i+1
+		i = i+elem_test
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
-test(df5min)
-	
+test(df1min)
 
 	
 	
