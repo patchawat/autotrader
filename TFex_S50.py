@@ -25,6 +25,8 @@ global_min_volume_test = 2500
 elem = 200
 elem_test = 500
 
+step_test = 200
+
 minimum_profit = 6
 maximum_loss = 3
 
@@ -957,7 +959,7 @@ def test(df):
 		
 			
 
-		i = i+elem_test
+		i = i+step_test
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
