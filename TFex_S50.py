@@ -635,38 +635,24 @@ def get_regression_line(df):
 	reg_line = regr.predict(X)
 	return elem,reg_line
 
-def get_max_min_price(df):
+def get_modes(df,n=5):
 	import numpy as np
-	from sklearn import linear_model
-
-	   
-
-	if len(df) == 0:
-
-		return []
-
-				   
+	i = 0
+	modes = []
 	
-	elem = df[(df['rsi'] < rsi_oversell) | (df['rsi'] > rsi_overbuy)]
-
-	array_idx = -1
-	idx = elem.index[array_idx]
+	df = df.astype({'close_price': 'int64'})
+	df1 = df['close_price']
 	
-	while(idx != elem.index[0]):
-		
-		array_idx = array_idx - 1
-		p_idx = elem.index[array_idx]
-		
-		
-		if idx - p_idx == 1:
-			idx = p_idx
-		else:
-			break
-			
-	elem = df[idx:elem.index[-1]]
-	max_price = elem['high_price'].max()
-	min_price = elem['low_price'].min()
-	return max_price,min_price
+	
+	while i < n :
+		mode = df1.mode().to_numpy()[0]
+		modes.append(mode)
+		df_drop = df[df['close_price'] == mode].index
+		df1 = df1.drop(np.array(df_drop.to_numpy()).flatten())
+		i = i + 1
+	modes.sort(reverse = True)
+	return modes
+	
 
 def plot(resistance_line_group,resistance_line,mid_line_group,mid_line,support_line_group,support_line,save_path = img_path):
 
@@ -906,60 +892,47 @@ def test(df):
 
 
 	i = elem_test
-	
 	while i < len(df):
 		
 		
 		df2 = df[i-elem_test:i]
-		#print (i-elem_test,i)
 		df2 = df2.reset_index(drop=True)
-		plot_all(df2,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-		# df2 = df[:i] if i < elem_test else df[i-elem_test:i]
-
-		# df2 = df2.reset_index(drop=True)
 		
-		# df3 = df2[(df2['rsi'] < rsi_oversell) | (df2['rsi'] > rsi_overbuy)]
+		modes = get_modes(df2)
 		
-		# if len(df3) == 0:
-			# i = i + 1
-			# continue		
-		
-		# rsi_interest = df3['rsi'].tail(1).get_values()
-		
-		
-		
-		# c_vol = int(df2['vol'][len(df2)-1])
+		c_vol = int(df2['vol'][len(df2)-1])
 		# c_rsi = float(df2['rsi'][len(df2)-1])
 		# p_rsi = float(df2['rsi'][len(df2)-2])
-		# c_price = float(df2['close_price'][len(df2)-1])
+		c_price = float(df2['close_price'][len(df2)-1])
+		p_price = float(df2['close_price'][len(df2)-2])
 		# c_high_price = float(df2['high_price'][len(df2)-1])
 		# c_low_price = float(df2['low_price'][len(df2)-1])
 		# c_open_price = float(df2['open_price'][len(df2)-1])
 		# c_idx = int(df2.index[len(df2)-1])		
 
-		# position = get_trade_position_test()
+		position = get_trade_position_test()
 		
 		
-		# max_price, min_price = get_max_min_price(df2)
-		
-		# # print(max_price,min_price)
-		
-		# if position != 'L' and rsi_interest < rsi_oversell and c_rsi > rsi_oversell and c_high_price > max_price:
-			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# L_test(df2,"U",c_vol)
-		# elif position != 'S' and rsi_interest > rsi_overbuy and c_rsi < rsi_overbuy and c_low_price < min_price:
-			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# S_test(df2,"D",c_vol)
-		# elif position == 'L' and (c_rsi < rsi_oversell and c_low_price < min_price):
-			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# S_test(df2,"D",c_vol)
-		# elif position == 'S' and (c_rsi > rsi_overbuy and c_high_price > max_price):
-			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# L_test(df2,"U",c_vol)
+		if position != 'L' and modes[2] - modes[3] < modes[1] - modes[2] and c_price > modes[1] + 1 :
+			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			L_test(df2,"U",c_vol)
+			print(modes)	
+		elif position != 'S' and modes[2] - modes[3] > modes[1] - modes[2] and c_price < modes[3] :
+			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			S_test(df2,"U",c_vol)
+			print(modes)			
+		elif position != 'L' and c_price > modes[0] + 1 :
+			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			L_test(df2,"U",c_vol)
+			print(modes)
+		elif position != 'S' and c_price < modes[4]:
+			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			S_test(df2,"D",c_vol)
+			print(modes)
 		
 			
 
-		i = i+step_test
+		i = i+1
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
