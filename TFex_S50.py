@@ -23,9 +23,9 @@ global_min_volume = 2500
 global_min_volume_test = 2500
 
 elem = 200
-elem_test = 500
+elem_test = 330
 
-step_test = 200
+step_test = 30
 
 minimum_profit = 6
 maximum_loss = 3
@@ -891,17 +891,21 @@ def plot_all(df,save_path = img_path):
 def test(df):
 
 
-	i = elem_test
+	i = elem_test + step_test
 	while i < len(df):
 		
+		df1 = df[i-(elem_test + step_test):i-step_test]
+		df1 = df1.reset_index(drop=True)
 		
 		df2 = df[i-elem_test:i]
 		df2 = df2.reset_index(drop=True)
 		
-		modes = get_modes(df2)
+		
+		modes1 = get_modes(df1)
+		modes2 = get_modes(df2)
 		
 		c_vol = int(df2['vol'][len(df2)-1])
-		# c_rsi = float(df2['rsi'][len(df2)-1])
+		c_rsi = float(df2['rsi'][len(df2)-1])
 		# p_rsi = float(df2['rsi'][len(df2)-2])
 		c_price = float(df2['close_price'][len(df2)-1])
 		p_price = float(df2['close_price'][len(df2)-2])
@@ -912,27 +916,65 @@ def test(df):
 
 		position = get_trade_position_test()
 		
+	
+			
+		dif = []
+		dif.append(modes2[0] - modes2[1])
+		dif.append(modes2[1] - modes2[2])
+		dif.append(modes2[2] - modes2[3])
+		dif.append(modes2[3] - modes2[4])
+		m = max(dif)
+		split_indexes = [index for index, j in enumerate(dif) if j == m]
 		
-		if position != 'L' and modes[2] - modes[3] < modes[1] - modes[2] and c_price > modes[1] + 1 :
+		# print(m)
+		# print (split_indexes)	
+		# print(modes2)
+		
+		up2 = len(modes2[:split_indexes[0]+1])
+		down2 = len(modes2[split_indexes[-1]+1:])
+		
+		is_up_trend = True if (modes1[0] < modes2[0] and modes1[4] <= modes2[4]) or (modes1[0] <= modes2[0] and modes1[4] < modes2[4]) else False
+		is_down_trend = True if (modes1[0] > modes2[0] and modes1[4] >= modes2[4]) or (modes1[0] >= modes2[0] and modes1[4] > modes2[4]) else False
+		
+	
+		# if position != 'L' and is_up_trend and up2 < 4 and up2 != down2 and c_price > modes2[0] :
+			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			# L_test(df2,"U",c_vol)
+			# print(modes1,modes2,up2,down2)	
+		# elif position != 'S' and is_down_trend and down2 < 4 and up2 != down2 and c_price < modes2[4] :
+			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			# S_test(df2,"U",c_vol)
+			# print(modes1,modes2,up2,down2)			
+		# elif position != 'L' and is_down_trend and (down2 >= 4 or up2 == down2) and c_price > modes2[4] and c_price < modes2[2] :
+			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			# L_test(df2,"U",c_vol)
+			# print(modes1,modes2,up2,down2)			
+		# elif position != 'S' and is_up_trend and (up2 >= 4 or up2 != down2) and c_price < modes2[0] and c_price > modes2[2] :
+			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			# S_test(df2,"D",c_vol)
+			# print(modes1,modes2,up2,down2)
+			
+			
+		if position != 'L' and is_up_trend:
 			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			L_test(df2,"U",c_vol)
-			print(modes)	
-		elif position != 'S' and modes[2] - modes[3] > modes[1] - modes[2] and c_price < modes[3] :
+			print(modes1,modes2,up2,down2)	
+		elif position != 'S' and is_down_trend:
 			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			S_test(df2,"U",c_vol)
-			print(modes)			
-		elif position != 'L' and c_price > modes[0] + 1 :
+			print(modes1,modes2,up2,down2)			
+		elif position != 'L' and is_down_trend == False and modes1 != modes2 and up2 == down2 and c_rsi < rsi_oversell:
 			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			L_test(df2,"U",c_vol)
-			print(modes)
-		elif position != 'S' and c_price < modes[4]:
+			print(modes1,modes2,up2,down2)			
+		elif position != 'S' and is_up_trend == False and modes1 != modes2 and up2 == down2 and c_rsi > rsi_overbuy :
 			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
 			S_test(df2,"D",c_vol)
-			print(modes)
+			print(modes1,modes2,up2,down2)
 		
 			
 
-		i = i+1
+		i = i+step_test
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
