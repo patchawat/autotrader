@@ -12,7 +12,7 @@ basic_conf_path = "conf\\basic.ini"
 
 
 rsi_max = 60
-rsi_overbuy = 70
+rsi_overbuy = 75
 rsi_min = 100 - rsi_max
 rsi_oversell = 100 - rsi_overbuy
 
@@ -887,6 +887,24 @@ def plot_all(df,save_path = img_path):
 	
 	plt.savefig(save_path)
 	plt.clf()
+
+def test_plot(df):
+	start_plot = 500
+	step_plot = 500
+	i = start_plot
+	round = 1
+	while i < len(df):
+		
+		
+		df2 = df[i-start_plot:i]
+		df2 = df2.reset_index(drop=True)
+		
+		
+		plot_all(df2,"img\\test\\graph"+str(round)+".png")
+		round = round + 1
+			
+
+		i = i+step_plot
 	
 def test(df):
 
@@ -978,7 +996,8 @@ def test(df):
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
-test(df1min)
+test_plot(df1min)
+#test(df1min)
 
 	
 	
