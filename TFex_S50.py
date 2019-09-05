@@ -12,7 +12,7 @@ basic_conf_path = "conf\\basic.ini"
 
 
 rsi_max = 60
-rsi_overbuy = 75
+rsi_overbuy = 70
 rsi_min = 100 - rsi_max
 rsi_oversell = 100 - rsi_overbuy
 
@@ -829,35 +829,46 @@ def plot_all(df,save_path = img_path):
 	
 	#overbuy,middle,oversell
 	df1 = df[df['rsi'] >= rsi_overbuy]
-	df2 = df[(df['rsi'] < rsi_overbuy) & (df['rsi'] > rsi_oversell)]
+	df2 = df[(df['rsi'] < rsi_max) & (df['rsi'] > rsi_min)]
 	df3 = df[df['rsi'] <= rsi_oversell]
+	df4 = df[(df['rsi'] < rsi_overbuy) & (df['rsi'] >= rsi_max)]
+	df5 = df[(df['rsi'] > rsi_oversell) & (df['rsi'] <= rsi_min)]
 	
 	#price trend line
 	X1 = pd.DataFrame(data={'series':df1.index})
 	X2 = pd.DataFrame(data={'series':df2.index})
 	X3 = pd.DataFrame(data={'series':df3.index})
+	X4 = pd.DataFrame(data={'series':df4.index})
+	X5 = pd.DataFrame(data={'series':df5.index})
 	
 	#X Y rsi scatters and bar
 	rsi1 = df1['rsi']
 	rsi2 = df2['rsi']
 	rsi3 = df3['rsi']
+	rsi4 = df4['rsi']
+	rsi5 = df5['rsi']
 	
 	#volume bar
 	vol1 = df1['vol']
 	vol2 = df2['vol']
 	vol3 = df3['vol']
+	vol4 = df4['vol']
+	vol5 = df5['vol']
 	
 	#Y price scatters
 	prices1 = df1['close_price']
 	prices2 = df2['close_price']
 	prices3 = df3['close_price']
+	prices4 = df4['close_price']
+	prices5 = df5['close_price']
 	
 	#prices
 	plt.subplot(3, 1, 1)
 	plt.scatter(X1, prices1 , color='green',marker = '.')
 	plt.scatter(X2, prices2, color='blue',marker = '.')
 	plt.scatter(X3, prices3, color='red',marker = '.')
-		
+	plt.scatter(X4, prices4, color='cyan',marker = '.')
+	plt.scatter(X5, prices5, color='magenta',marker = '.')
 		
 	plt.xlabel('Series')
 	plt.ylabel('prices')
@@ -867,6 +878,8 @@ def plot_all(df,save_path = img_path):
 	plt.scatter(X1, rsi1 , color='green',marker = '.')
 	plt.scatter(X2, rsi2 , color='blue',marker = '.')
 	plt.scatter(X3, rsi3 , color='red',marker = '.')
+	plt.scatter(X4, rsi4 , color='cyan',marker = '.')
+	plt.scatter(X5, rsi5 , color='magenta',marker = '.')
 
 
 	plt.xlabel('Series')
@@ -878,7 +891,8 @@ def plot_all(df,save_path = img_path):
 	plt.bar(np.array(X1.to_numpy()).flatten(), vol1, color='green')
 	plt.bar(np.array(X2.to_numpy()).flatten(), vol2, color='blue')
 	plt.bar(np.array(X3.to_numpy()).flatten(), vol3, color='red')
-
+	plt.bar(np.array(X4.to_numpy()).flatten(), vol4, color='cyan')
+	plt.bar(np.array(X5.to_numpy()).flatten(), vol5, color='magenta')
 	
 	plt.xlabel('Series')
 	plt.ylabel('Volume')
@@ -889,22 +903,49 @@ def plot_all(df,save_path = img_path):
 	plt.clf()
 
 def test_plot(df):
-	start_plot = 500
-	step_plot = 500
-	i = start_plot
-	round = 1
+	i = 1
+	s1 = 0
+	s2 = 1
+	
+	
 	while i < len(df):
 		
+		s2 = i
+		start = df['DateTime'][s1]
+		end = df['DateTime'][s2]
+		start_of_the_day =  start.split(" ")[0] #[0] = Date [1] = Time
+		start_time_of_the_day = start.split(" ")[1] #[0] = Date [1] = Time
+		end_of_the_day =  end.split(" ")[0]
+		end_time_of_the_day =  end.split(" ")[1]
+		start_hour = start_time_of_the_day.split(":")[0]
+		end_hour = end_time_of_the_day.split(":")[0]
 		
-		df2 = df[i-start_plot:i]
+		if start_of_the_day == end_of_the_day and i != len(df) - 1 and ((int(start_hour) <= 12 and int(end_hour) <= 12) or (int(start_hour) > 12 and int(end_hour) > 12)) :
+			i = i + 1
+			continue
+		
+		
+		df2 = df[s1:s2]
 		df2 = df2.reset_index(drop=True)
 		
+		year = start_of_the_day[start_of_the_day.rfind("/")+1:] 
 		
-		plot_all(df2,"img\\test\\graph"+str(round)+".png")
-		round = round + 1
+		month = start_of_the_day[start_of_the_day.find("/")+1:start_of_the_day.rfind("/")]
+		if len(month) < 2 :
+			month = "0" + month
+			
+		date = start_of_the_day[0:start_of_the_day.find("/")] 
+		if len(date) < 2 :
+			date = "0" + date
+		
+		session = "_1" if int(start_hour) <= 12 else "_2"
+		
+		plot_all(df2,"img\\test\\graph"+ year+month+date+session +".png") 
+		
+		s1 = s2
 			
 
-		i = i+step_plot
+		i = i + 1
 	
 def test(df):
 
