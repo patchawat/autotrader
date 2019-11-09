@@ -11,7 +11,7 @@ trade_status_test_path = "trade_status_test.ini"
 basic_conf_path = "conf\\basic.ini"
 
 
-rsi_max = 60
+rsi_max = 70
 rsi_overbuy = 70
 rsi_min = 100 - rsi_max
 rsi_oversell = 100 - rsi_overbuy
@@ -19,8 +19,8 @@ rsi_oversell = 100 - rsi_overbuy
 min_distance = 2
 fit_distance = 20
 
-global_min_volume = 2500
-global_min_volume_test = 2500
+global_min_volume = 4000
+global_min_volume_test = 4000
 
 elem = 200
 elem_test = 330
@@ -821,7 +821,7 @@ def plot2(elem,reg_line,save_path = img_path):
 	plt.clf()
 
 	
-def plot_all(df,save_path = img_path):
+def plot_all_rsi(df,save_path = img_path):
 
 	import matplotlib.pyplot as plt 
 	from matplotlib.ticker import StrMethodFormatter
@@ -902,7 +902,64 @@ def plot_all(df,save_path = img_path):
 	plt.savefig(save_path)
 	plt.clf()
 
-def test_plot(df):
+def plot_all_volume(df,save_path = img_path):
+
+	import matplotlib.pyplot as plt 
+	from matplotlib.ticker import StrMethodFormatter
+	import numpy as np
+	
+	#overbuy,middle,oversell
+	df1 = df[df['vol'] >= global_min_volume_test]
+	df2 = df[df['vol'] < global_min_volume_test]
+	
+	#price trend line
+	X1 = pd.DataFrame(data={'series':df1.index})
+	X2 = pd.DataFrame(data={'series':df2.index})
+	
+	#X Y rsi scatters and bar
+	rsi1 = df1['rsi']
+	rsi2 = df2['rsi']
+	
+	#volume bar
+	vol1 = df1['vol']
+	vol2 = df2['vol']
+	
+	#Y price scatters
+	prices1 = df1['close_price']
+	prices2 = df2['close_price']
+	
+	#prices
+	plt.subplot(3, 1, 1)
+	plt.scatter(X1, prices1 , color='red',marker = '.')
+	plt.scatter(X2, prices2, color='blue',marker = '.')
+		
+	plt.xlabel('Series')
+	plt.ylabel('prices')
+	
+	#RSI
+	plt.subplot(3, 1, 2)
+	plt.scatter(X1, rsi1 , color='red',marker = '.')
+	plt.scatter(X2, rsi2 , color='blue',marker = '.')
+
+
+	plt.xlabel('Series')
+	plt.ylabel('RSI')
+	
+	#volume
+	plt.subplot(3, 1, 3)
+	
+	plt.bar(np.array(X1.to_numpy()).flatten(), vol1, color='red')
+	plt.bar(np.array(X2.to_numpy()).flatten(), vol2, color='blue')
+	
+	plt.xlabel('Series')
+	plt.ylabel('Volume')
+
+
+	
+	plt.savefig(save_path)
+	plt.clf()
+
+def test_plot_intraday(df):
 	i = 1
 	s1 = 0
 	s2 = 1
@@ -940,13 +997,41 @@ def test_plot(df):
 		
 		session = "_1" if int(start_hour) <= 12 else "_2"
 		
-		plot_all(df2,"img\\test\\graph"+ year+month+date+session +".png") 
+		#plot_all_rsi(df2,"img\\test\\graph"+ year+month+date+session +".png") 
+		plot_all_volume(df2,"img\\test\\graph"+ year+month+date+session +".png") 
 		
 		s1 = s2
 			
 
 		i = i + 1
+
+def test_plot_n_index(df,n_index):
+	i = 0
 	
+	
+	while i + n_index <= len(df):
+		
+		
+		
+		df2 = df[i:i + n_index]
+		df2 = df2.reset_index(drop=True)
+		
+		#plot_all_rsi(df2,"img\\test\\graph"+ str(i) +".png") 
+		plot_all_volume(df2,"img\\test\\graph"+ str(i) +".png") 
+		i = i + n_index  
+	
+	if i >= len(df) :
+		return
+	
+	df2 = df[i:len(df)]
+	df2 = df2.reset_index(drop=True)
+	
+	#plot_all_rsi(df2,"img\\test\\graph_last.png") 
+	plot_all_volume(df2,"img\\test\\graph_last.png") 
+
+	
+		
+		
 def test(df):
 
 
@@ -1037,7 +1122,8 @@ def test(df):
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
-test_plot(df1min)
+test_plot_n_index(df5min,200)
+#test_plot_intraday(df5min)
 #test(df1min)
 
 	
