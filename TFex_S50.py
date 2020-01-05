@@ -12,20 +12,20 @@ basic_conf_path = "conf\\basic.ini"
 
 
 rsi_max = 70
-rsi_overbuy = 70
+rsi_overbuy = 55
 rsi_min = 100 - rsi_max
 rsi_oversell = 100 - rsi_overbuy
 
 min_distance = 2
 fit_distance = 20
 
-global_min_volume = 4000
-global_min_volume_test = 4000
+global_min_volume = 2000
+global_min_volume_test = 2000
 
 elem = 200
-elem_test = 330
+elem_test = 3
 
-step_test = 30
+step_test = 1
 
 minimum_profit = 6
 maximum_loss = 3
@@ -1030,29 +1030,94 @@ def test_plot_n_index(df,n_index):
 	plot_all_volume(df2,"img\\test\\graph_last.png") 
 
 	
-		
+def test_get_low_high_price_with_condition(df,con_n_consecutive=3,con_min_vol=global_min_volume_test,con_back_n_time=1):
+
+	df =  df[df['vol'] >= con_min_vol]
+	
+	back_n_time = 0
+	counter = con_n_consecutive
+	
+	while len(df.tail()) >= 0 :
+		df_tail_n = df.tail(counter)
+		dif = df_tail_n.index[-1] - df_tail_n.index[0]
+		if dif == counter - 1 :
+			counter = counter + 1
+			#print(df_tail_n)
+			continue
+		elif dif > con_n_consecutive :
+			df_tail_n = df.tail(counter - 1)
+			df = df.drop(df.tail(counter - 1).index,axis = 0)
+			counter = con_n_consecutive
+			back_n_time = back_n_time + 1
+			#print(df_tail_n)
+		else :
+			df = df.drop(df.tail(1).index,axis = 0)
+			#print(df_tail_n)
+			continue
+			
+			
+		if con_back_n_time == back_n_time :
+			high_price = df_tail_n['high_price'].max()
+			low_price = df_tail_n['low_price'].min()
+			rsi_avg = df_tail_n['rsi'].mean()
+			last_idx = df_tail_n.tail(1).index[0]
+			
+			#print(high_price,low_price,rsi_avg, df_tail_n.at[last_idx,'rsi'])
+			#direction = "U" 
+			direction = "U" if df_tail_n.at[last_idx,'rsi'] > rsi_avg else "D"
+			return high_price,low_price,direction
+			
+
+			
+			
+	
+
+	
 		
 def test(df):
 
-
+	
+	
 	i = elem_test + step_test
 	while i < len(df):
 		
-		df1 = df[i-(elem_test + step_test):i-step_test]
-		df1 = df1.reset_index(drop=True)
+		# df1 = df[i-(elem_test + step_test):i-step_test]
+		# df1 = df1.reset_index(drop=True)
 		
-		df2 = df[i-elem_test:i]
-		df2 = df2.reset_index(drop=True)
+		# df2 = df[i-elem_test:i]
+		# df2 = df2.reset_index(drop=True)
 		
 		
-		modes1 = get_modes(df1)
-		modes2 = get_modes(df2)
+		df2 = df[:i+1]
+		df2 = df2[(df2['rsi'] > rsi_overbuy) & (df2['rsi'] < rsi_oversell)]
+		
+		tail_n = df2.tail(1)
+		idx_of_interest = tail_n.index[0]
+		rsi_of_interest = tail_n['rsi'][0]
+		idx_c = 2
+		while idx_c < df2.ndim :
+			tail_n = df2.tail(idx_c)
+			idx_of_interest2 = tail_n.index[0]
+			rsi_of_interest2 = tail_n['rsi'][0]
+			
+			if (rsi_of_interest > rsi_overbuy and rsi_of_interest2 > rsi_overbuy) or (rsi_of_interest < rsi_oversell and rsi_of_interest2 < rsi_oversell) :
+				rsi_of_interest = rsi_of_interest2
+				idx_of_interest = idx_of_interest2
+				idx_c = idx_c + 1
+				continue
+			break
+			
+			
+		
+		df2 = df[idx_of_interest:i+1]
+		
 		
 		c_vol = int(df2['vol'][len(df2)-1])
 		c_rsi = float(df2['rsi'][len(df2)-1])
+		p_vol = int(df2['vol'][len(df2)-2])
 		# p_rsi = float(df2['rsi'][len(df2)-2])
 		c_price = float(df2['close_price'][len(df2)-1])
-		p_price = float(df2['close_price'][len(df2)-2])
+		# p_price = float(df2['close_price'][len(df2)-2])
 		# c_high_price = float(df2['high_price'][len(df2)-1])
 		# c_low_price = float(df2['low_price'][len(df2)-1])
 		# c_open_price = float(df2['open_price'][len(df2)-1])
@@ -1060,61 +1125,38 @@ def test(df):
 
 		position = get_trade_position_test()
 		
+		df_n_tail = df2.tail(elem_test + 1)
+		df_n_tail = df_n_tail.drop(df_n_tail.tail(1).index,axis = 0)
+		
+		
+		is_n_consecutive_min_vol =  False
+		
+		for index, row in df_n_tail.iterrows():
+		
+			if df_n_tail.at[index, 'vol'] >= global_min_volume_test :
+				is_n_consecutive_min_vol = True
+				
+			else :
+				is_n_consecutive_min_vol = False
+				break
+			
+		
+		
+		
+		if c_vol < global_min_volume_test and is_n_consecutive_min_vol :
+		
+			high_price, low_price, direction = test_get_low_high_price_with_condition(df2)
+			if position != 'L' and direction == 'U' and c_rsi >= rsi_oversell :
+			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+				L_test(df2,"U",c_vol)
+			
+			elif position != 'S' and direction == 'D' and c_rsi <= rsi_overbuy :
+			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+				S_test(df2,"D",c_vol)
+					
+
+			
 	
-			
-		dif = []
-		dif.append(modes2[0] - modes2[1])
-		dif.append(modes2[1] - modes2[2])
-		dif.append(modes2[2] - modes2[3])
-		dif.append(modes2[3] - modes2[4])
-		m = max(dif)
-		split_indexes = [index for index, j in enumerate(dif) if j == m]
-		
-		# print(m)
-		# print (split_indexes)	
-		# print(modes2)
-		
-		up2 = len(modes2[:split_indexes[0]+1])
-		down2 = len(modes2[split_indexes[-1]+1:])
-		
-		is_up_trend = True if (modes1[0] < modes2[0] and modes1[4] <= modes2[4]) or (modes1[0] <= modes2[0] and modes1[4] < modes2[4]) else False
-		is_down_trend = True if (modes1[0] > modes2[0] and modes1[4] >= modes2[4]) or (modes1[0] >= modes2[0] and modes1[4] > modes2[4]) else False
-		
-	
-		# if position != 'L' and is_up_trend and up2 < 4 and up2 != down2 and c_price > modes2[0] :
-			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# L_test(df2,"U",c_vol)
-			# print(modes1,modes2,up2,down2)	
-		# elif position != 'S' and is_down_trend and down2 < 4 and up2 != down2 and c_price < modes2[4] :
-			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# S_test(df2,"U",c_vol)
-			# print(modes1,modes2,up2,down2)			
-		# elif position != 'L' and is_down_trend and (down2 >= 4 or up2 == down2) and c_price > modes2[4] and c_price < modes2[2] :
-			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# L_test(df2,"U",c_vol)
-			# print(modes1,modes2,up2,down2)			
-		# elif position != 'S' and is_up_trend and (up2 >= 4 or up2 != down2) and c_price < modes2[0] and c_price > modes2[2] :
-			# # plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			# S_test(df2,"D",c_vol)
-			# print(modes1,modes2,up2,down2)
-			
-			
-		if position != 'L' and is_up_trend:
-			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			L_test(df2,"U",c_vol)
-			print(modes1,modes2,up2,down2)	
-		elif position != 'S' and is_down_trend:
-			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			S_test(df2,"U",c_vol)
-			print(modes1,modes2,up2,down2)			
-		elif position != 'L' and is_down_trend == False and modes1 != modes2 and up2 == down2 and c_rsi < rsi_oversell:
-			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			L_test(df2,"U",c_vol)
-			print(modes1,modes2,up2,down2)			
-		elif position != 'S' and is_up_trend == False and modes1 != modes2 and up2 == down2 and c_rsi > rsi_overbuy :
-			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-			S_test(df2,"D",c_vol)
-			print(modes1,modes2,up2,down2)
 		
 			
 
@@ -1122,9 +1164,9 @@ def test(df):
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
-test_plot_n_index(df5min,200)
+#test_plot_n_index(df5min,200)
 #test_plot_intraday(df5min)
-#test(df1min)
+test(df5min)
 
 	
 	
