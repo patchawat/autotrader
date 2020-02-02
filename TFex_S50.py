@@ -12,18 +12,18 @@ basic_conf_path = "conf\\basic.ini"
 
 
 rsi_max = 70
-rsi_overbuy = 55
+rsi_overbuy = 65
 rsi_min = 100 - rsi_max
 rsi_oversell = 100 - rsi_overbuy
 
 min_distance = 2
 fit_distance = 20
 
-global_min_volume = 2000
-global_min_volume_test = 2000
+global_min_volume = 4000
+global_min_volume_test = 4000
 
 elem = 200
-elem_test = 3
+elem_test = 63
 
 step_test = 1
 
@@ -107,14 +107,16 @@ def L(df,trend,vol):
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
 	
-	config['trade'] = {'position': 'L','trade_price': df['close_price'][len(df)-1],'trend': trend,'expected_price': df['close_price'][len(df)-1],'volume':vol}
+	tail = df.tail(1)
+	
+	config['trade'] = {'position': 'L','trade_price': tail['close_price'].to_numpy()[0],'trend': trend,'expected_price': tail['close_price'].to_numpy()[0],'volume':vol}
 	with open(trade_status_path, 'w') as configfile:
 		config.write(configfile)
 	config.read(basic_conf_path)
 	from_usr = config['email']['email_from']
 	from_usr_pass = config['email']['email_password']
 	to_usr = config['email']['email_to']
-	send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L",str(df['close_price'][len(df)-1]))
+	send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"L",str(tail['close_price'].to_numpy()[0]))
 	
 def L_test(df,trend,vol):
 	import configparser
@@ -122,10 +124,12 @@ def L_test(df,trend,vol):
 	config = configparser.ConfigParser()
 	config.read(trade_status_test_path)
 	
-	config['trade'] = {'position': 'L','trade_price': df['close_price'][len(df)-1],'trend': trend,'expected_price': df['close_price'][len(df)-1],'volume':vol}
+	tail = df.tail(1)
+	
+	config['trade'] = {'position': 'L','trade_price': tail['close_price'].to_numpy()[0],'trend': trend,'expected_price': tail['close_price'].to_numpy()[0],'volume':vol}
 	with open(trade_status_test_path, 'w') as configfile:
 		config.write(configfile)
-	print("L",str(df['close_price'][len(df)-1]),"Date:",str(df['DateTime'][len(df)-1]))
+	print("L",str(tail['close_price'].to_numpy()[0]),"Date:",str(tail['DateTime'].to_numpy()[0]))
 		
 def S(df,trend,vol):
 	import configparser
@@ -133,14 +137,16 @@ def S(df,trend,vol):
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
 	
-	config['trade'] = {'position': 'S','trade_price': df['close_price'][len(df)-1],'trend': trend,'expected_price': df['close_price'][len(df)-1],'volume':vol}
+	tail = df.tail(1)
+	
+	config['trade'] = {'position': 'S','trade_price': tail['close_price'].to_numpy()[0],'trend': trend,'expected_price': tail['close_price'].to_numpy()[0],'volume':vol}
 	with open(trade_status_path, 'w') as configfile:
 		config.write(configfile)
 	config.read(basic_conf_path)
 	from_usr = config['email']['email_from']
 	from_usr_pass = config['email']['email_password']
 	to_usr = config['email']['email_to']
-	send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S",str(df['close_price'][len(df)-1]))
+	send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"S",str(tail['close_price'].to_numpy()[0]))
 	
 def S_test(df,trend,vol):
 	import configparser
@@ -148,10 +154,12 @@ def S_test(df,trend,vol):
 	config = configparser.ConfigParser()
 	config.read(trade_status_test_path)
 	
-	config['trade'] = {'position': 'S','trade_price': df['close_price'][len(df)-1],'trend': trend,'expected_price': df['close_price'][len(df)-1],'volume':vol}
+	tail = df.tail(1)
+	
+	config['trade'] = {'position': 'S','trade_price': tail['close_price'].to_numpy()[0],'trend': trend,'expected_price': tail['close_price'].to_numpy()[0],'volume':vol}
 	with open(trade_status_test_path, 'w') as configfile:
 		config.write(configfile)
-	print("S",str(df['close_price'][len(df)-1]),"Date:",str(df['DateTime'][len(df)-1]))
+	print("S",str(tail['close_price'].to_numpy()[0]),"Date:",str(tail['DateTime'].to_numpy()[0]))
 	
 
 		
@@ -160,7 +168,9 @@ def close_position(df):
 	
 	config = configparser.ConfigParser()
 	config.read(trade_status_path)
-			
+	
+	tail = df.tail(1)
+	
 	config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': '','volume':''}
 	with open(trade_status_path, 'w') as configfile:
 		config.write(configfile)
@@ -168,18 +178,20 @@ def close_position(df):
 	from_usr = config['email']['email_from']
 	from_usr_pass = config['email']['email_password']
 	to_usr = config['email']['email_to']
-	send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close",str(df['close_price'][len(df)-1]))
+	send_mail_img(from_usr,from_usr_pass,to_usr,img_path,"close",str(tail['close_price'].to_numpy()[0]))
 	
 def close_position_test(df):
 	import configparser
 	
 	config = configparser.ConfigParser()
 	config.read(trade_status_test_path)
-			
+	
+	tail = df.tail(1)	
+	
 	config['trade'] = {'position': '','trade_price': '','trend': '','expected_price': '','volume':''}
 	with open(trade_status_test_path, 'w') as configfile:
 		config.write(configfile)
-	print("close",str(df['close_price'][len(df)-1]),"Date:",str(df['DateTime'][len(df)-1]))
+	print("close",str(tail['close_price'].to_numpy()[0]),"Date:",str(tail['DateTime'].to_numpy()[0]))
 	
 
 
@@ -1016,8 +1028,8 @@ def test_plot_n_index(df,n_index):
 		df2 = df[i:i + n_index]
 		df2 = df2.reset_index(drop=True)
 		
-		#plot_all_rsi(df2,"img\\test\\graph"+ str(i) +".png") 
-		plot_all_volume(df2,"img\\test\\graph"+ str(i) +".png") 
+		plot_all_rsi(df2,"img\\test\\graph"+ str(i) +".png") 
+		#plot_all_volume(df2,"img\\test\\graph"+ str(i) +".png") 
 		i = i + n_index  
 	
 	if i >= len(df) :
@@ -1026,8 +1038,8 @@ def test_plot_n_index(df,n_index):
 	df2 = df[i:len(df)]
 	df2 = df2.reset_index(drop=True)
 	
-	#plot_all_rsi(df2,"img\\test\\graph_last.png") 
-	plot_all_volume(df2,"img\\test\\graph_last.png") 
+	plot_all_rsi(df2,"img\\test\\graph_last.png") 
+	#plot_all_volume(df2,"img\\test\\graph_last.png") 
 
 	
 def test_get_low_high_price_with_condition(df,con_n_consecutive=3,con_min_vol=global_min_volume_test,con_back_n_time=1):
@@ -1088,17 +1100,21 @@ def test(df):
 		# df2 = df2.reset_index(drop=True)
 		
 		
-		df2 = df[:i+1]
-		df2 = df2[(df2['rsi'] > rsi_overbuy) & (df2['rsi'] < rsi_oversell)]
+		df2 = df.iloc[:i+1]
+			
+		df2 = df2[(df2['rsi'] > rsi_overbuy) | (df2['rsi'] < rsi_oversell)]
+		
 		
 		tail_n = df2.tail(1)
+		
 		idx_of_interest = tail_n.index[0]
-		rsi_of_interest = tail_n['rsi'][0]
+		rsi_of_interest = tail_n['rsi'].to_numpy()[0]
+		
 		idx_c = 2
 		while idx_c < df2.ndim :
 			tail_n = df2.tail(idx_c)
 			idx_of_interest2 = tail_n.index[0]
-			rsi_of_interest2 = tail_n['rsi'][0]
+			rsi_of_interest2 = tail_n['rsi'].to_numpy()[0]
 			
 			if (rsi_of_interest > rsi_overbuy and rsi_of_interest2 > rsi_overbuy) or (rsi_of_interest < rsi_oversell and rsi_of_interest2 < rsi_oversell) :
 				rsi_of_interest = rsi_of_interest2
@@ -1107,66 +1123,66 @@ def test(df):
 				continue
 			break
 			
-			
-		
-		df2 = df[idx_of_interest:i+1]
 		
 		
-		c_vol = int(df2['vol'][len(df2)-1])
-		c_rsi = float(df2['rsi'][len(df2)-1])
-		p_vol = int(df2['vol'][len(df2)-2])
-		# p_rsi = float(df2['rsi'][len(df2)-2])
-		c_price = float(df2['close_price'][len(df2)-1])
-		# p_price = float(df2['close_price'][len(df2)-2])
-		# c_high_price = float(df2['high_price'][len(df2)-1])
-		# c_low_price = float(df2['low_price'][len(df2)-1])
-		# c_open_price = float(df2['open_price'][len(df2)-1])
-		# c_idx = int(df2.index[len(df2)-1])		
+		df2 = df.iloc[idx_of_interest:i+1]
+		
+		
+		
+		tail_n = df2.tail(1)
+		
+		
+		c_vol = tail_n['vol'].to_numpy()[0]
+		c_rsi = tail_n['rsi'].to_numpy()[0]
+		
+		c_open_price = tail_n['open_price'].to_numpy()[0]
+		c_close_price = tail_n['close_price'].to_numpy()[0]	
+		c_high_price = tail_n['high_price'].to_numpy()[0]
+		c_low_price = tail_n['low_price'].to_numpy()[0]
+		
+		high_point = df2['high_price'].max()
+		low_point = df2['low_price'].min()
+		
+		gap_open_close = abs(c_open_price - c_close_price)
+		gap_high_low = c_high_price - c_low_price
+		
+		bar_ratio = gap_open_close/gap_high_low
 
 		position = get_trade_position_test()
 		
-		df_n_tail = df2.tail(elem_test + 1)
-		df_n_tail = df_n_tail.drop(df_n_tail.tail(1).index,axis = 0)
 		
 		
-		is_n_consecutive_min_vol =  False
 		
-		for index, row in df_n_tail.iterrows():
 		
-			if df_n_tail.at[index, 'vol'] >= global_min_volume_test :
-				is_n_consecutive_min_vol = True
-				
-			else :
-				is_n_consecutive_min_vol = False
-				break
+		if position != 'L' and c_rsi > rsi_oversell and df2['rsi'].max() < rsi_overbuy and c_close_price > c_open_price and ( (bar_ratio > 0.7 and gap_open_close > 1.5) or c_high_price == high_point) :
+		# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			L_test(df2,"U",c_vol)
+		
+		elif position != 'S'  and c_rsi < rsi_overbuy and df2['rsi'].min() > rsi_oversell and c_close_price < c_open_price and ( (bar_ratio > 0.7 and gap_open_close > 1.5) or c_low_price == low_point) :
+		# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+			S_test(df2,"D",c_vol)
 			
-		
-		
-		
-		if c_vol < global_min_volume_test and is_n_consecutive_min_vol :
-		
-			high_price, low_price, direction = test_get_low_high_price_with_condition(df2)
-			if position != 'L' and direction == 'U' and c_rsi >= rsi_oversell :
-			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
-				L_test(df2,"U",c_vol)
-			
-			elif position != 'S' and direction == 'D' and c_rsi <= rsi_overbuy :
-			# plot2(elem,reg_line,save_path = '{0}{1}{2}'.format("img\\test\\graph",i,".png"))
+		elif position == 'L' and c_rsi <= rsi_oversell :
+			traded_price = get_trade_price_test()
+			if low_point == c_low_price or c_close_price < traded_price : 
 				S_test(df2,"D",c_vol)
-					
+				
+		elif position == 'S' and c_rsi >= rsi_overbuy :
+			traded_price = get_trade_price_test()
+			if high_point == c_high_price or c_close_price > traded_price : 
+				L_test(df2,"U",c_vol)	
 
-			
-	
+				
 		
-			
-
 		i = i+step_test
+		
+		
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
-#test_plot_n_index(df5min,200)
+test_plot_n_index(df5min,100)
 #test_plot_intraday(df5min)
-test(df5min)
+#test(df5min)
 
 	
 	
