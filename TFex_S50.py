@@ -11,8 +11,8 @@ trade_status_test_path = "trade_status_test.ini"
 basic_conf_path = "conf\\basic.ini"
 
 
-rsi_max = 70
-rsi_overbuy = 65
+rsi_max = 60
+rsi_overbuy = 60
 rsi_min = 100 - rsi_max
 rsi_oversell = 100 - rsi_overbuy
 
@@ -1009,8 +1009,8 @@ def test_plot_intraday(df):
 		
 		session = "_1" if int(start_hour) <= 12 else "_2"
 		
-		#plot_all_rsi(df2,"img\\test\\graph"+ year+month+date+session +".png") 
-		plot_all_volume(df2,"img\\test\\graph"+ year+month+date+session +".png") 
+		plot_all_rsi(df2,"img\\test\\graph"+ year+month+date+session +".png") 
+		#plot_all_volume(df2,"img\\test\\graph"+ year+month+date+session +".png") 
 		
 		s1 = s2
 			
@@ -1180,8 +1180,8 @@ def test(df):
 	
 df1min = pd.read_csv(data_path_1min)	
 df5min = pd.read_csv(data_path_5min)
-test_plot_n_index(df5min,100)
-#test_plot_intraday(df5min)
+#test_plot_n_index(df5min,100)
+test_plot_intraday(df1min)
 #test(df5min)
 
 	
